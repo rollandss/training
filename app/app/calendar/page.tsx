@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { Lock } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -28,6 +29,15 @@ function addMonthsUTC(d: Date, delta: number) {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + delta, 1));
 }
 
+function startOfDayUTC(d: Date) {
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+}
+
+function diffDaysUTC(a: Date, b: Date) {
+  const ms = startOfDayUTC(a).getTime() - startOfDayUTC(b).getTime();
+  return Math.floor(ms / (1000 * 60 * 60 * 24));
+}
+
 const STATUS_UI: Record<
   CalendarStatus,
   {
@@ -50,6 +60,8 @@ export default async function CalendarPage({
 }) {
   const user = await getCurrentUser();
   if (!user) redirect("/auth/login");
+  const up = user.userPrograms[0];
+  if (!up) redirect("/onboarding");
 
   const sp = await searchParams;
   const monthParam = typeof sp.m === "string" ? sp.m : Array.isArray(sp.m) ? sp.m[0] : undefined;
@@ -85,12 +97,18 @@ export default async function CalendarPage({
 
   const byDayKey = new Map(existing.map((e) => [e.dayKey, e.status as CalendarStatus]));
 
+  const programStart = startOfDayUTC(new Date(up.startedAt));
+  const unlockedDay = Math.max(1, Math.min(up.cursorDay, up.program.durationDays));
+
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl">Календар</CardTitle>
-          <CardDescription>Позначай дні: тренування, відпочинок або хвороба. Це зберігається для твого акаунта.</CardDescription>
+          <CardDescription>
+            Дні відкриваються поступово: доступно до дня <span className="font-black text-foreground">{unlockedDay}</span>.
+            Позначай: тренування, відпочинок або хвороба.
+          </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap items-center gap-2">
           <a
@@ -127,11 +145,16 @@ export default async function CalendarPage({
           const date = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), dayNum));
           const dayKey = toDayKeyUTC(date);
           const status = byDayKey.get(dayKey);
+          const programDay = diffDaysUTC(date, programStart) + 1; // 1..duration
+          const locked = programDay > unlockedDay || programDay < 1 || programDay > up.program.durationDays;
 
           return (
             <div
               key={dayKey}
-              className="flex h-[112px] flex-col rounded-[var(--radius)] border-4 border-border bg-card p-2 shadow-[8px_8px_0px_0px_var(--color-border)]"
+              className={cn(
+                "relative flex h-[112px] flex-col rounded-[var(--radius)] border-4 border-border bg-card p-2 shadow-[8px_8px_0px_0px_var(--color-border)]",
+                locked && "opacity-95",
+              )}
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="text-sm font-black">{dayNum}</div>
@@ -158,8 +181,9 @@ export default async function CalendarPage({
                       type="submit"
                       name="status"
                       value={s}
+                      disabled={locked}
                       className={cn(
-                        "w-full rounded-[var(--radius)] border-4 border-border px-1 py-1 text-[11px] font-black uppercase tracking-wider shadow-[4px_4px_0px_0px_var(--color-border)] transition-[transform,box-shadow] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_var(--color-border)] active:translate-x-0.5 active:translate-y-0.5",
+                        "w-full rounded-[var(--radius)] border-4 border-border px-1 py-1 text-[11px] font-black uppercase tracking-wider shadow-[4px_4px_0px_0px_var(--color-border)] transition-[transform,box-shadow] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_var(--color-border)] active:translate-x-0.5 active:translate-y-0.5 disabled:opacity-40 disabled:pointer-events-none",
                         STATUS_UI[s].className,
                       )}
                       title={STATUS_UI[s].label}
@@ -169,6 +193,14 @@ export default async function CalendarPage({
                   </form>
                 ))}
               </div>
+
+              {locked ? (
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/10">
+                  <div className="bg-card border-4 border-border p-2 shadow-[6px_6px_0px_0px_var(--color-border)]">
+                    <Lock className="size-6 text-foreground" />
+                  </div>
+                </div>
+              ) : null}
             </div>
           );
         })}
