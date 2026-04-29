@@ -116,8 +116,13 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    @apply font-sans;
+    overflow-x: hidden;
+  }
   body {
     @apply bg-background text-foreground;
+    overflow-x: hidden;
     overflow-x: clip;
     background-image: radial-gradient(
       circle,
@@ -127,9 +132,6 @@
     background-size: var(--nb-dot-gap) var(--nb-dot-gap);
     background-position: 0 0;
     background-attachment: fixed;
-  }
-  html {
-    @apply font-sans;
   }
   ::selection {
     background: var(--primary);
