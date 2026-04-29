@@ -99,6 +99,7 @@ export default async function CalendarPage({
 
   const programStart = startOfDayUTC(new Date(up.startedAt));
   const unlockedDay = Math.max(1, Math.min(up.cursorDay, up.program.durationDays));
+  const todayUTC = startOfDayUTC(new Date());
 
   return (
     <div className="space-y-6">
@@ -146,7 +147,11 @@ export default async function CalendarPage({
           const dayKey = toDayKeyUTC(date);
           const status = byDayKey.get(dayKey);
           const programDay = diffDaysUTC(date, programStart) + 1; // 1..duration
-          const locked = programDay > unlockedDay || programDay < 1 || programDay > up.program.durationDays;
+          const isFuture = date.getTime() > todayUTC.getTime();
+          const afterStart = date.getTime() >= programStart.getTime();
+          const beyondProgram = programDay > up.program.durationDays;
+          const beyondCursor = afterStart && programDay > unlockedDay;
+          const locked = isFuture || beyondProgram || beyondCursor;
 
           return (
             <div
