@@ -21,6 +21,9 @@ export function AppShell({ email, isAdmin }: Props) {
           <Link href="/app/posts" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
             Пости
           </Link>
+          <Link href="/app/calendar" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
+            Календар
+          </Link>
           {isAdmin ? (
             <Link href="/admin" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
               Адмін
