@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { BlocksTabs } from "@/components/blocks-tabs";
 import { getCurrentUser } from "@/lib/auth";
 import { POST_BLOCK_LABELS, POST_BLOCK_ORDER, getPostBlockSlug } from "@/lib/posts";
 import { prisma } from "@/lib/prisma";
@@ -20,22 +21,25 @@ export default async function PostsPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Пости програми</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Блоки відкриваються поступово. Доступ до постів всередині блоку залежить від поточного дня.
+      <div className="relative inline-flex w-full flex-col gap-2 rounded-[var(--radius)] border-4 border-border bg-card p-4 shadow-[10px_10px_0px_0px_var(--color-border)]">
+        <div className="pointer-events-none absolute right-3 top-3 size-10 border-4 border-border bg-secondary shadow-[6px_6px_0px_0px_var(--color-border)]" />
+        <h1 className="text-3xl font-extrabold uppercase tracking-wider">Пости програми</h1>
+        <p className="text-muted-foreground text-sm font-semibold">
+          Відкрито до дня <span className="text-foreground font-black">{cursorDay}</span>. Далі — по одному посту щодня.
         </p>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <BlocksTabs active="ALL" />
+
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {POST_BLOCK_ORDER.map((block) => {
           const inBlock = posts.filter((post) => post.block === block);
           if (inBlock.length === 0) return null;
           const unlocked = inBlock.filter((post) => post.dayNumber === null || post.dayNumber <= cursorDay).length;
           return (
-            <Card key={block}>
+            <Card key={block} className="relative overflow-hidden">
               <CardHeader>
-                <CardTitle>{POST_BLOCK_LABELS[block]}</CardTitle>
+                <CardTitle className="text-xl">{POST_BLOCK_LABELS[block]}</CardTitle>
                 <CardDescription>
                   Доступно {unlocked} з {inBlock.length}
                 </CardDescription>
@@ -43,7 +47,7 @@ export default async function PostsPage() {
               <CardContent>
                 <Link
                   href={`/app/posts/block/${getPostBlockSlug(block)}`}
-                  className={cn(buttonVariants({ variant: "outline" }), "w-full")}
+                  className={cn(buttonVariants(), "w-full")}
                 >
                   Відкрити блок
                 </Link>

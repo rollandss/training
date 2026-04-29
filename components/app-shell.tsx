@@ -3,6 +3,7 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { UserMenu } from "@/components/user-menu";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 type Props = {
   email: string;
@@ -26,7 +27,10 @@ export function AppShell({ email, isAdmin }: Props) {
             </Link>
           ) : null}
         </nav>
-        <UserMenu email={email} />
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <UserMenu email={email} />
+        </div>
       </div>
     </header>
   );
