@@ -51,6 +51,13 @@ const STATUS_UI: Record<
   SICK: { label: "Хвороба", short: "Х", className: "bg-destructive text-primary-foreground" },
 };
 
+function nextStatus(current: CalendarStatus | undefined): CalendarStatus | "NONE" {
+  if (!current) return "TRAINING";
+  if (current === "TRAINING") return "REST";
+  if (current === "REST") return "SICK";
+  return "NONE";
+}
+
 const WEEKDAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"] as const;
 
 export default async function CalendarPage({
@@ -152,6 +159,7 @@ export default async function CalendarPage({
           const beyondProgram = programDay > up.program.durationDays;
           const beyondCursor = afterStart && programDay > unlockedDay;
           const locked = isFuture || beyondProgram || beyondCursor;
+          const next = nextStatus(status);
 
           return (
             <div
@@ -178,25 +186,31 @@ export default async function CalendarPage({
                 )}
               </div>
 
-              <div className="mt-auto grid grid-cols-3 gap-1">
-                {(Object.keys(STATUS_UI) as CalendarStatus[]).map((s) => (
-                  <form key={s} action={setCalendarDayStatusAction}>
-                    <input type="hidden" name="dayKey" value={dayKey} />
-                    <button
-                      type="submit"
-                      name="status"
-                      value={s}
-                      disabled={locked}
-                      className={cn(
-                        "w-full rounded-[var(--radius)] border-4 border-border px-1 py-1 text-[11px] font-black uppercase tracking-wider shadow-[4px_4px_0px_0px_var(--color-border)] transition-[transform,box-shadow] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_var(--color-border)] active:translate-x-0.5 active:translate-y-0.5 disabled:opacity-40 disabled:pointer-events-none",
-                        STATUS_UI[s].className,
-                      )}
-                      title={STATUS_UI[s].label}
-                    >
-                      {STATUS_UI[s].short}
-                    </button>
-                  </form>
-                ))}
+              <div className="mt-auto">
+                <form action={setCalendarDayStatusAction}>
+                  <input type="hidden" name="dayKey" value={dayKey} />
+                  <button
+                    type="submit"
+                    name="status"
+                    value={next}
+                    disabled={locked}
+                    className={cn(
+                      "w-full rounded-[var(--radius)] border-4 border-border px-2 py-2 text-xs font-black uppercase tracking-wider shadow-[6px_6px_0px_0px_var(--color-border)] transition-[transform,box-shadow] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0px_0px_var(--color-border)] active:translate-x-0.5 active:translate-y-0.5 disabled:opacity-40 disabled:pointer-events-none",
+                      status ? STATUS_UI[status].className : "bg-background text-foreground",
+                    )}
+                    title={
+                      next === "NONE"
+                        ? "Очистити позначку"
+                        : next === "TRAINING"
+                          ? "Поставити: Тренування"
+                          : next === "REST"
+                            ? "Поставити: Відпочинок"
+                            : "Поставити: Хвороба"
+                    }
+                  >
+                    {status ? STATUS_UI[status].label : "Позначити"}
+                  </button>
+                </form>
               </div>
 
               {locked ? (

@@ -6,6 +6,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export type CalendarStatus = "TRAINING" | "REST" | "SICK";
+export type CalendarStatusOrNone = CalendarStatus | "NONE";
 
 function assertDayKey(dayKey: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dayKey)) {
@@ -13,8 +14,8 @@ function assertDayKey(dayKey: string) {
   }
 }
 
-function assertStatus(status: string): asserts status is CalendarStatus {
-  if (status !== "TRAINING" && status !== "REST" && status !== "SICK") {
+function assertStatus(status: string): asserts status is CalendarStatusOrNone {
+  if (status !== "NONE" && status !== "TRAINING" && status !== "REST" && status !== "SICK") {
     throw new Error("Invalid status");
   }
 }
@@ -28,11 +29,17 @@ export async function setCalendarDayStatusAction(formData: FormData) {
   assertDayKey(dayKey);
   assertStatus(statusRaw);
 
-  await prisma.userCalendarDay.upsert({
-    where: { userId_dayKey: { userId: user.id, dayKey } },
-    create: { userId: user.id, dayKey, status: statusRaw },
-    update: { status: statusRaw },
-  });
+  if (statusRaw === "NONE") {
+    await prisma.userCalendarDay.deleteMany({
+      where: { userId: user.id, dayKey },
+    });
+  } else {
+    await prisma.userCalendarDay.upsert({
+      where: { userId_dayKey: { userId: user.id, dayKey } },
+      create: { userId: user.id, dayKey, status: statusRaw },
+      update: { status: statusRaw },
+    });
+  }
 
   revalidatePath("/app/calendar");
 }

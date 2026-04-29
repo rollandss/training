@@ -9,7 +9,7 @@ function secret() {
   );
 }
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
   if (!pathname.startsWith("/app") && !pathname.startsWith("/admin")) {
     return NextResponse.next();
@@ -39,4 +39,4 @@ export const config = {
   matcher: ["/app/:path*", "/admin/:path*"],
 };
 
-export default middleware;
+export default proxy;
