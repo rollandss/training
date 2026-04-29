@@ -12,8 +12,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Link href="/admin" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
               Адмін
             </Link>
+            <Link href="/admin/users" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
+              Користувачі
+            </Link>
             <Link href="/admin/posts" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
               Пости
+            </Link>
+            <Link href="/admin/stats" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
+              Статистика
             </Link>
           </nav>
           <Link href="/app" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>

@@ -10,6 +10,20 @@ export default function AdminHomePage() {
       <h1 className="text-2xl font-semibold tracking-tight">Адмінка</h1>
       <Card>
         <CardHeader>
+          <CardTitle className="text-base">Учасники</CardTitle>
+          <CardDescription>Перегляд прогресу, керування ролями і курсором дня.</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          <Link href="/admin/users" className={cn(buttonVariants())}>
+            Користувачі
+          </Link>
+          <Link href="/admin/stats" className={cn(buttonVariants({ variant: "outline" }))}>
+            Статистика
+          </Link>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
           <CardTitle className="text-base">Контент</CardTitle>
           <CardDescription>Створення і редагування щоденних інфопостів.</CardDescription>
         </CardHeader>
