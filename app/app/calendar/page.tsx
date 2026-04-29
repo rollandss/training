@@ -107,6 +107,7 @@ export default async function CalendarPage({
   const programStart = startOfDayUTC(new Date(up.startedAt));
   const unlockedDay = Math.max(1, Math.min(up.cursorDay, up.program.durationDays));
   const todayUTC = startOfDayUTC(new Date());
+  const registeredAtUTC = startOfDayUTC(new Date(user.createdAt));
 
   return (
     <div className="space-y-6">
@@ -115,7 +116,7 @@ export default async function CalendarPage({
           <CardTitle className="text-2xl">Календар</CardTitle>
           <CardDescription>
             Дні відкриваються поступово: доступно до дня <span className="font-black text-foreground">{unlockedDay}</span>.
-            Позначай: тренування, відпочинок або хвороба.
+            Позначай: тренування, відпочинок або хвороба. Доступно з дня реєстрації.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap items-center gap-2">
@@ -155,10 +156,11 @@ export default async function CalendarPage({
           const status = byDayKey.get(dayKey);
           const programDay = diffDaysUTC(date, programStart) + 1; // 1..duration
           const isFuture = date.getTime() > todayUTC.getTime();
+          const beforeRegistration = date.getTime() < registeredAtUTC.getTime();
           const afterStart = date.getTime() >= programStart.getTime();
           const beyondProgram = programDay > up.program.durationDays;
           const beyondCursor = afterStart && programDay > unlockedDay;
-          const locked = isFuture || beyondProgram || beyondCursor;
+          const locked = isFuture || beforeRegistration || beyondProgram || beyondCursor;
           const next = nextStatus(status);
 
           return (
