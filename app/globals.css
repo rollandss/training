@@ -73,9 +73,9 @@
   --nb-dot-size: 2px;
   --nb-dot-gap: 22px;
   /* grid background (like the reference) */
-  --nb-grid: oklch(0.145 0 0 / 22%);
-  --nb-grid-size: 2px;
-  --nb-grid-gap: 72px;
+  --nb-grid: oklch(0.145 0 0 / 32%);
+  --nb-grid-size: 3px;
+  --nb-grid-gap: 64px;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -115,7 +115,7 @@
   /* dotted background */
   --nb-dot: oklch(0.97 0 0 / 22%);
   /* grid background */
-  --nb-grid: oklch(0.97 0 0 / 12%);
+  --nb-grid: oklch(0.97 0 0 / 16%);
 }
 
 @layer base {
