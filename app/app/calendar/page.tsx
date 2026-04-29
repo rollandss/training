@@ -74,22 +74,26 @@ export default async function CalendarPage({
   const monthParam = typeof sp.m === "string" ? sp.m : Array.isArray(sp.m) ? sp.m[0] : undefined;
   const monthStart = monthParam ? monthKeyToUTCDate(monthParam) : null;
 
-  const now = new Date();
-  const defaultMonthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-  const start = monthStart ?? defaultMonthStart;
-  const monthKey = `${start.getUTCFullYear()}-${pad2(start.getUTCMonth() + 1)}`;
-  const prevKey = `${addMonthsUTC(start, -1).getUTCFullYear()}-${pad2(addMonthsUTC(start, -1).getUTCMonth() + 1)}`;
-  const nextKey = `${addMonthsUTC(start, 1).getUTCFullYear()}-${pad2(addMonthsUTC(start, 1).getUTCMonth() + 1)}`;
+  const startedAt = new Date(up.startedAt);
+  const programMonthStart = new Date(Date.UTC(startedAt.getUTCFullYear(), startedAt.getUTCMonth(), 1));
+  const start = monthStart ?? programMonthStart;
+  const clampedStart = start.getTime() < programMonthStart.getTime() ? programMonthStart : start;
+  const monthKey = `${clampedStart.getUTCFullYear()}-${pad2(clampedStart.getUTCMonth() + 1)}`;
+  const prevMonth = addMonthsUTC(clampedStart, -1);
+  const nextMonth = addMonthsUTC(clampedStart, 1);
+  const prevKey = `${prevMonth.getUTCFullYear()}-${pad2(prevMonth.getUTCMonth() + 1)}`;
+  const nextKey = `${nextMonth.getUTCFullYear()}-${pad2(nextMonth.getUTCMonth() + 1)}`;
+  const prevLocked = prevMonth.getTime() < programMonthStart.getTime();
 
-  const monthEndExclusive = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1));
-  const daysInMonth = Math.round((monthEndExclusive.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+  const monthEndExclusive = new Date(Date.UTC(clampedStart.getUTCFullYear(), clampedStart.getUTCMonth() + 1, 1));
+  const daysInMonth = Math.round((monthEndExclusive.getTime() - clampedStart.getTime()) / (1000 * 60 * 60 * 24));
 
   // Monday=0..Sunday=6
-  const firstDow = (start.getUTCDay() + 6) % 7;
+  const firstDow = (clampedStart.getUTCDay() + 6) % 7;
 
   const dayKeys: string[] = [];
   for (let day = 1; day <= daysInMonth; day++) {
-    dayKeys.push(toDayKeyUTC(new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), day))));
+    dayKeys.push(toDayKeyUTC(new Date(Date.UTC(clampedStart.getUTCFullYear(), clampedStart.getUTCMonth(), day))));
   }
 
   const rows = Math.ceil((firstDow + daysInMonth) / 7);
@@ -121,8 +125,14 @@ export default async function CalendarPage({
         </CardHeader>
         <CardContent className="flex flex-wrap items-center gap-2">
           <a
-            href={`/app/calendar?m=${prevKey}`}
-            className="rounded-[var(--radius)] border-4 border-border bg-background px-3 py-2 text-sm font-black uppercase tracking-wider shadow-[6px_6px_0px_0px_var(--color-border)] hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[10px_10px_0px_0px_var(--color-border)] active:translate-x-1 active:translate-y-1 transition-[transform,box-shadow]"
+            href={prevLocked ? undefined : `/app/calendar?m=${prevKey}`}
+            aria-disabled={prevLocked}
+            className={cn(
+              "rounded-[var(--radius)] border-4 border-border bg-background px-3 py-2 text-sm font-black uppercase tracking-wider shadow-[6px_6px_0px_0px_var(--color-border)] transition-[transform,box-shadow]",
+              prevLocked
+                ? "opacity-50 pointer-events-none"
+                : "hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[10px_10px_0px_0px_var(--color-border)] active:translate-x-1 active:translate-y-1",
+            )}
           >
             ←
           </a>
