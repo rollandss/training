@@ -118,6 +118,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    overflow-x: clip;
     background-image: radial-gradient(
       circle,
       var(--nb-dot) var(--nb-dot-size),
