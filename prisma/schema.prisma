@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  passwordHash String
+  role         String        @default("USER") // USER | ADMIN
+  createdAt    DateTime      @default(now())
+  profile      UserProfile?
+  logs         WorkoutLog[]
+  userPrograms UserProgram[]
+}
+
+model UserProfile {
+  id                  String  @id @default(cuid())
+  userId              String  @unique
+  user                User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  levelSelfAssessment String?
+  limitations         String?
+  onboardingDone      Boolean @default(false)
+}
+
+model Program {
+  id           String         @id @default(cuid())
+  slug         String         @unique
+  name         String
+  description  String?
+  durationDays Int
+  days         ProgramDay[]
+  userPrograms UserProgram[]
+}
+
+model ProgramDay {
+  id          String        @id @default(cuid())
+  programId   String
+  program     Program       @relation(fields: [programId], references: [id], onDelete: Cascade)
+  dayNumber   Int
+  title       String
+  dayType     String // WORKOUT | REST
+  restBodyUk  String?
+  exercises   DayExercise[]
+  logs        WorkoutLog[]
+  post        DailyPost?
+
+  @@unique([programId, dayNumber])
+}
+
+model DailyPost {
+  id           String     @id @default(cuid())
+  slug         String     @unique
+  dayNumber    Int?
+  block        String // PREPARATION | BASIC | ADVANCED | TURBO | CONCLUSION
+  titleUk      String
+  bodyUk       String
+  imageUrl     String?
+  sourceFile   String?
+  programDayId String?    @unique
+  programDay   ProgramDay? @relation(fields: [programDayId], references: [id], onDelete: SetNull)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([dayNumber], map: "dailypost_day_unique")
+}
+
+model Exercise {
+  id            String        @id @default(cuid())
+  slug          String        @unique
+  nameUk        String
+  descriptionUk String
+  dayExercises  DayExercise[]
+}
+
+model DayExercise {
+  id           String     @id @default(cuid())
+  programDayId String
+  programDay   ProgramDay @relation(fields: [programDayId], references: [id], onDelete: Cascade)
+  exerciseId   String
+  exercise     Exercise   @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  sortOrder    Int
+  sets         Int
+  reps         String
+  restSec      Int?
+  coachingUk   String?
+}
+
+model WorkoutLog {
+  id           String     @id @default(cuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  programDayId String
+  programDay   ProgramDay @relation(fields: [programDayId], references: [id], onDelete: Cascade)
+  status       String // DONE | SKIPPED
+  notes        String?
+  createdAt    DateTime   @default(now())
+
+  @@unique([userId, programDayId])
+}
+
+model UserProgram {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  programId  String
+  program    Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  cursorDay  Int      @default(1)
+  startedAt  DateTime @default(now())
+
+  @@unique([userId, programId])
+}
