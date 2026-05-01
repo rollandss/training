@@ -75,6 +75,7 @@ export default async function CalendarPage({
   const monthStart = monthParam ? monthKeyToUTCDate(monthParam) : null;
 
   const startedAt = new Date(up.startedAt);
+  const programStart = startOfDayUTC(startedAt);
   const programMonthStart = new Date(Date.UTC(startedAt.getUTCFullYear(), startedAt.getUTCMonth(), 1));
   const start = monthStart ?? programMonthStart;
   const clampedStart = start.getTime() < programMonthStart.getTime() ? programMonthStart : start;
@@ -108,7 +109,6 @@ export default async function CalendarPage({
 
   const byDayKey = new Map(existing.map((e) => [e.dayKey, e.status as CalendarStatus]));
 
-  const programStart = startOfDayUTC(new Date(up.startedAt));
   const unlockedDay = Math.max(1, Math.min(up.cursorDay, up.program.durationDays));
   const todayUTC = startOfDayUTC(new Date());
   const registeredAtUTC = startOfDayUTC(new Date(user.createdAt));
@@ -161,8 +161,14 @@ export default async function CalendarPage({
             return <div key={`empty-${idx}`} className="h-[112px] rounded-[var(--radius)] border-4 border-border bg-card/40" />;
           }
 
-          const date = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), dayNum));
+          const date = new Date(Date.UTC(clampedStart.getUTCFullYear(), clampedStart.getUTCMonth(), dayNum));
           const dayKey = toDayKeyUTC(date);
+
+          // Don't show days before program start (in the first month).
+          if (date.getTime() < programStart.getTime()) {
+            return <div key={`prestart-${dayKey}`} className="h-[112px] rounded-[var(--radius)] border-4 border-border bg-card/40" />;
+          }
+
           const status = byDayKey.get(dayKey);
           const programDay = diffDaysUTC(date, programStart) + 1; // 1..duration
           const isFuture = date.getTime() > todayUTC.getTime();
