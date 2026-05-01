@@ -109,9 +109,10 @@ export default async function CalendarPage({
 
   const byDayKey = new Map(existing.map((e) => [e.dayKey, e.status as CalendarStatus]));
 
-  const unlockedDay = Math.max(1, Math.min(up.cursorDay, up.program.durationDays));
   const todayUTC = startOfDayUTC(new Date());
   const registeredAtUTC = startOfDayUTC(new Date(user.createdAt));
+  const unlockedByTime = diffDaysUTC(todayUTC, programStart) + 1; // how many days have passed since start (inclusive)
+  const unlockedDay = Math.max(1, Math.min(unlockedByTime, up.program.durationDays));
 
   return (
     <div className="space-y-6">
@@ -175,8 +176,8 @@ export default async function CalendarPage({
           const beforeRegistration = date.getTime() < registeredAtUTC.getTime();
           const afterStart = date.getTime() >= programStart.getTime();
           const beyondProgram = programDay > up.program.durationDays;
-          const beyondCursor = afterStart && programDay > unlockedDay;
-          const locked = isFuture || beforeRegistration || beyondProgram || beyondCursor;
+          const beyondUnlocked = afterStart && programDay > unlockedDay;
+          const locked = isFuture || beforeRegistration || beyondProgram || beyondUnlocked;
           const next = nextStatus(status);
 
           return (
