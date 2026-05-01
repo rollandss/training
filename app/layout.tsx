@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="uk" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`} suppressHydrationWarning>
-      <body className="flex min-h-full flex-col">
+      <body className="relative flex min-h-full flex-col">
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
@@ -37,7 +37,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ParticlesBackground />
-          {children}
+          <div className="relative z-10 flex min-h-full flex-1 flex-col">{children}</div>
           <Toaster richColors position="top-center" />
         </ThemeProvider>
       </body>

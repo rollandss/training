@@ -23,13 +23,8 @@ function usePrefersReducedMotion(): boolean {
 export function ParticlesBackground() {
   const reduced = usePrefersReducedMotion();
   const [ready, setReady] = useState(false);
-  const { theme } = useTheme();
-  const mounted = useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false,
-  );
-  const isDark = mounted && theme === "dark";
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   useEffect(() => {
     initParticlesEngine(async (engine) => {
@@ -78,7 +73,7 @@ export function ParticlesBackground() {
   );
 
   return (
-    <div className="pointer-events-none fixed inset-0 -z-10">
+    <div className="pointer-events-none fixed inset-0 z-0">
       {ready ? (
         <Particles
           id="nb-particles"
