@@ -42,7 +42,7 @@ export function ParticlesBackground() {
         number: { value: 110, density: { enable: true, area: 900 } },
         color: { value: isDark ? "#FFFFFF" : "#0A0A0A" },
         opacity: {
-          value: isDark ? { min: 0.22, max: 0.75 } : { min: 0.18, max: 0.65 },
+          value: isDark ? { min: 0.3, max: 0.9 } : { min: 0.18, max: 0.65 },
           animation: { enable: !reduced, speed: 0.6, minimumValue: 0.12, sync: false },
         },
         size: {
@@ -73,7 +73,7 @@ export function ParticlesBackground() {
   );
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-[1] mix-blend-multiply">
+    <div className={["pointer-events-none fixed inset-0 z-[1]", isDark ? "mix-blend-screen" : "mix-blend-multiply"].join(" ")}>
       {ready ? (
         <Particles
           id="nb-particles"
