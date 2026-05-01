@@ -77,7 +77,9 @@ export default async function CalendarPage({
   const startedAt = new Date(up.startedAt);
   const programStart = startOfDayUTC(startedAt);
   const programMonthStart = new Date(Date.UTC(startedAt.getUTCFullYear(), startedAt.getUTCMonth(), 1));
-  const start = monthStart ?? programMonthStart;
+  const now = new Date();
+  const currentMonthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+  const start = monthStart ?? currentMonthStart;
   const clampedStart = start.getTime() < programMonthStart.getTime() ? programMonthStart : start;
   const monthKey = `${clampedStart.getUTCFullYear()}-${pad2(clampedStart.getUTCMonth() + 1)}`;
   const prevMonth = addMonthsUTC(clampedStart, -1);
