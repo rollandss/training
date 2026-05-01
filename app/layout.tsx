@@ -37,7 +37,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ParticlesBackground />
-          <div className="relative z-10 flex min-h-full flex-1 flex-col">{children}</div>
+          <div className="relative z-[2] flex min-h-full flex-1 flex-col">{children}</div>
           <Toaster richColors position="top-center" />
         </ThemeProvider>
       </body>

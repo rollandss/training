@@ -39,19 +39,19 @@ export function ParticlesBackground() {
       detectRetina: true,
       background: { color: { value: "transparent" } },
       particles: {
-        number: { value: 75, density: { enable: true, area: 900 } },
-        color: { value: isDark ? "#FAFAFA" : "#111111" },
+        number: { value: 110, density: { enable: true, area: 900 } },
+        color: { value: isDark ? "#FFFFFF" : "#0A0A0A" },
         opacity: {
-          value: isDark ? { min: 0.18, max: 0.55 } : { min: 0.15, max: 0.45 },
+          value: isDark ? { min: 0.22, max: 0.75 } : { min: 0.18, max: 0.65 },
           animation: { enable: !reduced, speed: 0.6, minimumValue: 0.12, sync: false },
         },
         size: {
-          value: { min: 1, max: 4 },
+          value: { min: 1, max: 5 },
           animation: { enable: !reduced, speed: 2.0, minimumValue: 0.8, sync: false },
         },
         move: {
           enable: !reduced,
-          speed: 1.15,
+          speed: 1.35,
           direction: "none",
           outModes: { default: "bounce" },
           random: true,
@@ -65,7 +65,7 @@ export function ParticlesBackground() {
           resize: { enable: true },
         },
         modes: {
-          repulse: { distance: 90, duration: 0.3 },
+          repulse: { distance: 120, duration: 0.35 },
         },
       },
     }),
@@ -73,7 +73,7 @@ export function ParticlesBackground() {
   );
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-0">
+    <div className="pointer-events-none fixed inset-0 z-[1] mix-blend-multiply">
       {ready ? (
         <Particles
           id="nb-particles"

@@ -11,7 +11,8 @@ export function ThemeToggle() {
 
   return (
     <Button
-      variant="ghost"
+      type="button"
+      variant="outline"
       size="icon-sm"
       aria-label={isDark ? "Увімкнути світлу тему" : "Увімкнути темну тему"}
       onClick={() => setTheme(isDark ? "light" : "dark")}
