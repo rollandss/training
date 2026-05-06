@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Lock } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BlocksTabs } from "@/components/blocks-tabs";
@@ -37,8 +38,15 @@ export default async function PostsPage() {
           const inBlock = posts.filter((post) => post.block === block);
           if (inBlock.length === 0) return null;
           const unlocked = inBlock.filter((post) => post.dayNumber === null || post.dayNumber <= unlockedDay).length;
+          const locked = unlocked === 0;
           return (
-            <Card key={block} className="relative overflow-hidden">
+            <Card
+              key={block}
+              className={cn(
+                "relative overflow-hidden",
+                locked && "bg-muted/40 text-muted-foreground",
+              )}
+            >
               <CardHeader>
                 <CardTitle className="text-xl">{POST_BLOCK_LABELS[block]}</CardTitle>
                 <CardDescription>
@@ -46,12 +54,19 @@ export default async function PostsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Link
-                  href={`/app/posts/block/${getPostBlockSlug(block)}`}
-                  className={cn(buttonVariants(), "w-full")}
-                >
-                  Відкрити блок
-                </Link>
+                {locked ? (
+                  <div className="flex items-center gap-2 rounded-[var(--radius)] border-4 border-border bg-background px-3 py-2 text-xs font-black uppercase tracking-wider shadow-[6px_6px_0px_0px_var(--color-border)]">
+                    <Lock className="size-4" />
+                    Закрито
+                  </div>
+                ) : (
+                  <Link
+                    href={`/app/posts/block/${getPostBlockSlug(block)}`}
+                    className={cn(buttonVariants(), "w-full")}
+                  >
+                    Відкрити блок
+                  </Link>
+                )}
               </CardContent>
             </Card>
           );
