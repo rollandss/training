@@ -13,27 +13,32 @@ type Props = {
 export function AppShell({ email, isAdmin }: Props) {
   return (
     <header className="border-b bg-card">
-      <div className="mx-auto flex h-auto min-h-14 max-w-3xl items-center justify-between gap-3 px-3 py-2 md:h-14 md:px-4 md:py-0">
-        <nav className="flex flex-wrap items-center gap-2 text-sm">
-          <Link href="/app" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
-            Пост дня
+      <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-2 px-3 py-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3 md:px-6">
+        <div className="flex items-center gap-3">
+          <Link href="/app" className="shrink-0 text-sm font-black uppercase tracking-wider">
+            Стоденка
           </Link>
-          <Link href="/app/posts" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
-            Пости
-          </Link>
-          <Link href="/app/calendar" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
-            Календар
-          </Link>
-          <Link href="/app/settings" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
-            Налаштування
-          </Link>
-          {isAdmin ? (
-            <Link href="/admin" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
-              Адмін
+          <nav className="flex w-full items-center gap-2 overflow-x-auto whitespace-nowrap pr-1 text-sm [-webkit-overflow-scrolling:touch]">
+            <Link href="/app" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
+              Пост дня
             </Link>
-          ) : null}
-        </nav>
-        <div className="flex items-center gap-2">
+            <Link href="/app/posts" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
+              Пости
+            </Link>
+            <Link href="/app/calendar" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
+              Календар
+            </Link>
+            <Link href="/app/settings" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
+              Налаштування
+            </Link>
+            {isAdmin ? (
+              <Link href="/admin" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
+                Адмін
+              </Link>
+            ) : null}
+          </nav>
+        </div>
+        <div className="flex items-center justify-end gap-2">
           <ThemeToggle />
           <UserMenu email={email} />
         </div>

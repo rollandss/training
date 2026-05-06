@@ -33,10 +33,10 @@ export default async function PostsBlockPage({ params }: Props) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="relative inline-flex flex-col gap-2 rounded-[var(--radius)] border-4 border-border bg-card p-4 shadow-[10px_10px_0px_0px_var(--color-border)]">
-          <div className="pointer-events-none absolute right-3 top-3 size-10 border-4 border-border bg-primary shadow-[6px_6px_0px_0px_var(--color-border)]" />
+         {/* <div className="pointer-events-none absolute right-3 top-3 size-10 border-4 border-border bg-primary shadow-[6px_6px_0px_0px_var(--color-border)]" /> */}
           <h1 className="text-3xl font-extrabold uppercase tracking-wider">{getPostBlockLabel(block)}</h1>
           <p className="text-muted-foreground text-sm font-semibold">
-            У блоці {posts.length} пост(ів). Закриті — з замком, як у референсі.
+            У блоці {posts.length} пост(ів).
           </p>
         </div>
         <Link href="/app/posts" className={cn(buttonVariants({ variant: "outline" }))}>
@@ -54,21 +54,25 @@ export default async function PostsBlockPage({ params }: Props) {
               key={post.id}
               className={cn(
                 "relative overflow-hidden rounded-[var(--radius)] border-4 border-border bg-card shadow-[10px_10px_0px_0px_var(--color-border)]",
-                locked && "opacity-95",
+                locked && "bg-muted/40 text-muted-foreground grayscale",
               )}
             >
               <div className="relative h-36 w-full border-b-4 border-border bg-muted">
                 {post.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={post.imageUrl} alt={post.titleUk} className="h-full w-full object-cover" />
+                  <img
+                    src={post.imageUrl}
+                    alt={post.titleUk}
+                    className={cn("h-full w-full object-cover", locked && "grayscale contrast-75 brightness-90")}
+                  />
                 ) : (
                   <div className="text-muted-foreground flex h-full items-center justify-center text-xs font-bold uppercase">
                     Фото посту
                   </div>
                 )}
                 {locked ? (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/35">
-                    <div className="bg-card border-4 border-border p-3 shadow-[6px_6px_0px_0px_var(--color-border)]">
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/25">
+                    <div className="bg-muted border-4 border-border p-3 shadow-[6px_6px_0px_0px_var(--color-border)]">
                       <Lock className="size-7 text-foreground" />
                     </div>
                   </div>

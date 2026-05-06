@@ -28,26 +28,28 @@ export default async function PostDetailsPage({ params }: Props) {
       <Link href="/app/posts" className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "px-0")}>
         ← До постів
       </Link>
-      <Card>
-        <CardHeader>
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="secondary">
-              {getPostBlockLabel(post.block)}
-            </Badge>
-            {post.dayNumber ? <Badge variant="outline">День {post.dayNumber}</Badge> : null}
-          </div>
-          <CardTitle className="text-2xl">{post.titleUk}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {post.imageUrl ? (
-            <div className="overflow-hidden rounded-lg border">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={post.imageUrl} alt={post.titleUk} className="h-auto max-h-[420px] w-full object-cover" />
+      <div className="mx-auto w-full max-w-[78ch]">
+        <Card>
+          <CardHeader className="space-y-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="secondary">{getPostBlockLabel(post.block)}</Badge>
+              {post.dayNumber ? <Badge variant="outline">День {post.dayNumber}</Badge> : null}
             </div>
-          ) : null}
-          <article className="text-sm leading-relaxed whitespace-pre-wrap">{post.bodyUk}</article>
-        </CardContent>
-      </Card>
+            <CardTitle className="text-3xl font-black leading-tight md:text-4xl">{post.titleUk}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            {post.imageUrl ? (
+              <div className="overflow-hidden rounded-[var(--radius)] border-4 border-border shadow-[10px_10px_0px_0px_var(--color-border)]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={post.imageUrl} alt={post.titleUk} className="h-auto max-h-[520px] w-full object-cover" />
+              </div>
+            ) : null}
+            <article className="whitespace-pre-wrap text-base leading-7 text-foreground/95 md:text-lg md:leading-8">
+              {post.bodyUk}
+            </article>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

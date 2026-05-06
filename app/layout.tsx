@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Сотка — 100 днів",
+  title: "Стоденка — 100 днів",
   description: "Безкоштовна україномовна платформа 100-денної програми з турніком.",
 };
 

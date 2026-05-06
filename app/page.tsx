@@ -20,7 +20,7 @@ export default function HomePage() {
               </div>
 
               <h1 className="text-4xl font-black leading-[1.05] tracking-tight md:text-5xl">
-                Сотка: 100 днів, які затягують
+                Стоденка: 100 днів, які затягують
               </h1>
               <p className="max-w-2xl text-lg font-medium leading-relaxed text-muted-foreground">
                 Щодня відкриваєш короткий інфопост: що робити сьогодні, як прогресувати, як не злитись на 7‑й день і чому
