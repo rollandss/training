@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
 import { getPostBlockLabel } from "@/lib/posts";
 import { prisma } from "@/lib/prisma";
+import { unlockedProgramDayByTime } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -19,7 +20,8 @@ export default async function PostDetailsPage({ params }: Props) {
 
   const post = await prisma.dailyPost.findUnique({ where: { slug } });
   if (!post) notFound();
-  if (post.dayNumber !== null && post.dayNumber > up.cursorDay) redirect("/app/posts");
+  const unlockedDay = unlockedProgramDayByTime({ startedAt: up.startedAt, durationDays: up.program.durationDays });
+  if (post.dayNumber !== null && post.dayNumber > unlockedDay) redirect("/app/posts");
 
   return (
     <div className="space-y-5">

@@ -6,6 +6,7 @@ import { BlocksTabs } from "@/components/blocks-tabs";
 import { getCurrentUser } from "@/lib/auth";
 import { POST_BLOCK_LABELS, POST_BLOCK_ORDER, getPostBlockSlug } from "@/lib/posts";
 import { prisma } from "@/lib/prisma";
+import { unlockedProgramDayByTime } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 
 export default async function PostsPage() {
@@ -17,7 +18,7 @@ export default async function PostsPage() {
     orderBy: [{ dayNumber: "asc" }, { createdAt: "asc" }],
   });
 
-  const cursorDay = Math.min(up.cursorDay, 100);
+  const unlockedDay = Math.min(unlockedProgramDayByTime({ startedAt: up.startedAt, durationDays: up.program.durationDays }), 100);
 
   return (
     <div className="space-y-8">
@@ -25,7 +26,7 @@ export default async function PostsPage() {
         <div className="pointer-events-none absolute right-3 top-3 size-10 border-4 border-border bg-secondary shadow-[6px_6px_0px_0px_var(--color-border)]" />
         <h1 className="text-3xl font-extrabold uppercase tracking-wider">Пости програми</h1>
         <p className="text-muted-foreground text-sm font-semibold">
-          Відкрито до дня <span className="text-foreground font-black">{cursorDay}</span>. Далі — по одному посту щодня.
+          Відкрито до дня <span className="text-foreground font-black">{unlockedDay}</span>. Далі — по одному посту щодня.
         </p>
       </div>
 
@@ -35,7 +36,7 @@ export default async function PostsPage() {
         {POST_BLOCK_ORDER.map((block) => {
           const inBlock = posts.filter((post) => post.block === block);
           if (inBlock.length === 0) return null;
-          const unlocked = inBlock.filter((post) => post.dayNumber === null || post.dayNumber <= cursorDay).length;
+          const unlocked = inBlock.filter((post) => post.dayNumber === null || post.dayNumber <= unlockedDay).length;
           return (
             <Card key={block} className="relative overflow-hidden">
               <CardHeader>

@@ -8,6 +8,7 @@ import { BlocksTabs } from "@/components/blocks-tabs";
 import { getCurrentUser } from "@/lib/auth";
 import { getPostBlockLabel, parsePostBlockSlug, type PostBlock } from "@/lib/posts";
 import { prisma } from "@/lib/prisma";
+import { unlockedProgramDayByTime } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 
 type Props = { params: Promise<{ block: string }> };
@@ -16,6 +17,7 @@ export default async function PostsBlockPage({ params }: Props) {
   const user = await getCurrentUser();
   if (!user?.userPrograms[0]) redirect("/auth/login");
   const up = user.userPrograms[0];
+  const unlockedDay = unlockedProgramDayByTime({ startedAt: up.startedAt, durationDays: up.program.durationDays });
 
   const { block: blockSlug } = await params;
   const block = parsePostBlockSlug(blockSlug);
@@ -46,7 +48,7 @@ export default async function PostsBlockPage({ params }: Props) {
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {posts.map((post) => {
-          const locked = post.dayNumber !== null && post.dayNumber > up.cursorDay;
+          const locked = post.dayNumber !== null && post.dayNumber > unlockedDay;
           return (
             <div
               key={post.id}
