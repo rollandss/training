@@ -161,7 +161,7 @@ export default async function CalendarPage({
         {Array.from({ length: rows * 7 }).map((_, idx) => {
           const dayNum = idx - firstDow + 1;
           if (dayNum < 1 || dayNum > daysInMonth) {
-            return <div key={`empty-${idx}`} className="h-[112px] rounded-[var(--radius)] border-4 border-border bg-card/40" />;
+            return <div key={`empty-${idx}`} className="h-[92px] sm:h-[112px] rounded-[var(--radius)] border-4 border-border bg-card/40" />;
           }
 
           const date = new Date(Date.UTC(clampedStart.getUTCFullYear(), clampedStart.getUTCMonth(), dayNum));
@@ -169,7 +169,7 @@ export default async function CalendarPage({
 
           // Don't show days before program start (in the first month).
           if (date.getTime() < programStart.getTime()) {
-            return <div key={`prestart-${dayKey}`} className="h-[112px] rounded-[var(--radius)] border-4 border-border bg-card/40" />;
+            return <div key={`prestart-${dayKey}`} className="h-[92px] sm:h-[112px] rounded-[var(--radius)] border-4 border-border bg-card/40" />;
           }
 
           const status = byDayKey.get(dayKey);
@@ -186,7 +186,7 @@ export default async function CalendarPage({
             <div
               key={dayKey}
               className={cn(
-                "relative flex h-[112px] flex-col rounded-[var(--radius)] border-4 border-border bg-card p-2 shadow-[8px_8px_0px_0px_var(--color-border)]",
+                "relative flex h-[92px] sm:h-[112px] flex-col rounded-[var(--radius)] border-4 border-border bg-card p-2 shadow-[8px_8px_0px_0px_var(--color-border)]",
                 locked && "opacity-95",
               )}
             >

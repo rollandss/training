@@ -13,7 +13,7 @@ type Props = {
 export function AppShell({ email, isAdmin }: Props) {
   return (
     <header className="border-b bg-card">
-      <div className="mx-auto flex h-14 max-w-3xl items-center justify-between gap-4 px-4">
+      <div className="mx-auto flex h-auto min-h-14 max-w-3xl items-center justify-between gap-3 px-3 py-2 md:h-14 md:px-4 md:py-0">
         <nav className="flex flex-wrap items-center gap-2 text-sm">
           <Link href="/app" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
             Пост дня
@@ -23,6 +23,9 @@ export function AppShell({ email, isAdmin }: Props) {
           </Link>
           <Link href="/app/calendar" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
             Календар
+          </Link>
+          <Link href="/app/settings" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
+            Налаштування
           </Link>
           {isAdmin ? (
             <Link href="/admin" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
