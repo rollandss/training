@@ -75,8 +75,8 @@ export function TrainingDayForm(props: {
 }) {
   const { initial, restSeconds, restRemaining, onRestSecondsChange, onStartRest, onStopRest, onActiveVolumeChange } = props;
 
-  const [mode, setMode] = React.useState<TrainingVolumeMode>(initial?.mode ?? "ROUNDS");
-  const [rounds, setRounds] = React.useState(initial?.rounds ?? 4);
+  const [mode, setModeState] = React.useState<TrainingVolumeMode>(initial?.mode ?? "ROUNDS");
+  const [rounds, setRoundsState] = React.useState(initial?.rounds ?? 4);
   const [values, setValues] = React.useState<TrainingRepValues>({
     pullupsReps: initial?.pullupsReps ?? DEFAULT_TRAINING_REPS.pullupsReps,
     squatsReps: initial?.squatsReps ?? DEFAULT_TRAINING_REPS.squatsReps,
@@ -85,6 +85,17 @@ export function TrainingDayForm(props: {
   });
   const [notes, setNotes] = React.useState(initial?.notes ?? "");
   const [activeVolume, setActiveVolume] = React.useState(1);
+  const clampedActiveVolume = Math.max(1, Math.min(activeVolume, rounds));
+
+  const setMode = React.useCallback((next: TrainingVolumeMode) => {
+    setModeState(next);
+    setActiveVolume(1);
+  }, []);
+
+  const setRounds = React.useCallback((next: number) => {
+    setRoundsState(next);
+    setActiveVolume((current) => Math.max(1, Math.min(current, next)));
+  }, []);
 
   const volumeLabel = mode === "ROUNDS" ? "Кіл" : "Підходів";
   const repsLabel = mode === "ROUNDS" ? "Повтори в колі" : "Повтори в підході";
@@ -92,29 +103,21 @@ export function TrainingDayForm(props: {
   const activeVolumeLabelLower = mode === "ROUNDS" ? "коло" : "підхід";
   const activeVolumeDoneLabel = mode === "ROUNDS" ? "Коло виконано" : "Підхід виконано";
 
-  React.useEffect(() => {
-    setActiveVolume((current) => Math.max(1, Math.min(current, rounds)));
-  }, [rounds]);
-
-  React.useEffect(() => {
-    setActiveVolume(1);
-  }, [mode]);
-
   const completeActiveVolume = React.useCallback(() => {
-    if (activeVolume >= rounds) return;
+    if (clampedActiveVolume >= rounds) return;
     setActiveVolume((current) => Math.min(rounds, current + 1));
     onStartRest();
-  }, [activeVolume, onStartRest, rounds]);
+  }, [clampedActiveVolume, onStartRest, rounds]);
 
   React.useEffect(() => {
-    onActiveVolumeChange?.({ mode, active: activeVolume, rounds });
-  }, [activeVolume, mode, onActiveVolumeChange, rounds]);
+    onActiveVolumeChange?.({ mode, active: clampedActiveVolume, rounds });
+  }, [clampedActiveVolume, mode, onActiveVolumeChange, rounds]);
 
   const volumeChips = (
     <div className="flex flex-wrap gap-1.5">
       {Array.from({ length: rounds }, (_, index) => index + 1).map((volumeNumber) => {
-        const isActive = volumeNumber === activeVolume;
-        const isDone = volumeNumber < activeVolume;
+        const isActive = volumeNumber === clampedActiveVolume;
+        const isDone = volumeNumber < clampedActiveVolume;
         return (
           <button
             key={volumeNumber}
@@ -150,7 +153,7 @@ export function TrainingDayForm(props: {
       >
         <div className="text-[11px] font-black uppercase tracking-wider opacity-80">Зараз</div>
         <div className="mt-1 text-2xl font-black tabular-nums">
-          {activeVolumeLabel} {activeVolume} <span className="text-base opacity-80">з {rounds}</span>
+          {activeVolumeLabel} {clampedActiveVolume} <span className="text-base opacity-80">з {rounds}</span>
         </div>
         <div className="mt-3">{volumeChips}</div>
         <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -159,13 +162,13 @@ export function TrainingDayForm(props: {
             size="sm"
             variant="secondary"
             className="font-black uppercase tracking-wider"
-            disabled={activeVolume >= rounds}
+            disabled={clampedActiveVolume >= rounds}
             onClick={completeActiveVolume}
           >
             {activeVolumeDoneLabel}
           </Button>
           <span className="text-[11px] font-semibold opacity-90">
-            {activeVolume >= rounds
+            {clampedActiveVolume >= rounds
               ? `Останнє ${activeVolumeLabelLower} перед збереженням.`
               : `Після ${activeVolumeLabelLower} запуститься відпочинок.`}
           </span>
@@ -209,7 +212,7 @@ export function TrainingDayForm(props: {
             <div className="min-w-0 flex-1">
               <div className="text-sm font-black leading-tight">{exercise.label}</div>
               <div className="text-[11px] font-semibold text-muted-foreground">
-                {repsLabel} · {activeVolumeLabel} {activeVolume}
+                {repsLabel} · {activeVolumeLabel} {clampedActiveVolume}
               </div>
             </div>
             <Stepper
