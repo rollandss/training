@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { createPortal } from "react-dom";
 
 import { Button } from "@/components/ui/button";
@@ -11,14 +12,13 @@ function formatRestTime(totalSeconds: number) {
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
-export function TrainingRestOverlay(props: {
+function TrainingRestOverlayPanel(props: {
   totalSeconds: number;
   remainingSeconds: number;
   onSkip: () => void;
 }) {
   const { totalSeconds, remainingSeconds, onSkip } = props;
-
-  if (typeof document === "undefined") return null;
+  const reduceMotion = useReducedMotion();
 
   const safeTotal = Math.max(1, totalSeconds);
   const progress = Math.min(1, Math.max(0, 1 - remainingSeconds / safeTotal));
@@ -27,23 +27,38 @@ export function TrainingRestOverlay(props: {
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
   const dashOffset = circumference * (1 - progress);
+  const ringTransition = reduceMotion ? { duration: 0 } : { duration: 0.3, ease: "linear" as const };
 
-  return createPortal(
-    <div
-      className="fixed inset-0 z-[120] flex flex-col items-center justify-center gap-8 bg-primary px-4 pb-[max(env(safe-area-inset-bottom),1.5rem)] pt-[max(env(safe-area-inset-top),1.5rem)] text-primary-foreground animate-in fade-in duration-200"
+  return (
+    <motion.div
+      className="fixed inset-0 z-[120] flex flex-col items-center justify-center gap-8 bg-primary px-4 pb-[max(env(safe-area-inset-bottom),1.5rem)] pt-[max(env(safe-area-inset-top),1.5rem)] text-primary-foreground"
       role="dialog"
       aria-modal="true"
       aria-labelledby="training-rest-title"
       aria-describedby="training-rest-time"
+      initial={reduceMotion ? false : { opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={reduceMotion ? undefined : { opacity: 0 }}
+      transition={{ duration: 0.2 }}
     >
-      <div className="text-center">
+      <motion.div
+        className="text-center"
+        initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.24, delay: reduceMotion ? 0 : 0.05 }}
+      >
         <p id="training-rest-title" className="text-sm font-black uppercase tracking-[0.2em] opacity-80">
           Відпочинок
         </p>
         <p className="mt-2 text-xs font-semibold opacity-80">Дочекайся сигналу або пропусти таймер</p>
-      </div>
+      </motion.div>
 
-      <div className="relative flex items-center justify-center">
+      <motion.div
+        className="relative flex items-center justify-center"
+        initial={reduceMotion ? false : { opacity: 0, scale: 0.94 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.28, delay: reduceMotion ? 0 : 0.08 }}
+      >
         <svg
           width={size}
           height={size}
@@ -60,7 +75,7 @@ export function TrainingRestOverlay(props: {
             strokeWidth={stroke}
             className="text-primary-foreground/20"
           />
-          <circle
+          <motion.circle
             cx={size / 2}
             cy={size / 2}
             r={radius}
@@ -69,36 +84,70 @@ export function TrainingRestOverlay(props: {
             strokeWidth={stroke}
             strokeLinecap="square"
             strokeDasharray={circumference}
-            strokeDashoffset={dashOffset}
-            className={cn(
-              "text-background transition-[stroke-dashoffset] duration-300 ease-linear motion-reduce:transition-none",
-            )}
+            initial={{ strokeDashoffset: circumference }}
+            animate={{ strokeDashoffset: dashOffset }}
+            transition={ringTransition}
+            className="text-background"
           />
         </svg>
-        <div
+        <motion.div
           id="training-rest-time"
+          key={remainingSeconds}
           className={cn(
             "absolute inset-0 flex items-center justify-center text-5xl font-black tabular-nums sm:text-6xl",
             remainingSeconds <= 5 && "text-destructive",
           )}
           aria-live="polite"
           aria-atomic="true"
+          initial={reduceMotion ? false : { opacity: 0.7, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.18 }}
         >
           {formatRestTime(remainingSeconds)}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
-      <Button
-        type="button"
-        variant="secondary"
-        size="lg"
-        className="min-w-48 font-black uppercase tracking-wider"
-        onClick={onSkip}
-        aria-label="Пропустити відпочинок"
+      <motion.div
+        initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.24, delay: reduceMotion ? 0 : 0.12 }}
       >
-        Пропустити
-      </Button>
-    </div>,
+        <Button
+          type="button"
+          variant="secondary"
+          size="lg"
+          className="min-w-48 font-black uppercase tracking-wider"
+          onClick={onSkip}
+          aria-label="Пропустити відпочинок"
+        >
+          Пропустити
+        </Button>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+export function TrainingRestOverlayPresence(props: {
+  open: boolean;
+  totalSeconds: number;
+  remainingSeconds: number;
+  onSkip: () => void;
+}) {
+  const { open, totalSeconds, remainingSeconds, onSkip } = props;
+
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
+    <AnimatePresence>
+      {open ? (
+        <TrainingRestOverlayPanel
+          key="training-rest"
+          totalSeconds={totalSeconds}
+          remainingSeconds={remainingSeconds}
+          onSkip={onSkip}
+        />
+      ) : null}
+    </AnimatePresence>,
     document.body,
   );
 }

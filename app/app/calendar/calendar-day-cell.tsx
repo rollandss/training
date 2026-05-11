@@ -14,7 +14,7 @@ import { resolveTrainingReps, type TrainingRepValues } from "@/lib/training-exer
 import { cn } from "@/lib/utils";
 
 import { TrainingDayForm, type TrainingVolumeProgress } from "./training-day-form";
-import { TrainingRestOverlay } from "./training-rest-overlay";
+import { TrainingRestOverlayPresence } from "./training-rest-overlay";
 import { saveCalendarDayAction, type CalendarStatus, type CalendarStatusOrNone } from "./actions";
 
 const STATUS_UI: Record<
@@ -313,13 +313,12 @@ export function CalendarDayCell(props: {
           ) : null}
         </form>
       </SheetContent>
-      {trainingActive && restRemaining != null ? (
-        <TrainingRestOverlay
-          totalSeconds={restDurationTotal}
-          remainingSeconds={restRemaining}
-          onSkip={stopRestTimer}
-        />
-      ) : null}
+      <TrainingRestOverlayPresence
+        open={trainingActive && restRemaining != null}
+        totalSeconds={restDurationTotal}
+        remainingSeconds={restRemaining ?? 0}
+        onSkip={stopRestTimer}
+      />
     </Sheet>
   );
 }
