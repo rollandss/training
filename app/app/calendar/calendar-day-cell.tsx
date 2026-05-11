@@ -184,7 +184,12 @@ export function CalendarDayCell(props: {
 
       <SheetContent
         side="bottom"
-        className="flex h-[min(92dvh,100svh)] max-h-[92dvh] w-full max-w-none flex-col gap-0 overflow-hidden rounded-t-[var(--radius)] border-4 border-border p-0 shadow-[10px_10px_0px_0px_var(--color-border)] sm:mx-auto sm:max-w-lg"
+        className={cn(
+          "flex w-full max-w-none flex-col gap-0 overflow-hidden border-4 border-border p-0 shadow-[10px_10px_0px_0px_var(--color-border)] sm:mx-auto sm:max-w-lg",
+          trainingActive
+            ? "h-dvh max-h-dvh rounded-none data-[side=bottom]:h-dvh"
+            : "h-[min(92dvh,100svh)] max-h-[92dvh] rounded-t-[var(--radius)]",
+        )}
       >
         <SheetHeader className="shrink-0 border-b-4 border-border px-4 py-3 pr-14">
           <SheetTitle className="text-lg font-black">День {dayNum}</SheetTitle>
