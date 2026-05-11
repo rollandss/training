@@ -55,7 +55,6 @@ export type TrainingDayFormValue = {
   squatsReps: number;
   pushupsReps: number;
   lungesReps: number;
-  notes: string;
 };
 
 export type TrainingVolumeProgress = {
@@ -83,7 +82,6 @@ export function TrainingDayForm(props: {
     pushupsReps: initial?.pushupsReps ?? DEFAULT_TRAINING_REPS.pushupsReps,
     lungesReps: initial?.lungesReps ?? DEFAULT_TRAINING_REPS.lungesReps,
   });
-  const [notes, setNotes] = React.useState(initial?.notes ?? "");
   const [activeVolume, setActiveVolume] = React.useState(1);
   const clampedActiveVolume = Math.max(1, Math.min(activeVolume, rounds));
 
@@ -283,20 +281,6 @@ export function TrainingDayForm(props: {
             Пропустити
           </Button>
         </div>
-      </div>
-
-      <div className="grid gap-1.5">
-        <Label htmlFor="notes" className="text-xs">
-          Нотатки (опц.)
-        </Label>
-        <Input
-          id="notes"
-          name="notes"
-          className="h-9"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder="Напр.: важко на останніх колах..."
-        />
       </div>
     </div>
   );

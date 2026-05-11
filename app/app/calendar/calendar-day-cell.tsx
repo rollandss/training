@@ -6,6 +6,8 @@ import { toast } from "sonner";
 
 import { SubmitButton } from "@/components/submit-button";
 import { CardDescription, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { type TrainingVolumeMode } from "@/lib/calendar-access";
 import { resolveTrainingReps, type TrainingRepValues } from "@/lib/training-exercises";
@@ -55,6 +57,7 @@ export function CalendarDayCell(props: {
   const [restSeconds, setRestSeconds] = React.useState(60);
   const [restRemaining, setRestRemaining] = React.useState<number | null>(null);
   const [volumeProgress, setVolumeProgress] = React.useState<TrainingVolumeProgress | null>(null);
+  const [notes, setNotes] = React.useState(training?.notes ?? "");
   const intervalRef = React.useRef<number | null>(null);
 
   const stopRestTimer = React.useCallback(() => {
@@ -124,6 +127,7 @@ export function CalendarDayCell(props: {
           setLocalStatus(status ?? "NONE");
           setStep("choose");
           setVolumeProgress(null);
+          setNotes(training?.notes ?? "");
           stopRestTimer();
           setOpen(true);
           return;
@@ -216,6 +220,7 @@ export function CalendarDayCell(props: {
           className="flex min-h-0 flex-1 flex-col"
         >
           <input type="hidden" name="dayKey" value={dayKey} />
+          <input type="hidden" name="notes" value={notes} />
 
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3">
             <input type="hidden" name="status" value={localStatus} />
@@ -224,7 +229,20 @@ export function CalendarDayCell(props: {
             </CardDescription>
 
             {step === "choose" ? (
-              <div className="grid gap-2">
+              <div className="grid gap-4">
+                <div className="grid gap-1.5">
+                  <Label htmlFor={`notes-${dayKey}`} className="text-xs">
+                    Нотатки (опц.)
+                  </Label>
+                  <Textarea
+                    id={`notes-${dayKey}`}
+                    rows={3}
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Напр.: важко на останніх колах..."
+                  />
+                </div>
+                <div className="grid gap-2">
                 <CardTitle className="text-base font-black">Тип дня</CardTitle>
                 <div className="grid grid-cols-2 gap-2">
                   {(Object.keys(STATUS_UI) as CalendarStatus[]).map((s) => (
@@ -261,6 +279,7 @@ export function CalendarDayCell(props: {
                     Очистити (—)
                   </button>
                 </div>
+                </div>
               </div>
             ) : (
               <TrainingDayForm
@@ -272,7 +291,6 @@ export function CalendarDayCell(props: {
                   squatsReps: trainingInitial.squatsReps,
                   pushupsReps: trainingInitial.pushupsReps,
                   lungesReps: trainingInitial.lungesReps,
-                  notes: training?.notes ?? "",
                 }}
                 restSeconds={restSeconds}
                 restRemaining={restRemaining}
