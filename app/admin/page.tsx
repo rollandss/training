@@ -25,11 +25,14 @@ export default function AdminHomePage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Контент</CardTitle>
-          <CardDescription>Створення і редагування щоденних інфопостів.</CardDescription>
+          <CardDescription>Щоденні інфопости та окремий блок підготовки.</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
-          <Link href="/admin/posts" className={cn(buttonVariants())}>
-            Пости
+          <Link href="/admin/posts?block=preparation" className={cn(buttonVariants())}>
+            Підготовка
+          </Link>
+          <Link href="/admin/posts" className={cn(buttonVariants({ variant: "outline" }))}>
+            Усі пости
           </Link>
         </CardContent>
       </Card>

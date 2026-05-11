@@ -1,22 +1,33 @@
 import { createPostAction, deletePostAction, updatePostAction } from "@/app/admin/actions";
+import { AdminPostsTabs } from "@/components/admin-posts-tabs";
 import { SubmitButton } from "@/components/submit-button";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { getPostBlockLabel, POST_BLOCKS, POST_BLOCK_LABELS } from "@/lib/posts";
+import { getPostBlockLabel, parsePostBlockSlug, POST_BLOCKS, POST_BLOCK_LABELS, type PostBlock } from "@/lib/posts";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 type Props = {
-  searchParams: Promise<{ slug?: string }>;
+  searchParams: Promise<{ slug?: string; block?: string }>;
 };
+
+function adminPostsHref(block: PostBlock | null, slug?: string) {
+  const params = new URLSearchParams();
+  if (block) params.set("block", block.toLowerCase());
+  if (slug) params.set("slug", slug);
+  const query = params.toString();
+  return query ? `/admin/posts?${query}` : "/admin/posts";
+}
 
 export default async function AdminPostsPage({ searchParams }: Props) {
   const params = await searchParams;
+  const activeBlock = params.block ? parsePostBlockSlug(params.block) : null;
   const posts = await prisma.dailyPost.findMany({
+    where: activeBlock ? { block: activeBlock } : undefined,
     select: {
       id: true,
       slug: true,
@@ -25,23 +36,29 @@ export default async function AdminPostsPage({ searchParams }: Props) {
       dayNumber: true,
       createdAt: true,
     },
-    orderBy: [{ dayNumber: "asc" }, { createdAt: "asc" }],
+    orderBy: [{ dayNumber: { sort: "asc", nulls: "first" } }, { createdAt: "asc" }],
   });
-  const selectedSlug = params.slug ?? posts[0]?.slug;
+  const selectedSlug =
+    params.slug && posts.some((post) => post.slug === params.slug) ? params.slug : posts[0]?.slug;
   const selectedPost = selectedSlug
     ? await prisma.dailyPost.findUnique({
         where: { slug: selectedSlug },
       })
     : null;
+  const createBlockDefault = activeBlock ?? "PREPARATION";
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Пости</h1>
         <p className="text-muted-foreground mt-1 text-sm">
-          Оптимізований режим: у списку лише метадані, редагується один обраний пост.
+          {activeBlock === "PREPARATION"
+            ? "Підготовчі пости без номера дня. Оберіть запис у списку або створіть новий."
+            : "У списку лише метадані, редагується один обраний пост."}
         </p>
       </div>
+
+      <AdminPostsTabs active={activeBlock ?? "ALL"} slug={selectedPost?.slug} />
 
       <Card>
         <CardHeader>
@@ -67,7 +84,7 @@ export default async function AdminPostsPage({ searchParams }: Props) {
                   id="create-block"
                   name="block"
                   className="border-input bg-background h-9 rounded-md border px-2 text-sm"
-                  defaultValue="PREPARATION"
+                  defaultValue={createBlockDefault}
                 >
                   {POST_BLOCKS.map((block) => (
                     <option key={block} value={block}>
@@ -98,15 +115,25 @@ export default async function AdminPostsPage({ searchParams }: Props) {
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Список постів</CardTitle>
-            <CardDescription>{posts.length} записів</CardDescription>
+            <CardDescription>
+              {posts.length} записів
+              {activeBlock ? ` · ${getPostBlockLabel(activeBlock)}` : ""}
+            </CardDescription>
           </CardHeader>
           <CardContent className="max-h-[70vh] space-y-2 overflow-auto pr-2">
+            {posts.length === 0 ? (
+              <p className="text-muted-foreground text-sm">
+                {activeBlock === "PREPARATION"
+                  ? "Підготовчих постів ще немає. Створіть їх вище або запустіть seed."
+                  : "У цьому блоці ще немає постів."}
+              </p>
+            ) : null}
             {posts.map((post) => {
               const active = selectedPost?.id === post.id;
               return (
                 <Link
                   key={post.id}
-                  href={`/admin/posts?slug=${encodeURIComponent(post.slug)}`}
+                  href={adminPostsHref(activeBlock, post.slug)}
                   className={cn(
                     "block rounded-md border p-2 text-sm",
                     active ? "border-primary bg-primary/5" : "hover:bg-muted/50",

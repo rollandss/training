@@ -7,6 +7,15 @@ import { getCurrentUser } from "@/lib/auth";
 import { POST_BLOCKS } from "@/lib/posts";
 import { prisma } from "@/lib/prisma";
 
+function revalidatePostsSurfaces() {
+  revalidatePath("/admin/posts");
+  revalidatePath("/app/posts");
+  revalidatePath("/app");
+  for (const block of POST_BLOCKS) {
+    revalidatePath(`/app/posts/block/${block.toLowerCase()}`);
+  }
+}
+
 export async function createPostAction(formData: FormData) {
   const user = await getCurrentUser();
   if (!user || user.role !== "ADMIN") redirect("/app");
@@ -34,8 +43,7 @@ export async function createPostAction(formData: FormData) {
     },
   });
 
-  revalidatePath("/admin/posts");
-  revalidatePath("/app/posts");
+  revalidatePostsSurfaces();
 }
 
 export async function updatePostAction(formData: FormData) {
@@ -64,9 +72,7 @@ export async function updatePostAction(formData: FormData) {
     },
   });
 
-  revalidatePath("/admin/posts");
-  revalidatePath("/app/posts");
-  revalidatePath("/app");
+  revalidatePostsSurfaces();
 }
 
 export async function deletePostAction(formData: FormData) {
@@ -75,6 +81,5 @@ export async function deletePostAction(formData: FormData) {
   const id = String(formData.get("id") ?? "").trim();
   if (!id) return;
   await prisma.dailyPost.delete({ where: { id } });
-  revalidatePath("/admin/posts");
-  revalidatePath("/app/posts");
+  revalidatePostsSurfaces();
 }
