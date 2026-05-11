@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { getCurrentUser } from "@/lib/auth";
 import { getPostBlockLabel } from "@/lib/posts";
 import { prisma } from "@/lib/prisma";
-import { unlockedProgramDayByTime } from "@/lib/progress";
+import { unlockedProgramDay } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -13,7 +13,11 @@ export default async function AppDashboardPage() {
   const up = user.userPrograms[0];
   const { program } = up;
 
-  const currentDay = unlockedProgramDayByTime({ startedAt: up.startedAt, durationDays: program.durationDays });
+  const currentDay = unlockedProgramDay({
+    cursorDay: up.cursorDay,
+    startedAt: up.startedAt,
+    durationDays: program.durationDays,
+  });
 
   if (currentDay > program.durationDays || currentDay > 100) {
     return (

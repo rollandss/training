@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 import { canSendEmail, getBaseUrl, sendEmail } from "@/lib/email";
-import { unlockedProgramDayByTime } from "@/lib/progress";
+import { unlockedProgramDay } from "@/lib/progress";
 
 function dayKeyUTC(d: Date) {
   const y = d.getUTCFullYear();
@@ -43,7 +43,7 @@ export async function GET(req: Request) {
           userPrograms: {
             take: 1,
             orderBy: { startedAt: "desc" },
-            select: { startedAt: true, program: { select: { durationDays: true } } },
+            select: { startedAt: true, cursorDay: true, program: { select: { durationDays: true } } },
           },
         },
       },
@@ -66,7 +66,12 @@ export async function GET(req: Request) {
       continue;
     }
 
-    const day = unlockedProgramDayByTime({ startedAt: up.startedAt, durationDays: up.program.durationDays, today });
+    const day = unlockedProgramDay({
+      cursorDay: up.cursorDay,
+      startedAt: up.startedAt,
+      durationDays: up.program.durationDays,
+      today,
+    });
     const post = await prisma.dailyPost.findFirst({ where: { dayNumber: day } });
     if (!post) {
       skipped++;

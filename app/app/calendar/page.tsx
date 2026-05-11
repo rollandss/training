@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { isCalendarDayEditable, unlockedProgramDayByTime } from "@/lib/calendar-access";
+import { isCalendarDayEditable } from "@/lib/calendar-access";
+import { unlockedProgramDay } from "@/lib/progress";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -101,7 +102,8 @@ export default async function CalendarPage({
   });
   const trainingByDayKey = new Map(training.map((t) => [t.dayKey, t]));
 
-  const unlockedDay = unlockedProgramDayByTime({
+  const unlockedDay = unlockedProgramDay({
+    cursorDay: up.cursorDay,
     startedAt: up.startedAt,
     durationDays: up.program.durationDays,
   });
@@ -168,6 +170,7 @@ export default async function CalendarPage({
             startedAt: up.startedAt,
             registeredAt: user.createdAt,
             durationDays: up.program.durationDays,
+            cursorDay: up.cursorDay,
           });
           const t = trainingByDayKey.get(dayKey);
 

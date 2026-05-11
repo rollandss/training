@@ -7,7 +7,7 @@ import { BlocksTabs } from "@/components/blocks-tabs";
 import { getCurrentUser } from "@/lib/auth";
 import { POST_BLOCK_LABELS, POST_BLOCK_ORDER, getPostBlockSlug } from "@/lib/posts";
 import { prisma } from "@/lib/prisma";
-import { unlockedProgramDayByTime } from "@/lib/progress";
+import { unlockedProgramDay } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 
 export default async function PostsPage() {
@@ -19,7 +19,14 @@ export default async function PostsPage() {
     orderBy: [{ dayNumber: "asc" }, { createdAt: "asc" }],
   });
 
-  const unlockedDay = Math.min(unlockedProgramDayByTime({ startedAt: up.startedAt, durationDays: up.program.durationDays }), 100);
+  const unlockedDay = Math.min(
+    unlockedProgramDay({
+      cursorDay: up.cursorDay,
+      startedAt: up.startedAt,
+      durationDays: up.program.durationDays,
+    }),
+    100,
+  );
 
   return (
     <div className="space-y-8">

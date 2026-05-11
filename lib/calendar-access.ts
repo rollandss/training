@@ -1,3 +1,5 @@
+import { unlockedProgramDay } from "@/lib/progress";
+
 export type TrainingVolumeMode = "ROUNDS" | "SETS";
 
 export function startOfDayUTC(d: Date) {
@@ -30,6 +32,7 @@ export function isCalendarDayEditable(params: {
   startedAt: Date;
   registeredAt: Date;
   durationDays: number;
+  cursorDay: number;
   today?: Date;
 }) {
   const date = dayKeyToUTCDate(params.dayKey);
@@ -38,7 +41,8 @@ export function isCalendarDayEditable(params: {
   const todayUTC = startOfDayUTC(params.today ?? new Date());
   const programStart = startOfDayUTC(params.startedAt);
   const registeredAtUTC = startOfDayUTC(params.registeredAt);
-  const unlockedDay = unlockedProgramDayByTime({
+  const unlockedDay = unlockedProgramDay({
+    cursorDay: params.cursorDay,
     startedAt: params.startedAt,
     durationDays: params.durationDays,
     today: todayUTC,

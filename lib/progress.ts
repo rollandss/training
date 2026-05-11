@@ -13,3 +13,18 @@ export function unlockedProgramDayByTime(params: { startedAt: Date; durationDays
   return Math.max(1, Math.min(unlocked, params.durationDays));
 }
 
+export function unlockedProgramDay(params: {
+  cursorDay: number;
+  startedAt: Date;
+  durationDays: number;
+  today?: Date;
+}) {
+  const timeDay = unlockedProgramDayByTime({
+    startedAt: params.startedAt,
+    durationDays: params.durationDays,
+    today: params.today,
+  });
+  const day = Math.max(params.cursorDay, timeDay);
+  return Math.max(1, Math.min(day, params.durationDays));
+}
+

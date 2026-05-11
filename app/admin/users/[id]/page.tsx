@@ -99,7 +99,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
                   <input type="hidden" name="userId" value={user.id} />
                   <input type="hidden" name="programId" value={up.programId} />
                   <div className="grid gap-1.5">
-                    <Label htmlFor="cursorDay">Cursor day (1-100)</Label>
+                    <Label htmlFor="cursorDay">Відкритий день (1-100)</Label>
                     <Input id="cursorDay" name="cursorDay" type="number" min={1} max={100} defaultValue={up.cursorDay} />
                   </div>
                   <SubmitButton variant="secondary" className="w-fit" pendingLabel="Зберігаю...">

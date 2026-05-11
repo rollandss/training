@@ -56,6 +56,7 @@ export async function saveCalendarDayAction(formData: FormData) {
       startedAt: up.startedAt,
       registeredAt: user.createdAt,
       durationDays: up.program.durationDays,
+      cursorDay: up.cursorDay,
     })
   ) {
     throw new Error("Day is locked");

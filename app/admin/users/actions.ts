@@ -47,5 +47,7 @@ export async function updateUserCursorDayAction(formData: FormData) {
   revalidatePath("/admin/users");
   revalidatePath(`/admin/users/${userId}`);
   revalidatePath("/app");
+  revalidatePath("/app/posts");
+  revalidatePath("/app/calendar");
 }
 
