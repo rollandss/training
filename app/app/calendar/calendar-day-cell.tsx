@@ -51,6 +51,7 @@ export function CalendarDayCell(props: {
   const { dayNum, dayKey, locked, status, trainingRepDefaults, training } = props;
 
   const [open, setOpen] = React.useState(false);
+  const [step, setStep] = React.useState<"choose" | "training">("choose");
   const [localStatus, setLocalStatus] = React.useState<CalendarStatusOrNone>(status ?? "NONE");
   const [restSeconds, setRestSeconds] = React.useState(60);
   const [restRemaining, setRestRemaining] = React.useState<number | null>(null);
@@ -89,7 +90,8 @@ export function CalendarDayCell(props: {
   const trainingSummary = training
     ? `${training.mode === "SETS" ? "Підх." : "Кіл"} ${training.rounds} · П${training.pullupsReps} · Пр${training.squatsReps} · Вд${training.pushupsReps} · Вп${training.lungesReps}`
     : null;
-  const trainingActive = localStatus === "TRAINING";
+  const trainingActive = step === "training";
+  const canSaveFromChoose = localStatus !== "NONE" && localStatus !== "TRAINING";
   const trainingInitial = resolveTrainingReps(
     trainingRepDefaults,
     training
@@ -107,6 +109,7 @@ export function CalendarDayCell(props: {
       return;
     }
     stopRestTimer();
+    setStep("choose");
     setOpen(false);
   }, [stopRestTimer, trainingActive]);
 
@@ -121,6 +124,7 @@ export function CalendarDayCell(props: {
         }
         if (v) {
           setLocalStatus(status ?? "NONE");
+          setStep("choose");
           stopRestTimer();
           setOpen(true);
           return;
@@ -130,6 +134,7 @@ export function CalendarDayCell(props: {
           return;
         }
         stopRestTimer();
+        setStep("choose");
         setOpen(false);
       }}
     >
@@ -186,7 +191,9 @@ export function CalendarDayCell(props: {
         <SheetHeader className="shrink-0">
           <SheetTitle className="text-xl font-black">День {dayNum}</SheetTitle>
           <SheetDescription className="font-medium">
-            Обери тип дня. Для тренування задай круги або підходи та повтори по вправах.
+            {step === "choose"
+              ? "Спочатку обери тип дня. Деталі тренування відкриються окремим кроком."
+              : "Задай повтори, круги або підходи та таймер відпочинку."}
           </SheetDescription>
         </SheetHeader>
 
@@ -195,6 +202,7 @@ export function CalendarDayCell(props: {
             try {
               await saveCalendarDayAction(fd);
               toast.success("День збережено");
+              setStep("choose");
               setOpen(false);
             } catch {
               toast.error("Не вдалося зберегти день");
@@ -205,71 +213,91 @@ export function CalendarDayCell(props: {
           <input type="hidden" name="dayKey" value={dayKey} />
 
           <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
-            <div className="grid gap-2">
-              <CardTitle className="text-base font-black">Тип дня</CardTitle>
-              <div className="grid grid-cols-2 gap-2">
-                {(Object.keys(STATUS_UI) as CalendarStatus[]).map((s) => (
+            <input type="hidden" name="status" value={localStatus} />
+            <CardDescription className="mb-4 text-xs">
+              Дата: <span className="font-mono">{dayKey}</span>
+            </CardDescription>
+
+            {step === "choose" ? (
+              <div className="grid gap-2">
+                <CardTitle className="text-base font-black">Тип дня</CardTitle>
+                <div className="grid grid-cols-2 gap-2">
+                  {(Object.keys(STATUS_UI) as CalendarStatus[]).map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => {
+                        setLocalStatus(s);
+                        if (s === "TRAINING") {
+                          setStep("training");
+                        }
+                      }}
+                      className={cn(
+                        "rounded-[var(--radius)] border-4 border-border px-3 py-3 text-left text-xs font-black uppercase tracking-wider shadow-[6px_6px_0px_0px_var(--color-border)] transition-[transform,box-shadow] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0px_0px_var(--color-border)] active:translate-x-0.5 active:translate-y-0.5",
+                        localStatus === s ? STATUS_UI[s].className : "bg-background text-foreground",
+                      )}
+                      aria-pressed={localStatus === s}
+                    >
+                      <div>{STATUS_UI[s].label}</div>
+                      {STATUS_UI[s].hint ? (
+                        <div className="mt-1 text-[11px] font-semibold opacity-80">{STATUS_UI[s].hint}</div>
+                      ) : null}
+                    </button>
+                  ))}
                   <button
-                    key={s}
                     type="button"
-                    onClick={() => setLocalStatus(s)}
+                    onClick={() => setLocalStatus("NONE")}
                     className={cn(
-                      "rounded-[var(--radius)] border-4 border-border px-3 py-3 text-left text-xs font-black uppercase tracking-wider shadow-[6px_6px_0px_0px_var(--color-border)] transition-[transform,box-shadow] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0px_0px_var(--color-border)] active:translate-x-0.5 active:translate-y-0.5",
-                      localStatus === s ? STATUS_UI[s].className : "bg-background text-foreground",
+                      "col-span-2 rounded-[var(--radius)] border-4 border-border bg-background px-3 py-3 text-left text-xs font-black uppercase tracking-wider shadow-[6px_6px_0px_0px_var(--color-border)] transition-[transform,box-shadow] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0px_0px_var(--color-border)] active:translate-x-0.5 active:translate-y-0.5",
+                      localStatus === "NONE" && "bg-muted",
                     )}
-                    aria-pressed={localStatus === s}
+                    aria-pressed={localStatus === "NONE"}
                   >
-                    <div>{STATUS_UI[s].label}</div>
-                    {STATUS_UI[s].hint ? <div className="mt-1 text-[11px] font-semibold opacity-80">{STATUS_UI[s].hint}</div> : null}
+                    Очистити (—)
                   </button>
-                ))}
-                <button
-                  type="button"
-                  onClick={() => setLocalStatus("NONE")}
-                  className={cn(
-                    "col-span-2 rounded-[var(--radius)] border-4 border-border bg-background px-3 py-3 text-left text-xs font-black uppercase tracking-wider shadow-[6px_6px_0px_0px_var(--color-border)] transition-[transform,box-shadow] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0px_0px_var(--color-border)] active:translate-x-0.5 active:translate-y-0.5",
-                    localStatus === "NONE" && "bg-muted",
-                  )}
-                  aria-pressed={localStatus === "NONE"}
-                >
-                  Очистити (—)
-                </button>
+                </div>
               </div>
-
-              <input type="hidden" name="status" value={localStatus} />
-              <CardDescription className="text-xs">
-                Дата: <span className="font-mono">{dayKey}</span>
-              </CardDescription>
-            </div>
-
-            {localStatus === "TRAINING" ? (
-              <div className="mt-5">
-                <TrainingDayForm
-                  key={`${dayKey}-${open ? "open" : "closed"}`}
-                  initial={{
-                    mode: training?.mode ?? "ROUNDS",
-                    rounds: training?.rounds ?? 4,
-                    pullupsReps: trainingInitial.pullupsReps,
-                    squatsReps: trainingInitial.squatsReps,
-                    pushupsReps: trainingInitial.pushupsReps,
-                    lungesReps: trainingInitial.lungesReps,
-                    notes: training?.notes ?? "",
-                  }}
-                  restSeconds={restSeconds}
-                  restRemaining={restRemaining}
-                  onRestSecondsChange={setRestSeconds}
-                  onStartRest={startRestTimer}
-                  onStopRest={stopRestTimer}
-                />
-              </div>
-            ) : null}
+            ) : (
+              <TrainingDayForm
+                key={`${dayKey}-${open ? "open" : "closed"}`}
+                initial={{
+                  mode: training?.mode ?? "ROUNDS",
+                  rounds: training?.rounds ?? 4,
+                  pullupsReps: trainingInitial.pullupsReps,
+                  squatsReps: trainingInitial.squatsReps,
+                  pushupsReps: trainingInitial.pushupsReps,
+                  lungesReps: trainingInitial.lungesReps,
+                  notes: training?.notes ?? "",
+                }}
+                restSeconds={restSeconds}
+                restRemaining={restRemaining}
+                onRestSecondsChange={setRestSeconds}
+                onStartRest={startRestTimer}
+                onStopRest={stopRestTimer}
+              />
+            )}
           </div>
 
           <SheetFooter className="shrink-0 border-t-4 border-border bg-popover">
             <div className="grid w-full gap-2">
-              <SubmitButton className="w-full" pendingLabel="Зберігаю...">
-                Зберегти
-              </SubmitButton>
+              {step === "training" ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => {
+                    stopRestTimer();
+                    setStep("choose");
+                  }}
+                >
+                  ← До вибору типу
+                </Button>
+              ) : null}
+              {step === "training" || canSaveFromChoose ? (
+                <SubmitButton className="w-full" pendingLabel="Зберігаю...">
+                  Зберегти
+                </SubmitButton>
+              ) : null}
               <Button type="button" variant="outline" className="w-full" onClick={requestClose}>
                 Закрити
               </Button>
