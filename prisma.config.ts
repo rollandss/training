@@ -1,5 +1,8 @@
-import "dotenv/config";
+import { config as loadEnv } from "dotenv";
 import { defineConfig, env } from "prisma/config";
+
+// Prefer .env over stale shell exports so Prisma CLI targets the same DB as the app.
+loadEnv({ path: ".env", override: true });
 
 export default defineConfig({
   schema: "prisma/schema.prisma",

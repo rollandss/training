@@ -32,7 +32,7 @@ npm run dev
 - Користувач: реєстрація на `/auth/register`.
 - Кабінет користувача: `/app` і `/app/posts`.
 - Адмінка постів: `/admin/posts`.
-- Адмін після seed: `admin@local` / пароль з `.env` (`ADMIN_SEED_PASSWORD`) або `admin-admin-CHANGE`.
+- Адмін після seed: `admin@example.com` / пароль з `.env` (`ADMIN_SEED_PASSWORD`) або `admin-admin-CHANGE`.
 
 ## Корисні команди
 

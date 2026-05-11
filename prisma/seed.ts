@@ -425,7 +425,8 @@ async function main() {
     });
   }
 
-  const adminEmail = "admin@local";
+  await prisma.user.deleteMany({ where: { email: "admin@local" } });
+  const adminEmail = "admin@example.com";
   const adminPass = process.env.ADMIN_SEED_PASSWORD ?? "admin-admin-CHANGE";
   const passwordHash = await bcrypt.hash(adminPass, 12);
   await prisma.user.upsert({

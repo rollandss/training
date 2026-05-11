@@ -7,6 +7,7 @@ import { registerAction, type AuthFormState } from "@/app/auth/actions";
 import { SubmitButton } from "@/components/submit-button";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { PasswordInput } from "@/components/password-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -29,7 +30,7 @@ export function RegisterForm() {
           </div>
           <div className="grid gap-2">
             <Label htmlFor="password">Пароль</Label>
-            <Input id="password" name="password" type="password" autoComplete="new-password" required />
+            <PasswordInput id="password" name="password" autoComplete="new-password" required />
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-3 border-t bg-transparent sm:flex-row sm:justify-between">
