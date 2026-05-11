@@ -15,9 +15,12 @@ export function AppShell({ email, isAdmin }: Props) {
     <header className="border-b bg-card">
       <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-2 px-3 py-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3 md:px-6">
         <div className="flex items-center gap-3">
-          <Link href="/app" className="shrink-0">
+          <Link href="/app" className="flex shrink-0 items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/stodenka-logo.svg" alt="Стоденка" className="h-7 w-auto" />
+            <img src="/stodenka-icon.svg" alt="" aria-hidden className="size-9 shrink-0" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/stodenka-logo.svg" alt="Стоденка" className="hidden h-8 w-auto sm:block" />
+            <span className="text-base font-black uppercase tracking-wider sm:hidden">Стоденка</span>
           </Link>
           <nav className="flex w-full items-center gap-2 overflow-x-auto whitespace-nowrap pr-1 text-sm [-webkit-overflow-scrolling:touch]">
             <Link href="/app" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { isCalendarDayEditable, unlockedProgramDayByTime } from "@/lib/calendar-access";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -30,11 +31,6 @@ function addMonthsUTC(d: Date, delta: number) {
 
 function startOfDayUTC(d: Date) {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
-}
-
-function diffDaysUTC(a: Date, b: Date) {
-  const ms = startOfDayUTC(a).getTime() - startOfDayUTC(b).getTime();
-  return Math.floor(ms / (1000 * 60 * 60 * 24));
 }
 
 const WEEKDAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"] as const;
@@ -92,14 +88,23 @@ export default async function CalendarPage({
 
   const training = await prisma.trainingDayEntry.findMany({
     where: { userId: user.id, dayKey: { in: dayKeys } },
-    select: { dayKey: true, rounds: true, pullupsReps: true, squatsReps: true, pushupsReps: true, lungesReps: true, notes: true },
+    select: {
+      dayKey: true,
+      mode: true,
+      rounds: true,
+      pullupsReps: true,
+      squatsReps: true,
+      pushupsReps: true,
+      lungesReps: true,
+      notes: true,
+    },
   });
   const trainingByDayKey = new Map(training.map((t) => [t.dayKey, t]));
 
-  const todayUTC = startOfDayUTC(new Date());
-  const registeredAtUTC = startOfDayUTC(new Date(user.createdAt));
-  const unlockedByTime = diffDaysUTC(todayUTC, programStart) + 1; // how many days have passed since start (inclusive)
-  const unlockedDay = Math.max(1, Math.min(unlockedByTime, up.program.durationDays));
+  const unlockedDay = unlockedProgramDayByTime({
+    startedAt: up.startedAt,
+    durationDays: up.program.durationDays,
+  });
 
   return (
     <div className="space-y-6">
@@ -108,7 +113,7 @@ export default async function CalendarPage({
           <CardTitle className="text-2xl">Календар</CardTitle>
           <CardDescription>
             Дні відкриваються поступово: доступно до дня <span className="font-black text-foreground">{unlockedDay}</span>.
-            Позначай: тренування, розтяжка, відпочинок або хвороба. Доступно з дня реєстрації.
+            Позначай: тренування, розтяжка, відпочинок або хвороба. Минулі відкриті дні можна редагувати.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap items-center gap-2">
@@ -158,13 +163,12 @@ export default async function CalendarPage({
           }
 
           const status = byDayKey.get(dayKey);
-          const programDay = diffDaysUTC(date, programStart) + 1; // 1..duration
-          const isFuture = date.getTime() > todayUTC.getTime();
-          const beforeRegistration = date.getTime() < registeredAtUTC.getTime();
-          const afterStart = date.getTime() >= programStart.getTime();
-          const beyondProgram = programDay > up.program.durationDays;
-          const beyondUnlocked = afterStart && programDay > unlockedDay;
-          const locked = isFuture || beforeRegistration || beyondProgram || beyondUnlocked;
+          const locked = !isCalendarDayEditable({
+            dayKey,
+            startedAt: up.startedAt,
+            registeredAt: user.createdAt,
+            durationDays: up.program.durationDays,
+          });
           const t = trainingByDayKey.get(dayKey);
 
           return (
@@ -177,6 +181,7 @@ export default async function CalendarPage({
               training={
                 t
                   ? {
+                      mode: t.mode === "SETS" ? "SETS" : "ROUNDS",
                       rounds: t.rounds,
                       pullupsReps: t.pullupsReps,
                       squatsReps: t.squatsReps,

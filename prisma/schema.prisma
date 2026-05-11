@@ -136,6 +136,7 @@ model TrainingDayEntry {
   userId     String
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   dayKey     String   // YYYY-MM-DD (matches UserCalendarDay.dayKey)
+  mode       String   @default("ROUNDS") // ROUNDS | SETS
   rounds     Int
   pullupsReps Int
   squatsReps  Int

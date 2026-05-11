@@ -1,36 +1,45 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 220" fill="none">
   <defs>
     <filter id="nbShadow" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
-      <feOffset dx="14" dy="14" in="SourceAlpha" result="off"/>
-      <feColorMatrix in="off" type="matrix"
-        values="0 0 0 0 0.05  0 0 0 0 0.05  0 0 0 0 0.05  0 0 0 1 0" result="shadow"/>
+      <feOffset dx="14" dy="14" in="SourceAlpha" result="off" />
+      <feColorMatrix
+        in="off"
+        type="matrix"
+        values="0 0 0 0 0.05  0 0 0 0 0.05  0 0 0 0 0.05  0 0 0 1 0"
+        result="shadow"
+      />
       <feMerge>
-        <feMergeNode in="shadow"/>
-        <feMergeNode in="SourceGraphic"/>
+        <feMergeNode in="shadow" />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <style>
-      .stroke { stroke: #0a0a0a; stroke-width: 12; stroke-linejoin: miter; stroke-linecap: square; }
-      .heavy { font-family: ui-sans-serif, system-ui, -apple-system, "Geist", Arial, sans-serif; font-weight: 900; }
+      .stroke {
+        stroke: #0a0a0a;
+        stroke-width: 12;
+        stroke-linejoin: miter;
+        stroke-linecap: square;
+      }
+      .heavy {
+        font-family: ui-sans-serif, system-ui, -apple-system, "Geist", Arial, sans-serif;
+        font-weight: 900;
+      }
     </style>
   </defs>
 
   <g filter="url(#nbShadow)">
-    <!-- Left mark -->
-    <rect x="18" y="22" width="176" height="176" rx="0" class="stroke" fill="#F7F2E6"/>
-    <path d="M18 22H92V64C92 75.046 83.046 84 72 84H18V22Z" class="stroke" fill="#B6FF3B"/>
+    <rect x="18" y="22" width="176" height="176" class="stroke" fill="#F7F2E6" />
+    <path d="M18 22H92V64C92 75.046 83.046 84 72 84H18V22Z" class="stroke" fill="#B6FF3B" />
     <g transform="translate(48 62)">
-      <rect x="0" y="0" width="116" height="14" class="stroke" fill="#F7F2E6"/>
-      <rect x="8" y="12" width="14" height="52" class="stroke" fill="#F7F2E6"/>
-      <rect x="94" y="12" width="14" height="52" class="stroke" fill="#F7F2E6"/>
+      <rect x="0" y="0" width="116" height="14" class="stroke" fill="#F7F2E6" />
+      <rect x="8" y="12" width="14" height="52" class="stroke" fill="#F7F2E6" />
+      <rect x="94" y="12" width="14" height="52" class="stroke" fill="#F7F2E6" />
     </g>
     <text x="106" y="160" text-anchor="middle" class="heavy" font-size="84" fill="#0a0a0a" letter-spacing="-6">100</text>
 
-    <!-- Wordmark -->
-    <rect x="222" y="52" width="740" height="120" rx="0" class="stroke" fill="#F7F2E6"/>
-    <text x="254" y="132" class="heavy" font-size="78" fill="#0a0a0a" letter-spacing="3">!"</text>
-    <rect x="812" y="78" width="122" height="66" rx="0" class="stroke" fill="#FF6A2E"/>
+    <rect x="222" y="52" width="740" height="120" class="stroke" fill="#F7F2E6" />
+    <text x="254" y="132" class="heavy" font-size="78" fill="#0a0a0a" letter-spacing="3">Стоденка</text>
+    <rect x="812" y="78" width="122" height="66" class="stroke" fill="#FF6A2E" />
     <text x="873" y="124" text-anchor="middle" class="heavy" font-size="34" fill="#0a0a0a" letter-spacing="2">UA</text>
   </g>
 </svg>
-

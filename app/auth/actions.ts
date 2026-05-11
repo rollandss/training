@@ -22,8 +22,11 @@ export async function registerAction(_prev: AuthFormState, formData: FormData): 
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Помилка валідації" };
   }
-  const { email, password } = parsed.data;
-  const exists = await prisma.user.findUnique({ where: { email } });
+  const email = parsed.data.email.trim().toLowerCase();
+  const password = parsed.data.password.trim();
+  const exists = await prisma.user.findFirst({
+    where: { email: { equals: email, mode: "insensitive" } },
+  });
   if (exists) {
     return { error: "Користувач з таким email уже існує" };
   }
@@ -51,9 +54,10 @@ export async function loginAction(_prev: AuthFormState, formData: FormData): Pro
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Помилка валідації" };
   }
-  const { email, password } = parsed.data;
-  const user = await prisma.user.findUnique({
-    where: { email },
+  const email = parsed.data.email.trim().toLowerCase();
+  const password = parsed.data.password.trim();
+  const user = await prisma.user.findFirst({
+    where: { email: { equals: email, mode: "insensitive" } },
     include: { profile: true },
   });
   if (!user) {

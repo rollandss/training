@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { isCalendarDayEditable, type TrainingVolumeMode } from "@/lib/calendar-access";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -20,6 +21,12 @@ function assertStatus(status: string): asserts status is CalendarStatusOrNone {
   }
 }
 
+function assertTrainingMode(mode: string): asserts mode is TrainingVolumeMode {
+  if (mode !== "ROUNDS" && mode !== "SETS") {
+    throw new Error("Invalid training mode");
+  }
+}
+
 function parseIntField(formData: FormData, key: string, opts?: { min?: number; max?: number }) {
   const raw = String(formData.get(key) ?? "").trim();
   if (!raw) return null;
@@ -34,11 +41,25 @@ function parseIntField(formData: FormData, key: string, opts?: { min?: number; m
 export async function saveCalendarDayAction(formData: FormData) {
   const user = await getCurrentUser();
   if (!user) throw new Error("Unauthorized");
+  const up = user.userPrograms[0];
+  if (!up) throw new Error("Program not started");
 
   const dayKey = String(formData.get("dayKey") ?? "");
   const statusRaw = String(formData.get("status") ?? "");
   assertDayKey(dayKey);
   assertStatus(statusRaw);
+
+  if (
+    statusRaw !== "NONE" &&
+    !isCalendarDayEditable({
+      dayKey,
+      startedAt: up.startedAt,
+      registeredAt: user.createdAt,
+      durationDays: up.program.durationDays,
+    })
+  ) {
+    throw new Error("Day is locked");
+  }
 
   if (statusRaw === "NONE") {
     await prisma.userCalendarDay.deleteMany({
@@ -55,6 +76,8 @@ export async function saveCalendarDayAction(formData: FormData) {
     });
 
     if (statusRaw === "TRAINING") {
+      const modeRaw = String(formData.get("mode") ?? "ROUNDS");
+      assertTrainingMode(modeRaw);
       const rounds = parseIntField(formData, "rounds", { min: 1, max: 50 });
       const pullupsReps = parseIntField(formData, "pullupsReps", { min: 0, max: 500 });
       const squatsReps = parseIntField(formData, "squatsReps", { min: 0, max: 5000 });
@@ -68,8 +91,8 @@ export async function saveCalendarDayAction(formData: FormData) {
 
       await prisma.trainingDayEntry.upsert({
         where: { userId_dayKey: { userId: user.id, dayKey } },
-        create: { userId: user.id, dayKey, rounds, pullupsReps, squatsReps, pushupsReps, lungesReps, notes },
-        update: { rounds, pullupsReps, squatsReps, pushupsReps, lungesReps, notes },
+        create: { userId: user.id, dayKey, mode: modeRaw, rounds, pullupsReps, squatsReps, pushupsReps, lungesReps, notes },
+        update: { mode: modeRaw, rounds, pullupsReps, squatsReps, pushupsReps, lungesReps, notes },
       });
     } else {
       // If the day is not a workout day, keep calendar mark but remove workout details.

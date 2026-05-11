@@ -6,11 +6,11 @@ import { Lock } from "lucide-react";
 import { SubmitButton } from "@/components/submit-button";
 import { Button } from "@/components/ui/button";
 import { CardDescription, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { type TrainingVolumeMode } from "@/lib/calendar-access";
 import { cn } from "@/lib/utils";
 
+import { TrainingDayForm } from "./training-day-form";
 import { saveCalendarDayAction, type CalendarStatus, type CalendarStatusOrNone } from "./actions";
 
 const STATUS_UI: Record<
@@ -29,6 +29,7 @@ const STATUS_UI: Record<
 };
 
 type TrainingEntry = {
+  mode: TrainingVolumeMode;
   rounds: number;
   pullupsReps: number;
   squatsReps: number;
@@ -36,17 +37,6 @@ type TrainingEntry = {
   lungesReps: number;
   notes: string | null;
 };
-
-function pad2(n: number) {
-  return String(n).padStart(2, "0");
-}
-
-function formatMmSs(totalSeconds: number) {
-  const s = Math.max(0, Math.floor(totalSeconds));
-  const mm = Math.floor(s / 60);
-  const ss = s % 60;
-  return `${pad2(mm)}:${pad2(ss)}`;
-}
 
 export function CalendarDayCell(props: {
   dayNum: number;
@@ -71,11 +61,31 @@ export function CalendarDayCell(props: {
     setRestRemaining(null);
   }, []);
 
+  const startRestTimer = React.useCallback(() => {
+    stopRestTimer();
+    const startedAt = Date.now();
+    const durationMs = restSeconds * 1000;
+    setRestRemaining(restSeconds);
+    intervalRef.current = window.setInterval(() => {
+      const elapsed = Date.now() - startedAt;
+      const remaining = Math.ceil((durationMs - elapsed) / 1000);
+      if (remaining <= 0) {
+        stopRestTimer();
+        return;
+      }
+      setRestRemaining(remaining);
+    }, 250);
+  }, [restSeconds, stopRestTimer]);
+
   React.useEffect(() => {
     return () => {
       if (intervalRef.current != null) window.clearInterval(intervalRef.current);
     };
   }, []);
+
+  const trainingSummary = training
+    ? `${training.mode === "SETS" ? "Підх." : "Кіл"} ${training.rounds} · П${training.pullupsReps} · Пр${training.squatsReps} · Вд${training.pushupsReps} · Вп${training.lungesReps}`
+    : null;
 
   return (
     <Sheet
@@ -122,10 +132,8 @@ export function CalendarDayCell(props: {
               )}
             </div>
 
-            {status === "TRAINING" && training ? (
-              <div className="mt-2 text-xs font-semibold text-muted-foreground">
-                {training.rounds} кіл · П{training.pullupsReps} · Пр{training.squatsReps} · Вд{training.pushupsReps} · Вп{training.lungesReps}
-              </div>
+            {status === "TRAINING" && trainingSummary ? (
+              <div className="mt-2 line-clamp-2 text-xs font-semibold text-muted-foreground">{trainingSummary}</div>
             ) : null}
 
             {locked ? (
@@ -139,11 +147,11 @@ export function CalendarDayCell(props: {
         }
       />
 
-      <SheetContent side="right" className="border-4 border-border shadow-[10px_10px_0px_0px_var(--color-border)]">
-        <SheetHeader>
+      <SheetContent side="right" className="h-full w-full max-w-md overflow-hidden border-4 border-border shadow-[10px_10px_0px_0px_var(--color-border)] sm:max-w-md">
+        <SheetHeader className="shrink-0">
           <SheetTitle className="text-xl font-black">День {dayNum}</SheetTitle>
           <SheetDescription className="font-medium">
-            Обери тип дня. Для “Тренування” заповни кола і повтори по вправах.
+            Обери тип дня. Для тренування задай круги або підходи та повтори по вправах.
           </SheetDescription>
         </SheetHeader>
 
@@ -152,11 +160,11 @@ export function CalendarDayCell(props: {
             await saveCalendarDayAction(fd);
             setOpen(false);
           }}
-          className="flex h-full flex-col"
+          className="flex min-h-0 flex-1 flex-col"
         >
           <input type="hidden" name="dayKey" value={dayKey} />
 
-          <div className="px-4 pb-4">
+          <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
             <div className="grid gap-2">
               <CardTitle className="text-base font-black">Тип дня</CardTitle>
               <div className="grid grid-cols-2 gap-2">
@@ -195,115 +203,30 @@ export function CalendarDayCell(props: {
             </div>
 
             {localStatus === "TRAINING" ? (
-              <div className="mt-5 grid gap-4">
-                <div className="rounded-[var(--radius)] border-4 border-border bg-background p-3 shadow-[8px_8px_0px_0px_var(--color-border)]">
-                  <div className="text-xs font-black uppercase tracking-wider text-muted-foreground">Таймер відпочинку між колами</div>
-                  <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <div className="flex-1">
-                      <Label htmlFor="restSeconds">Секунди</Label>
-                      <Input
-                        id="restSeconds"
-                        type="number"
-                        min={10}
-                        max={600}
-                        value={restSeconds}
-                        onChange={(e) => {
-                          const n = Number(e.target.value);
-                          if (!Number.isFinite(n)) return;
-                          setRestSeconds(Math.max(10, Math.min(600, Math.floor(n))));
-                        }}
-                      />
-                    </div>
-                    <div className="flex flex-col items-start gap-1">
-                      <div className="text-xs font-black uppercase tracking-wider text-muted-foreground">Залишилось</div>
-                      <div className={cn("text-2xl font-black", restRemaining != null && restRemaining <= 5 && "text-destructive")}>
-                        {formatMmSs(restRemaining ?? restSeconds)}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <Button
-                      type="button"
-                      className="font-black uppercase tracking-wider"
-                      onClick={() => {
-                        stopRestTimer();
-                        const startedAt = Date.now();
-                        const durationMs = restSeconds * 1000;
-                        setRestRemaining(restSeconds);
-                        intervalRef.current = window.setInterval(() => {
-                          const elapsed = Date.now() - startedAt;
-                          const remaining = Math.ceil((durationMs - elapsed) / 1000);
-                          if (remaining <= 0) {
-                            stopRestTimer();
-                            return;
-                          }
-                          setRestRemaining(remaining);
-                        }, 250);
-                      }}
-                    >
-                      Старт відпочинку
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      className="font-black uppercase tracking-wider"
-                      disabled={restRemaining == null}
-                      onClick={() => stopRestTimer()}
-                    >
-                      Стоп / скинути
-                    </Button>
-                  </div>
-
-                  <div className="mt-2 text-xs font-semibold text-muted-foreground">
-                    Натисни “Старт відпочинку” після того, як завершив коло.
-                  </div>
-                </div>
-
-                <div className="grid gap-1.5">
-                  <Label htmlFor="rounds">Кількість кіл</Label>
-                  <Input
-                    id="rounds"
-                    name="rounds"
-                    type="number"
-                    min={1}
-                    max={50}
-                    defaultValue={training?.rounds ?? 4}
-                  />
-                </div>
-
-                <div className="grid gap-3">
-                  <div className="text-xs font-black uppercase tracking-wider text-muted-foreground">Повтори в колі</div>
-                  <div className="grid gap-3">
-                    <div className="grid gap-1.5">
-                      <Label htmlFor="pullupsReps">Підтягування</Label>
-                      <Input id="pullupsReps" name="pullupsReps" type="number" min={0} max={500} defaultValue={training?.pullupsReps ?? ""} />
-                    </div>
-                    <div className="grid gap-1.5">
-                      <Label htmlFor="squatsReps">Присідання</Label>
-                      <Input id="squatsReps" name="squatsReps" type="number" min={0} max={5000} defaultValue={training?.squatsReps ?? ""} />
-                    </div>
-                    <div className="grid gap-1.5">
-                      <Label htmlFor="pushupsReps">Віджимання</Label>
-                      <Input id="pushupsReps" name="pushupsReps" type="number" min={0} max={5000} defaultValue={training?.pushupsReps ?? ""} />
-                    </div>
-                    <div className="grid gap-1.5">
-                      <Label htmlFor="lungesReps">Випади</Label>
-                      <Input id="lungesReps" name="lungesReps" type="number" min={0} max={5000} defaultValue={training?.lungesReps ?? ""} />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid gap-1.5">
-                  <Label htmlFor="notes">Нотатки (опц.)</Label>
-                  <Input id="notes" name="notes" defaultValue={training?.notes ?? ""} placeholder="Напр.: важко на останніх колах..." />
-                </div>
+              <div className="mt-5">
+                <TrainingDayForm
+                  key={`${dayKey}-${open ? "open" : "closed"}`}
+                  initial={{
+                    mode: training?.mode ?? "ROUNDS",
+                    rounds: training?.rounds ?? 4,
+                    pullupsReps: training?.pullupsReps ?? 1,
+                    squatsReps: training?.squatsReps ?? 2,
+                    pushupsReps: training?.pushupsReps ?? 2,
+                    lungesReps: training?.lungesReps ?? 2,
+                    notes: training?.notes ?? "",
+                  }}
+                  restSeconds={restSeconds}
+                  restRemaining={restRemaining}
+                  onRestSecondsChange={setRestSeconds}
+                  onStartRest={startRestTimer}
+                  onStopRest={stopRestTimer}
+                />
               </div>
             ) : null}
           </div>
 
-          <SheetFooter>
-            <div className="grid gap-2">
+          <SheetFooter className="shrink-0 border-t-4 border-border bg-popover">
+            <div className="grid w-full gap-2">
               <SubmitButton className="w-full" pendingLabel="Зберігаю...">
                 Зберегти
               </SubmitButton>
@@ -317,4 +240,3 @@ export function CalendarDayCell(props: {
     </Sheet>
   );
 }
-
