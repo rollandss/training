@@ -58,6 +58,12 @@ export type TrainingDayFormValue = {
   notes: string;
 };
 
+export type TrainingVolumeProgress = {
+  mode: TrainingVolumeMode;
+  active: number;
+  rounds: number;
+};
+
 export function TrainingDayForm(props: {
   initial?: Partial<TrainingDayFormValue>;
   restSeconds: number;
@@ -65,8 +71,9 @@ export function TrainingDayForm(props: {
   onRestSecondsChange: (seconds: number) => void;
   onStartRest: () => void;
   onStopRest: () => void;
+  onActiveVolumeChange?: (progress: TrainingVolumeProgress) => void;
 }) {
-  const { initial, restSeconds, restRemaining, onRestSecondsChange, onStartRest, onStopRest } = props;
+  const { initial, restSeconds, restRemaining, onRestSecondsChange, onStartRest, onStopRest, onActiveVolumeChange } = props;
 
   const [mode, setMode] = React.useState<TrainingVolumeMode>(initial?.mode ?? "ROUNDS");
   const [rounds, setRounds] = React.useState(initial?.rounds ?? 4);
@@ -99,6 +106,36 @@ export function TrainingDayForm(props: {
     onStartRest();
   }, [activeVolume, onStartRest, rounds]);
 
+  React.useEffect(() => {
+    onActiveVolumeChange?.({ mode, active: activeVolume, rounds });
+  }, [activeVolume, mode, onActiveVolumeChange, rounds]);
+
+  const volumeChips = (
+    <div className="flex flex-wrap gap-1.5">
+      {Array.from({ length: rounds }, (_, index) => index + 1).map((volumeNumber) => {
+        const isActive = volumeNumber === activeVolume;
+        const isDone = volumeNumber < activeVolume;
+        return (
+          <button
+            key={volumeNumber}
+            type="button"
+            onClick={() => setActiveVolume(volumeNumber)}
+            className={cn(
+              "inline-flex min-w-9 items-center justify-center rounded-[var(--radius)] border-4 border-border px-2 py-1 text-sm font-black tabular-nums shadow-[4px_4px_0px_0px_var(--color-border)] transition-[transform,box-shadow,background-color,color]",
+              isActive && "bg-background text-foreground",
+              isDone && !isActive && "bg-secondary text-secondary-foreground",
+              !isActive && !isDone && "bg-primary-foreground/10 text-primary-foreground",
+            )}
+            aria-current={isActive ? "step" : undefined}
+            aria-label={`${activeVolumeLabel} ${volumeNumber} з ${rounds}`}
+          >
+            {volumeNumber}
+          </button>
+        );
+      })}
+    </div>
+  );
+
   return (
     <div className="grid gap-3">
       <input type="hidden" name="mode" value={mode} />
@@ -106,6 +143,34 @@ export function TrainingDayForm(props: {
       {TRAINING_EXERCISES.map((exercise) => (
         <input key={exercise.key} type="hidden" name={exercise.key} value={values[exercise.key]} />
       ))}
+
+      <div
+        className="sticky top-0 z-10 -mx-4 border-b-4 border-border bg-primary px-4 py-3 text-primary-foreground shadow-[8px_8px_0px_0px_var(--color-border)]"
+        aria-live="polite"
+      >
+        <div className="text-[11px] font-black uppercase tracking-wider opacity-80">Зараз</div>
+        <div className="mt-1 text-2xl font-black tabular-nums">
+          {activeVolumeLabel} {activeVolume} <span className="text-base opacity-80">з {rounds}</span>
+        </div>
+        <div className="mt-3">{volumeChips}</div>
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            className="font-black uppercase tracking-wider"
+            disabled={activeVolume >= rounds}
+            onClick={completeActiveVolume}
+          >
+            {activeVolumeDoneLabel}
+          </Button>
+          <span className="text-[11px] font-semibold opacity-90">
+            {activeVolume >= rounds
+              ? `Останнє ${activeVolumeLabelLower} перед збереженням.`
+              : `Після ${activeVolumeLabelLower} запуститься відпочинок.`}
+          </span>
+        </div>
+      </div>
 
       <div className="grid grid-cols-2 gap-2 rounded-[var(--radius)] border-4 border-border bg-muted/40 p-1 shadow-[6px_6px_0px_0px_var(--color-border)]">
         {(
@@ -131,54 +196,6 @@ export function TrainingDayForm(props: {
         ))}
       </div>
 
-      <div
-        className="rounded-[var(--radius)] border-4 border-border bg-primary/10 p-3 shadow-[8px_8px_0px_0px_var(--color-border)]"
-        aria-live="polite"
-      >
-        <div className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Зараз</div>
-        <div className="mt-1 text-2xl font-black tabular-nums">
-          {activeVolumeLabel} {activeVolume} <span className="text-base text-muted-foreground">з {rounds}</span>
-        </div>
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {Array.from({ length: rounds }, (_, index) => index + 1).map((volumeNumber) => {
-            const isActive = volumeNumber === activeVolume;
-            const isDone = volumeNumber < activeVolume;
-            return (
-              <button
-                key={volumeNumber}
-                type="button"
-                onClick={() => setActiveVolume(volumeNumber)}
-                className={cn(
-                  "inline-flex min-w-9 items-center justify-center rounded-[var(--radius)] border-4 border-border px-2 py-1 text-sm font-black tabular-nums shadow-[4px_4px_0px_0px_var(--color-border)] transition-[transform,box-shadow,background-color,color]",
-                  isActive && "bg-primary text-primary-foreground",
-                  isDone && !isActive && "bg-secondary text-secondary-foreground",
-                  !isActive && !isDone && "bg-background text-foreground",
-                )}
-                aria-current={isActive ? "step" : undefined}
-                aria-label={`${activeVolumeLabel} ${volumeNumber} з ${rounds}`}
-              >
-                {volumeNumber}
-              </button>
-            );
-          })}
-        </div>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <Button
-            type="button"
-            size="sm"
-            className="font-black uppercase tracking-wider"
-            disabled={activeVolume >= rounds}
-            onClick={completeActiveVolume}
-          >
-            {activeVolumeDoneLabel}
-          </Button>
-          <span className="text-[11px] font-semibold text-muted-foreground">
-            {activeVolume >= rounds
-              ? `Останнє ${activeVolumeLabelLower} перед збереженням.`
-              : `Після ${activeVolumeLabelLower} запуститься відпочинок.`}
-          </span>
-        </div>
-      </div>
 
       <div className="space-y-2">
         {TRAINING_EXERCISES.map((exercise) => (

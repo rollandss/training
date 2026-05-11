@@ -5,14 +5,13 @@ import { Lock } from "lucide-react";
 import { toast } from "sonner";
 
 import { SubmitButton } from "@/components/submit-button";
-import { Button } from "@/components/ui/button";
 import { CardDescription, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { type TrainingVolumeMode } from "@/lib/calendar-access";
 import { resolveTrainingReps, type TrainingRepValues } from "@/lib/training-exercises";
 import { cn } from "@/lib/utils";
 
-import { TrainingDayForm } from "./training-day-form";
+import { TrainingDayForm, type TrainingVolumeProgress } from "./training-day-form";
 import { saveCalendarDayAction, type CalendarStatus, type CalendarStatusOrNone } from "./actions";
 
 const STATUS_UI: Record<
@@ -55,6 +54,7 @@ export function CalendarDayCell(props: {
   const [localStatus, setLocalStatus] = React.useState<CalendarStatusOrNone>(status ?? "NONE");
   const [restSeconds, setRestSeconds] = React.useState(60);
   const [restRemaining, setRestRemaining] = React.useState<number | null>(null);
+  const [volumeProgress, setVolumeProgress] = React.useState<TrainingVolumeProgress | null>(null);
   const intervalRef = React.useRef<number | null>(null);
 
   const stopRestTimer = React.useCallback(() => {
@@ -104,14 +104,12 @@ export function CalendarDayCell(props: {
       : undefined,
   );
 
-  const requestClose = React.useCallback(() => {
-    if (trainingActive && !window.confirm("Закрити заняття без збереження?")) {
-      return;
-    }
-    stopRestTimer();
-    setStep("choose");
-    setOpen(false);
-  }, [stopRestTimer, trainingActive]);
+  const volumeProgressLabel =
+    volumeProgress == null
+      ? null
+      : volumeProgress.mode === "ROUNDS"
+        ? "Коло"
+        : "Підхід";
 
   return (
     <Sheet
@@ -125,6 +123,7 @@ export function CalendarDayCell(props: {
         if (v) {
           setLocalStatus(status ?? "NONE");
           setStep("choose");
+          setVolumeProgress(null);
           stopRestTimer();
           setOpen(true);
           return;
@@ -185,15 +184,16 @@ export function CalendarDayCell(props: {
 
       <SheetContent
         side="bottom"
-        showCloseButton={!trainingActive}
         className="flex h-[min(92dvh,100svh)] max-h-[92dvh] w-full max-w-none flex-col gap-0 overflow-hidden rounded-t-[var(--radius)] border-4 border-border p-0 shadow-[10px_10px_0px_0px_var(--color-border)] sm:mx-auto sm:max-w-lg"
       >
-        <SheetHeader className="shrink-0 border-b-4 border-border px-4 py-3">
+        <SheetHeader className="shrink-0 border-b-4 border-border px-4 py-3 pr-14">
           <SheetTitle className="text-lg font-black">День {dayNum}</SheetTitle>
           <SheetDescription className="text-xs font-medium">
             {step === "choose"
               ? "Обери тип дня."
-              : "Повтори, круги або підходи, таймер."}
+              : volumeProgress && volumeProgressLabel
+                ? `${volumeProgressLabel} ${volumeProgress.active} з ${volumeProgress.rounds} · повтори, таймер`
+                : "Повтори, круги або підходи, таймер."}
           </SheetDescription>
         </SheetHeader>
 
@@ -274,35 +274,18 @@ export function CalendarDayCell(props: {
                 onRestSecondsChange={setRestSeconds}
                 onStartRest={startRestTimer}
                 onStopRest={stopRestTimer}
+                onActiveVolumeChange={setVolumeProgress}
               />
             )}
           </div>
 
-          <SheetFooter className="shrink-0 border-t-4 border-border bg-popover px-4 py-3 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
-            <div className="grid w-full gap-2">
-              {step === "training" ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => {
-                    stopRestTimer();
-                    setStep("choose");
-                  }}
-                >
-                  ← До вибору типу
-                </Button>
-              ) : null}
-              {step === "training" || canSaveFromChoose ? (
-                <SubmitButton className="w-full" pendingLabel="Зберігаю...">
-                  Зберегти
-                </SubmitButton>
-              ) : null}
-              <Button type="button" variant="outline" className="w-full" onClick={requestClose}>
-                Закрити
-              </Button>
-            </div>
-          </SheetFooter>
+          {step === "training" || canSaveFromChoose ? (
+            <SheetFooter className="shrink-0 border-t-4 border-border bg-popover px-4 py-3 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
+              <SubmitButton className="w-full" pendingLabel="Зберігаю...">
+                Зберегти
+              </SubmitButton>
+            </SheetFooter>
+          ) : null}
         </form>
       </SheetContent>
     </Sheet>
