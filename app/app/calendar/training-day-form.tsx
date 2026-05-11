@@ -77,9 +77,27 @@ export function TrainingDayForm(props: {
     lungesReps: initial?.lungesReps ?? DEFAULT_TRAINING_REPS.lungesReps,
   });
   const [notes, setNotes] = React.useState(initial?.notes ?? "");
+  const [activeVolume, setActiveVolume] = React.useState(1);
 
   const volumeLabel = mode === "ROUNDS" ? "Кіл" : "Підходів";
   const repsLabel = mode === "ROUNDS" ? "Повтори в колі" : "Повтори в підході";
+  const activeVolumeLabel = mode === "ROUNDS" ? "Коло" : "Підхід";
+  const activeVolumeLabelLower = mode === "ROUNDS" ? "коло" : "підхід";
+  const activeVolumeDoneLabel = mode === "ROUNDS" ? "Коло виконано" : "Підхід виконано";
+
+  React.useEffect(() => {
+    setActiveVolume((current) => Math.max(1, Math.min(current, rounds)));
+  }, [rounds]);
+
+  React.useEffect(() => {
+    setActiveVolume(1);
+  }, [mode]);
+
+  const completeActiveVolume = React.useCallback(() => {
+    if (activeVolume >= rounds) return;
+    setActiveVolume((current) => Math.min(rounds, current + 1));
+    onStartRest();
+  }, [activeVolume, onStartRest, rounds]);
 
   return (
     <div className="grid gap-3">
@@ -113,18 +131,69 @@ export function TrainingDayForm(props: {
         ))}
       </div>
 
+      <div
+        className="rounded-[var(--radius)] border-4 border-border bg-primary/10 p-3 shadow-[8px_8px_0px_0px_var(--color-border)]"
+        aria-live="polite"
+      >
+        <div className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Зараз</div>
+        <div className="mt-1 text-2xl font-black tabular-nums">
+          {activeVolumeLabel} {activeVolume} <span className="text-base text-muted-foreground">з {rounds}</span>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {Array.from({ length: rounds }, (_, index) => index + 1).map((volumeNumber) => {
+            const isActive = volumeNumber === activeVolume;
+            const isDone = volumeNumber < activeVolume;
+            return (
+              <button
+                key={volumeNumber}
+                type="button"
+                onClick={() => setActiveVolume(volumeNumber)}
+                className={cn(
+                  "inline-flex min-w-9 items-center justify-center rounded-[var(--radius)] border-4 border-border px-2 py-1 text-sm font-black tabular-nums shadow-[4px_4px_0px_0px_var(--color-border)] transition-[transform,box-shadow,background-color,color]",
+                  isActive && "bg-primary text-primary-foreground",
+                  isDone && !isActive && "bg-secondary text-secondary-foreground",
+                  !isActive && !isDone && "bg-background text-foreground",
+                )}
+                aria-current={isActive ? "step" : undefined}
+                aria-label={`${activeVolumeLabel} ${volumeNumber} з ${rounds}`}
+              >
+                {volumeNumber}
+              </button>
+            );
+          })}
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            size="sm"
+            className="font-black uppercase tracking-wider"
+            disabled={activeVolume >= rounds}
+            onClick={completeActiveVolume}
+          >
+            {activeVolumeDoneLabel}
+          </Button>
+          <span className="text-[11px] font-semibold text-muted-foreground">
+            {activeVolume >= rounds
+              ? `Останнє ${activeVolumeLabelLower} перед збереженням.`
+              : `Після ${activeVolumeLabelLower} запуститься відпочинок.`}
+          </span>
+        </div>
+      </div>
+
       <div className="space-y-2">
         {TRAINING_EXERCISES.map((exercise) => (
           <div
             key={exercise.key}
-            className="flex items-center gap-2 rounded-[var(--radius)] border-4 border-border bg-card px-2 py-2 shadow-[6px_6px_0px_0px_var(--color-border)]"
+            className="flex items-center gap-2 rounded-[var(--radius)] border-4 border-border bg-card px-2 py-2 shadow-[6px_6px_0px_0px_var(--color-border)] ring-2 ring-primary/35"
           >
             <div className="flex size-8 shrink-0 items-center justify-center rounded-[var(--radius)] border-4 border-border bg-secondary text-xs font-black shadow-[4px_4px_0px_0px_var(--color-border)]">
               {exercise.short}
             </div>
             <div className="min-w-0 flex-1">
               <div className="text-sm font-black leading-tight">{exercise.label}</div>
-              <div className="text-[11px] font-semibold text-muted-foreground">{repsLabel}</div>
+              <div className="text-[11px] font-semibold text-muted-foreground">
+                {repsLabel} · {activeVolumeLabel} {activeVolume}
+              </div>
             </div>
             <Stepper
               value={values[exercise.key]}
@@ -191,7 +260,7 @@ export function TrainingDayForm(props: {
             disabled={restRemaining == null}
             onClick={onStopRest}
           >
-            Стоп
+            Пропустити
           </Button>
         </div>
       </div>

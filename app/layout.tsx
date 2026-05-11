@@ -38,7 +38,7 @@ export default function RootLayout({
         >
           <ParticlesBackground />
           <div className="relative z-[2] flex min-h-full flex-1 flex-col">{children}</div>
-          <Toaster richColors position="top-center" />
+          <Toaster richColors position="bottom-right" />
         </ThemeProvider>
       </body>
     </html>
