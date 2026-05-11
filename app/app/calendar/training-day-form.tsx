@@ -69,10 +69,9 @@ export function TrainingDayForm(props: {
   restRemaining: number | null;
   onRestSecondsChange: (seconds: number) => void;
   onStartRest: () => void;
-  onStopRest: () => void;
   onActiveVolumeChange?: (progress: TrainingVolumeProgress) => void;
 }) {
-  const { initial, restSeconds, restRemaining, onRestSecondsChange, onStartRest, onStopRest, onActiveVolumeChange } = props;
+  const { initial, restSeconds, restRemaining, onRestSecondsChange, onStartRest, onActiveVolumeChange } = props;
 
   const [mode, setModeState] = React.useState<TrainingVolumeMode>(initial?.mode ?? "ROUNDS");
   const [rounds, setRoundsState] = React.useState(initial?.rounds ?? 4);
@@ -239,47 +238,29 @@ export function TrainingDayForm(props: {
 
       <div className="rounded-[var(--radius)] border-4 border-border bg-background p-2.5 shadow-[8px_8px_0px_0px_var(--color-border)]">
         <div className="text-xs font-black uppercase tracking-wider text-muted-foreground">Таймер відпочинку</div>
-        <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2">
-          <div>
-            <Label htmlFor="restSeconds" className="text-xs">
-              Секунди
-            </Label>
-            <Input
-              id="restSeconds"
-              type="number"
-              min={10}
-              max={600}
-              className="h-9"
-              value={restSeconds}
-              onChange={(e) => {
-                const n = Number(e.target.value);
-                if (!Number.isFinite(n)) return;
-                onRestSecondsChange(Math.max(10, Math.min(600, Math.floor(n))));
-              }}
-            />
-          </div>
-          <div className="text-right">
-            <div className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Залишилось</div>
-            <div className={cn("text-xl font-black tabular-nums", restRemaining != null && restRemaining <= 5 && "text-destructive")}>
-              {String(Math.floor((restRemaining ?? restSeconds) / 60)).padStart(2, "0")}:
-              {String((restRemaining ?? restSeconds) % 60).padStart(2, "0")}
-            </div>
-          </div>
-        </div>
-        <div className="mt-2 grid grid-cols-2 gap-2">
-          <Button type="button" size="sm" className="font-black uppercase tracking-wider" onClick={onStartRest}>
-            Старт
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="secondary"
-            className="font-black uppercase tracking-wider"
-            disabled={restRemaining == null}
-            onClick={onStopRest}
-          >
-            Пропустити
-          </Button>
+        <div className="mt-2 grid gap-1.5">
+          <Label htmlFor="restSeconds" className="text-xs">
+            Секунди
+          </Label>
+          <Input
+            id="restSeconds"
+            type="number"
+            min={10}
+            max={600}
+            className="h-9"
+            value={restSeconds}
+            disabled={restRemaining != null}
+            onChange={(e) => {
+              const n = Number(e.target.value);
+              if (!Number.isFinite(n)) return;
+              onRestSecondsChange(Math.max(10, Math.min(600, Math.floor(n))));
+            }}
+          />
+          <p className="text-[11px] font-semibold text-muted-foreground">
+            {restRemaining != null
+              ? "Повноекранний відпочинок активний."
+              : "Після «Коло виконано» відкриється повноекранний відлік."}
+          </p>
         </div>
       </div>
     </div>

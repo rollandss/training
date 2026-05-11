@@ -14,6 +14,7 @@ import { resolveTrainingReps, type TrainingRepValues } from "@/lib/training-exer
 import { cn } from "@/lib/utils";
 
 import { TrainingDayForm, type TrainingVolumeProgress } from "./training-day-form";
+import { TrainingRestOverlay } from "./training-rest-overlay";
 import { saveCalendarDayAction, type CalendarStatus, type CalendarStatusOrNone } from "./actions";
 
 const STATUS_UI: Record<
@@ -56,6 +57,7 @@ export function CalendarDayCell(props: {
   const [localStatus, setLocalStatus] = React.useState<CalendarStatusOrNone>(status ?? "NONE");
   const [restSeconds, setRestSeconds] = React.useState(60);
   const [restRemaining, setRestRemaining] = React.useState<number | null>(null);
+  const [restDurationTotal, setRestDurationTotal] = React.useState(60);
   const [volumeProgress, setVolumeProgress] = React.useState<TrainingVolumeProgress | null>(null);
   const [notes, setNotes] = React.useState(training?.notes ?? "");
   const intervalRef = React.useRef<number | null>(null);
@@ -72,6 +74,7 @@ export function CalendarDayCell(props: {
     stopRestTimer();
     const startedAt = Date.now();
     const durationMs = restSeconds * 1000;
+    setRestDurationTotal(restSeconds);
     setRestRemaining(restSeconds);
     intervalRef.current = window.setInterval(() => {
       const elapsed = Date.now() - startedAt;
@@ -296,7 +299,6 @@ export function CalendarDayCell(props: {
                 restRemaining={restRemaining}
                 onRestSecondsChange={setRestSeconds}
                 onStartRest={startRestTimer}
-                onStopRest={stopRestTimer}
                 onActiveVolumeChange={setVolumeProgress}
               />
             )}
@@ -311,6 +313,13 @@ export function CalendarDayCell(props: {
           ) : null}
         </form>
       </SheetContent>
+      {trainingActive && restRemaining != null ? (
+        <TrainingRestOverlay
+          totalSeconds={restDurationTotal}
+          remainingSeconds={restRemaining}
+          onSkip={stopRestTimer}
+        />
+      ) : null}
     </Sheet>
   );
 }
