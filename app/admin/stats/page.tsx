@@ -92,6 +92,7 @@ export default async function AdminStatsPage() {
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
           <Badge className="bg-primary text-primary-foreground">TRAINING: {monthMap.get("TRAINING") ?? 0}</Badge>
+          <Badge className="bg-accent text-accent-foreground">STRETCHING: {monthMap.get("STRETCHING") ?? 0}</Badge>
           <Badge variant="secondary">REST: {monthMap.get("REST") ?? 0}</Badge>
           <Badge variant="outline">SICK: {monthMap.get("SICK") ?? 0}</Badge>
         </CardContent>

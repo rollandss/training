@@ -117,6 +117,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
                 </CardHeader>
                 <CardContent className="flex flex-wrap gap-2">
                   <Badge className="bg-primary text-primary-foreground">Т: {map.get("TRAINING") ?? 0}</Badge>
+                <Badge className="bg-accent text-accent-foreground">Р: {map.get("STRETCHING") ?? 0}</Badge>
                   <Badge variant="secondary">В: {map.get("REST") ?? 0}</Badge>
                   <Badge variant="outline">Х: {map.get("SICK") ?? 0}</Badge>
                 </CardContent>
@@ -190,6 +191,9 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
           <div className="grid gap-2 sm:grid-cols-3">
             <div className="rounded-[var(--radius)] border-4 border-border bg-primary p-3 text-sm font-black uppercase tracking-wider text-primary-foreground shadow-[8px_8px_0px_0px_var(--color-border)]">
               TRAINING
+            </div>
+            <div className="rounded-[var(--radius)] border-4 border-border bg-accent p-3 text-sm font-black uppercase tracking-wider text-accent-foreground shadow-[8px_8px_0px_0px_var(--color-border)]">
+              STRETCHING
             </div>
             <div className="rounded-[var(--radius)] border-4 border-border bg-secondary p-3 text-sm font-black uppercase tracking-wider text-secondary-foreground shadow-[8px_8px_0px_0px_var(--color-border)]">
               REST

@@ -1,10 +1,10 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../generated/prisma"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider = "postgresql"
 }
 
 model User {
@@ -17,6 +17,7 @@ model User {
   emailSub     UserEmailSubscription?
   logs         WorkoutLog[]
   calendarDays UserCalendarDay[]
+  trainingDays TrainingDayEntry[]
   userPrograms UserProgram[]
 }
 
@@ -122,9 +123,27 @@ model UserCalendarDay {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   dayKey    String   // YYYY-MM-DD
-  status    String   // TRAINING | REST | SICK
+  status    String   // TRAINING | STRETCHING | REST | SICK
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([userId, dayKey])
+  @@index([userId, dayKey])
+}
+
+model TrainingDayEntry {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dayKey     String   // YYYY-MM-DD (matches UserCalendarDay.dayKey)
+  rounds     Int
+  pullupsReps Int
+  squatsReps  Int
+  pushupsReps Int
+  lungesReps  Int
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@unique([userId, dayKey])
   @@index([userId, dayKey])

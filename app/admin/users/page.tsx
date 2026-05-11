@@ -80,13 +80,14 @@ export default async function AdminUsersPage({
     string,
     {
       TRAINING: number;
+      STRETCHING: number;
       REST: number;
       SICK: number;
     }
   >();
   for (const row of grouped) {
-    const curr = byUser.get(row.userId) ?? { TRAINING: 0, REST: 0, SICK: 0 };
-    const status = row.status as "TRAINING" | "REST" | "SICK";
+    const curr = byUser.get(row.userId) ?? { TRAINING: 0, STRETCHING: 0, REST: 0, SICK: 0 };
+    const status = row.status as "TRAINING" | "STRETCHING" | "REST" | "SICK";
     curr[status] = row._count._all;
     byUser.set(row.userId, curr);
   }
@@ -129,7 +130,7 @@ export default async function AdminUsersPage({
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {users.map((u) => {
           const up = u.userPrograms[0];
-          const counts = byUser.get(u.id) ?? { TRAINING: 0, REST: 0, SICK: 0 };
+          const counts = byUser.get(u.id) ?? { TRAINING: 0, STRETCHING: 0, REST: 0, SICK: 0 };
           const last = lastByUser.get(u.id) ?? null;
           return (
             <Card key={u.id} className="relative overflow-hidden">
@@ -143,6 +144,7 @@ export default async function AdminUsersPage({
               <CardContent className="space-y-3">
                 <div className="flex flex-wrap gap-2">
                   <Badge className="bg-primary text-primary-foreground">Т: {counts.TRAINING}</Badge>
+                  <Badge className="bg-accent text-accent-foreground">Р: {counts.STRETCHING}</Badge>
                   <Badge variant="secondary">В: {counts.REST}</Badge>
                   <Badge variant="outline">Х: {counts.SICK}</Badge>
                 </div>

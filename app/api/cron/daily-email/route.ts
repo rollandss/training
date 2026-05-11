@@ -13,9 +13,14 @@ function dayKeyUTC(d: Date) {
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
-  const token = url.searchParams.get("token") ?? "";
   const expected = process.env.CRON_TOKEN ?? "";
-  if (!expected || token !== expected) {
+  const token = url.searchParams.get("token") ?? "";
+  const isVercelCron = req.headers.get("x-vercel-cron") === "1";
+  const tokenOk = expected && token === expected;
+
+  // Allow calls from Vercel Cron without embedding secrets into the URL.
+  // For manual/other cron systems, keep token-based auth.
+  if (!isVercelCron && !tokenOk) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
@@ -68,7 +73,7 @@ export async function GET(req: Request) {
       continue;
     }
 
-    const subject = `Сотка — День ${day}: ${post.titleUk}`;
+    const subject = `Стоденка — День ${day}: ${post.titleUk}`;
     const link = `${baseUrl}/app/post/${post.slug}`;
     const text = `День ${day}\n\n${post.titleUk}\n\nВідкрити пост: ${link}\n`;
 
