@@ -11,8 +11,9 @@ import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
 
+import { AdminDeleteUserForm } from "../delete-user-form";
 import { AdminMutationForm } from "../admin-mutation-form";
-import { updateUserCursorDayAction, updateUserRoleAction } from "../actions";
+import { updateUserAccountAction, updateUserCursorDayAction } from "../actions";
 
 function pad2(n: number) {
   return String(n).padStart(2, "0");
@@ -151,26 +152,45 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
 
         <Card>
           <CardHeader>
-            <CardTitle>Керування</CardTitle>
-            <CardDescription>Роль користувача</CardDescription>
+            <CardTitle>Обліковий запис</CardTitle>
+            <CardDescription>Email, пароль і роль користувача.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <AdminMutationForm action={updateUserRoleAction} successMessage="Роль користувача оновлено." className="grid gap-2">
+            <AdminMutationForm action={updateUserAccountAction} successMessage="Обліковий запис оновлено." className="grid gap-3">
               <input type="hidden" name="userId" value={user.id} />
-              <Label htmlFor="role">Role</Label>
-              <select
-                id="role"
-                name="role"
-                className="border-input bg-background h-10 rounded-[var(--radius)] border-4 px-2 text-sm font-black uppercase tracking-wider shadow-[6px_6px_0px_0px_var(--color-border)]"
-                defaultValue={user.role}
-              >
-                <option value="USER">USER</option>
-                <option value="ADMIN">ADMIN</option>
-              </select>
-              <SubmitButton variant="secondary" className="w-fit" pendingLabel="...">
-                Оновити роль
+              <div className="grid gap-1.5">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" name="email" type="email" defaultValue={user.email} required />
+              </div>
+              <div className="grid gap-1.5">
+                <Label htmlFor="password">Новий пароль</Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  minLength={8}
+                  autoComplete="new-password"
+                  placeholder="Залиште порожнім, щоб не змінювати"
+                />
+              </div>
+              <div className="grid gap-1.5">
+                <Label htmlFor="role">Роль</Label>
+                <select
+                  id="role"
+                  name="role"
+                  className="border-input bg-background h-10 rounded-[var(--radius)] border-4 px-2 text-sm font-black uppercase tracking-wider shadow-[6px_6px_0px_0px_var(--color-border)]"
+                  defaultValue={user.role}
+                >
+                  <option value="USER">USER</option>
+                  <option value="ADMIN">ADMIN</option>
+                </select>
+              </div>
+              <SubmitButton variant="secondary" className="w-fit" pendingLabel="Зберігаю...">
+                Зберегти обліковий запис
               </SubmitButton>
             </AdminMutationForm>
+
+            <AdminDeleteUserForm userId={user.id} disabled={me.id === user.id} />
 
             <div className="rounded-[var(--radius)] border-4 border-border bg-background p-4 shadow-[8px_8px_0px_0px_var(--color-border)]">
               <div className="text-xs font-black uppercase tracking-wider text-muted-foreground">Профіль</div>

@@ -12,7 +12,7 @@ import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
 
 import { AdminMutationForm } from "./admin-mutation-form";
-import { updateUserRoleAction } from "./actions";
+import { createUserAction, updateUserRoleAction } from "./actions";
 
 function pad2(n: number) {
   return String(n).padStart(2, "0");
@@ -109,6 +109,44 @@ export default async function AdminUsersPage({
           Статистика →
         </Link>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Новий користувач</CardTitle>
+          <CardDescription>Створення облікового запису з порожнім профілем.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AdminMutationForm
+            action={createUserAction}
+            successMessage="Користувача створено."
+            className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_auto_auto]"
+          >
+            <div className="grid gap-1.5 sm:col-span-2 lg:col-span-1">
+              <Label htmlFor="create-email">Email</Label>
+              <Input id="create-email" name="email" type="email" required placeholder="user@example.com" />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="create-password">Пароль</Label>
+              <Input id="create-password" name="password" type="password" required minLength={8} autoComplete="new-password" />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="create-role">Роль</Label>
+              <select
+                id="create-role"
+                name="role"
+                className="border-input bg-background h-9 rounded-[var(--radius)] border-4 px-2 text-xs font-black uppercase tracking-wider shadow-[4px_4px_0px_0px_var(--color-border)]"
+                defaultValue="USER"
+              >
+                <option value="USER">USER</option>
+                <option value="ADMIN">ADMIN</option>
+              </select>
+            </div>
+            <SubmitButton className="w-full sm:w-fit sm:self-end" pendingLabel="Створюю...">
+              Створити
+            </SubmitButton>
+          </AdminMutationForm>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

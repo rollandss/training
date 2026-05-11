@@ -9,10 +9,11 @@ type Props = {
   action: (formData: FormData) => Promise<AdminMutationResult>;
   successMessage: string;
   className?: string;
+  onSuccess?: () => void;
   children: React.ReactNode;
 };
 
-export function AdminMutationForm({ action, successMessage, className, children }: Props) {
+export function AdminMutationForm({ action, successMessage, className, onSuccess, children }: Props) {
   const [submitting, setSubmitting] = React.useState(false);
 
   return (
@@ -26,6 +27,7 @@ export function AdminMutationForm({ action, successMessage, className, children 
           const result = await action(new FormData(event.currentTarget));
           if (result.ok) {
             toast.success(successMessage);
+            onSuccess?.();
             return;
           }
           toast.error(result.error);
