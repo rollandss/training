@@ -186,14 +186,14 @@ export function CalendarDayCell(props: {
       <SheetContent
         side="bottom"
         showCloseButton={!trainingActive}
-        className="h-[min(96dvh,48rem)] w-full max-w-none overflow-hidden rounded-t-[var(--radius)] border-4 border-border shadow-[10px_10px_0px_0px_var(--color-border)] sm:mx-auto sm:max-w-lg"
+        className="flex h-[min(92dvh,100svh)] max-h-[92dvh] w-full max-w-none flex-col gap-0 overflow-hidden rounded-t-[var(--radius)] border-4 border-border p-0 shadow-[10px_10px_0px_0px_var(--color-border)] sm:mx-auto sm:max-w-lg"
       >
-        <SheetHeader className="shrink-0">
-          <SheetTitle className="text-xl font-black">День {dayNum}</SheetTitle>
-          <SheetDescription className="font-medium">
+        <SheetHeader className="shrink-0 border-b-4 border-border px-4 py-3">
+          <SheetTitle className="text-lg font-black">День {dayNum}</SheetTitle>
+          <SheetDescription className="text-xs font-medium">
             {step === "choose"
-              ? "Спочатку обери тип дня. Деталі тренування відкриються окремим кроком."
-              : "Задай повтори, круги або підходи та таймер відпочинку."}
+              ? "Обери тип дня."
+              : "Повтори, круги або підходи, таймер."}
           </SheetDescription>
         </SheetHeader>
 
@@ -212,9 +212,9 @@ export function CalendarDayCell(props: {
         >
           <input type="hidden" name="dayKey" value={dayKey} />
 
-          <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3">
             <input type="hidden" name="status" value={localStatus} />
-            <CardDescription className="mb-4 text-xs">
+            <CardDescription className="mb-3 text-xs">
               Дата: <span className="font-mono">{dayKey}</span>
             </CardDescription>
 
@@ -278,7 +278,7 @@ export function CalendarDayCell(props: {
             )}
           </div>
 
-          <SheetFooter className="shrink-0 border-t-4 border-border bg-popover">
+          <SheetFooter className="shrink-0 border-t-4 border-border bg-popover px-4 py-3 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
             <div className="grid w-full gap-2">
               {step === "training" ? (
                 <Button
