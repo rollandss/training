@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { CardDescription, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { type TrainingVolumeMode } from "@/lib/calendar-access";
+import { resolveTrainingReps, type TrainingRepValues } from "@/lib/training-exercises";
 import { cn } from "@/lib/utils";
 
 import { TrainingDayForm } from "./training-day-form";
@@ -43,9 +44,10 @@ export function CalendarDayCell(props: {
   dayKey: string;
   locked: boolean;
   status?: CalendarStatus;
+  trainingRepDefaults: TrainingRepValues;
   training?: TrainingEntry;
 }) {
-  const { dayNum, dayKey, locked, status, training } = props;
+  const { dayNum, dayKey, locked, status, trainingRepDefaults, training } = props;
 
   const [open, setOpen] = React.useState(false);
   const [localStatus, setLocalStatus] = React.useState<CalendarStatusOrNone>(status ?? "NONE");
@@ -86,10 +88,31 @@ export function CalendarDayCell(props: {
   const trainingSummary = training
     ? `${training.mode === "SETS" ? "Підх." : "Кіл"} ${training.rounds} · П${training.pullupsReps} · Пр${training.squatsReps} · Вд${training.pushupsReps} · Вп${training.lungesReps}`
     : null;
+  const trainingActive = localStatus === "TRAINING";
+  const trainingInitial = resolveTrainingReps(
+    trainingRepDefaults,
+    training
+      ? {
+          pullupsReps: training.pullupsReps,
+          squatsReps: training.squatsReps,
+          pushupsReps: training.pushupsReps,
+          lungesReps: training.lungesReps,
+        }
+      : undefined,
+  );
+
+  const requestClose = React.useCallback(() => {
+    if (trainingActive && !window.confirm("Закрити заняття без збереження?")) {
+      return;
+    }
+    stopRestTimer();
+    setOpen(false);
+  }, [stopRestTimer, trainingActive]);
 
   return (
     <Sheet
       open={open}
+      disablePointerDismissal={trainingActive}
       onOpenChange={(v) => {
         if (locked) {
           setOpen(false);
@@ -98,8 +121,15 @@ export function CalendarDayCell(props: {
         if (v) {
           setLocalStatus(status ?? "NONE");
           stopRestTimer();
+          setOpen(true);
+          return;
         }
-        setOpen(v);
+        if (trainingActive && !window.confirm("Закрити заняття без збереження?")) {
+          setOpen(true);
+          return;
+        }
+        stopRestTimer();
+        setOpen(false);
       }}
     >
       <SheetTrigger
@@ -147,7 +177,11 @@ export function CalendarDayCell(props: {
         }
       />
 
-      <SheetContent side="right" className="h-full w-full max-w-md overflow-hidden border-4 border-border shadow-[10px_10px_0px_0px_var(--color-border)] sm:max-w-md">
+      <SheetContent
+        side="bottom"
+        showCloseButton={!trainingActive}
+        className="h-[min(96dvh,48rem)] w-full max-w-none overflow-hidden rounded-t-[var(--radius)] border-4 border-border shadow-[10px_10px_0px_0px_var(--color-border)] sm:mx-auto sm:max-w-lg"
+      >
         <SheetHeader className="shrink-0">
           <SheetTitle className="text-xl font-black">День {dayNum}</SheetTitle>
           <SheetDescription className="font-medium">
@@ -209,10 +243,10 @@ export function CalendarDayCell(props: {
                   initial={{
                     mode: training?.mode ?? "ROUNDS",
                     rounds: training?.rounds ?? 4,
-                    pullupsReps: training?.pullupsReps ?? 1,
-                    squatsReps: training?.squatsReps ?? 2,
-                    pushupsReps: training?.pushupsReps ?? 2,
-                    lungesReps: training?.lungesReps ?? 2,
+                    pullupsReps: trainingInitial.pullupsReps,
+                    squatsReps: trainingInitial.squatsReps,
+                    pushupsReps: trainingInitial.pushupsReps,
+                    lungesReps: trainingInitial.lungesReps,
                     notes: training?.notes ?? "",
                   }}
                   restSeconds={restSeconds}
@@ -230,7 +264,7 @@ export function CalendarDayCell(props: {
               <SubmitButton className="w-full" pendingLabel="Зберігаю...">
                 Зберегти
               </SubmitButton>
-              <Button type="button" variant="outline" className="w-full" onClick={() => setOpen(false)}>
+              <Button type="button" variant="outline" className="w-full" onClick={requestClose}>
                 Закрити
               </Button>
             </div>

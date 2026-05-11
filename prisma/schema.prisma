@@ -27,6 +27,10 @@ model UserProfile {
   user                User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   levelSelfAssessment String?
   limitations         String?
+  pullupsMax          Int?
+  squatsMax           Int?
+  pushupsMax          Int?
+  lungesMax           Int?
   onboardingDone      Boolean @default(false)
 }
 

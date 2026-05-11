@@ -7,18 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { type TrainingVolumeMode } from "@/lib/calendar-access";
+import { DEFAULT_TRAINING_REPS, TRAINING_EXERCISES, type TrainingRepValues } from "@/lib/training-exercises";
 import { cn } from "@/lib/utils";
-
-type ExerciseKey = "pullupsReps" | "squatsReps" | "pushupsReps" | "lungesReps";
-
-type ExerciseValues = Record<ExerciseKey, number>;
-
-const EXERCISES: Array<{ key: ExerciseKey; label: string; short: string; max: number }> = [
-  { key: "pullupsReps", label: "Підтягування", short: "П", max: 500 },
-  { key: "squatsReps", label: "Присідання", short: "Пр", max: 5000 },
-  { key: "pushupsReps", label: "Віджимання", short: "Вд", max: 5000 },
-  { key: "lungesReps", label: "Випади", short: "Вп", max: 5000 },
-];
 
 function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));
@@ -80,11 +70,11 @@ export function TrainingDayForm(props: {
 
   const [mode, setMode] = React.useState<TrainingVolumeMode>(initial?.mode ?? "ROUNDS");
   const [rounds, setRounds] = React.useState(initial?.rounds ?? 4);
-  const [values, setValues] = React.useState<ExerciseValues>({
-    pullupsReps: initial?.pullupsReps ?? 1,
-    squatsReps: initial?.squatsReps ?? 2,
-    pushupsReps: initial?.pushupsReps ?? 2,
-    lungesReps: initial?.lungesReps ?? 2,
+  const [values, setValues] = React.useState<TrainingRepValues>({
+    pullupsReps: initial?.pullupsReps ?? DEFAULT_TRAINING_REPS.pullupsReps,
+    squatsReps: initial?.squatsReps ?? DEFAULT_TRAINING_REPS.squatsReps,
+    pushupsReps: initial?.pushupsReps ?? DEFAULT_TRAINING_REPS.pushupsReps,
+    lungesReps: initial?.lungesReps ?? DEFAULT_TRAINING_REPS.lungesReps,
   });
   const [notes, setNotes] = React.useState(initial?.notes ?? "");
 
@@ -95,7 +85,7 @@ export function TrainingDayForm(props: {
     <div className="grid gap-4">
       <input type="hidden" name="mode" value={mode} />
       <input type="hidden" name="rounds" value={rounds} />
-      {EXERCISES.map((exercise) => (
+      {TRAINING_EXERCISES.map((exercise) => (
         <input key={exercise.key} type="hidden" name={exercise.key} value={values[exercise.key]} />
       ))}
 
@@ -124,7 +114,7 @@ export function TrainingDayForm(props: {
       </div>
 
       <div className="max-h-[min(52vh,28rem)] space-y-2 overflow-y-auto overscroll-contain pr-1">
-        {EXERCISES.map((exercise) => (
+        {TRAINING_EXERCISES.map((exercise) => (
           <div
             key={exercise.key}
             className="flex items-center gap-3 rounded-[var(--radius)] border-4 border-border bg-card px-3 py-3 shadow-[6px_6px_0px_0px_var(--color-border)]"

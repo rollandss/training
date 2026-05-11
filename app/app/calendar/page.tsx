@@ -5,6 +5,7 @@ import { isCalendarDayEditable } from "@/lib/calendar-access";
 import { unlockedProgramDay } from "@/lib/progress";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { resolveTrainingReps, trainingRepsFromEntry, trainingRepsFromProfile } from "@/lib/training-exercises";
 
 import { CalendarDayCell } from "./calendar-day-cell";
 import { type CalendarStatus } from "./actions";
@@ -87,20 +88,36 @@ export default async function CalendarPage({
 
   const byDayKey = new Map(existing.map((e) => [e.dayKey, e.status as CalendarStatus]));
 
-  const training = await prisma.trainingDayEntry.findMany({
-    where: { userId: user.id, dayKey: { in: dayKeys } },
-    select: {
-      dayKey: true,
-      mode: true,
-      rounds: true,
-      pullupsReps: true,
-      squatsReps: true,
-      pushupsReps: true,
-      lungesReps: true,
-      notes: true,
-    },
-  });
+  const [training, latestTraining] = await Promise.all([
+    prisma.trainingDayEntry.findMany({
+      where: { userId: user.id, dayKey: { in: dayKeys } },
+      select: {
+        dayKey: true,
+        mode: true,
+        rounds: true,
+        pullupsReps: true,
+        squatsReps: true,
+        pushupsReps: true,
+        lungesReps: true,
+        notes: true,
+      },
+    }),
+    prisma.trainingDayEntry.findFirst({
+      where: { userId: user.id },
+      orderBy: { dayKey: "desc" },
+      select: {
+        pullupsReps: true,
+        squatsReps: true,
+        pushupsReps: true,
+        lungesReps: true,
+      },
+    }),
+  ]);
   const trainingByDayKey = new Map(training.map((t) => [t.dayKey, t]));
+  const trainingRepDefaults = resolveTrainingReps(
+    trainingRepsFromEntry(latestTraining),
+    trainingRepsFromProfile(user.profile),
+  );
 
   const unlockedDay = unlockedProgramDay({
     cursorDay: up.cursorDay,
@@ -181,6 +198,7 @@ export default async function CalendarPage({
               dayKey={dayKey}
               locked={locked}
               status={status}
+              trainingRepDefaults={trainingRepDefaults}
               training={
                 t
                   ? {

@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { isCalendarDayEditable, type TrainingVolumeMode } from "@/lib/calendar-access";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { maxTrainingReps, trainingRepsFromProfile } from "@/lib/training-exercises";
 
 export type CalendarStatus = "TRAINING" | "STRETCHING" | "REST" | "SICK";
 export type CalendarStatusOrNone = CalendarStatus | "NONE";
@@ -95,6 +96,34 @@ export async function saveCalendarDayAction(formData: FormData) {
         create: { userId: user.id, dayKey, mode: modeRaw, rounds, pullupsReps, squatsReps, pushupsReps, lungesReps, notes },
         update: { mode: modeRaw, rounds, pullupsReps, squatsReps, pushupsReps, lungesReps, notes },
       });
+
+      const profile = await prisma.userProfile.findUnique({
+        where: { userId: user.id },
+        select: {
+          pullupsMax: true,
+          squatsMax: true,
+          pushupsMax: true,
+          lungesMax: true,
+        },
+      });
+      const nextReps = { pullupsReps, squatsReps, pushupsReps, lungesReps };
+      const merged = maxTrainingReps(trainingRepsFromProfile(profile), nextReps);
+      await prisma.userProfile.upsert({
+        where: { userId: user.id },
+        create: {
+          userId: user.id,
+          pullupsMax: merged.pullupsReps,
+          squatsMax: merged.squatsReps,
+          pushupsMax: merged.pushupsReps,
+          lungesMax: merged.lungesReps,
+        },
+        update: {
+          pullupsMax: merged.pullupsReps,
+          squatsMax: merged.squatsReps,
+          pushupsMax: merged.pushupsReps,
+          lungesMax: merged.lungesReps,
+        },
+      });
     } else {
       // If the day is not a workout day, keep calendar mark but remove workout details.
       await prisma.trainingDayEntry.deleteMany({
@@ -104,5 +133,6 @@ export async function saveCalendarDayAction(formData: FormData) {
   }
 
   revalidatePath("/app/calendar");
+  revalidatePath("/app/settings");
 }
 
