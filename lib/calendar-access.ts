@@ -1,4 +1,4 @@
-import { unlockedProgramDay } from "@/lib/progress";
+import { unlockedProgramDay, unlockedProgramDayByTime } from "@/lib/progress";
 
 export type TrainingVolumeMode = "ROUNDS" | "SETS";
 
@@ -21,12 +21,6 @@ export function diffDaysUTC(a: Date, b: Date) {
   return Math.floor(ms / (1000 * 60 * 60 * 24));
 }
 
-export function unlockedProgramDayByTime(params: { startedAt: Date; durationDays: number; today?: Date }) {
-  const today = startOfDayUTC(params.today ?? new Date());
-  const unlocked = diffDaysUTC(today, startOfDayUTC(params.startedAt)) + 1;
-  return Math.max(1, Math.min(unlocked, params.durationDays));
-}
-
 export function isCalendarDayEditable(params: {
   dayKey: string;
   startedAt: Date;
@@ -41,6 +35,11 @@ export function isCalendarDayEditable(params: {
   const todayUTC = startOfDayUTC(params.today ?? new Date());
   const programStart = startOfDayUTC(params.startedAt);
   const registeredAtUTC = startOfDayUTC(params.registeredAt);
+  const timeUnlockedDay = unlockedProgramDayByTime({
+    startedAt: params.startedAt,
+    durationDays: params.durationDays,
+    today: todayUTC,
+  });
   const unlockedDay = unlockedProgramDay({
     cursorDay: params.cursorDay,
     startedAt: params.startedAt,
@@ -49,11 +48,11 @@ export function isCalendarDayEditable(params: {
   });
   const programDay = diffDaysUTC(date, programStart) + 1;
 
-  if (date.getTime() > todayUTC.getTime()) return false;
   if (date.getTime() < registeredAtUTC.getTime()) return false;
   if (date.getTime() < programStart.getTime()) return false;
   if (programDay < 1 || programDay > params.durationDays) return false;
   if (programDay > unlockedDay) return false;
+  if (date.getTime() > todayUTC.getTime() && programDay > Math.max(params.cursorDay, timeUnlockedDay)) return false;
 
   return true;
 }

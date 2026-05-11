@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Lock } from "lucide-react";
+import { toast } from "sonner";
 
 import { SubmitButton } from "@/components/submit-button";
 import { Button } from "@/components/ui/button";
@@ -191,8 +192,13 @@ export function CalendarDayCell(props: {
 
         <form
           action={async (fd) => {
-            await saveCalendarDayAction(fd);
-            setOpen(false);
+            try {
+              await saveCalendarDayAction(fd);
+              toast.success("День збережено");
+              setOpen(false);
+            } catch {
+              toast.error("Не вдалося зберегти день");
+            }
           }}
           className="flex min-h-0 flex-1 flex-col"
         >

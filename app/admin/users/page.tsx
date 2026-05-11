@@ -11,6 +11,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
 
+import { AdminMutationForm } from "./admin-mutation-form";
 import { updateUserRoleAction } from "./actions";
 
 function pad2(n: number) {
@@ -160,7 +161,11 @@ export default async function AdminUsersPage({
                   <Link href={`/admin/users/${u.id}`} className={cn(buttonVariants(), "w-full sm:w-auto")}>
                     Деталі
                   </Link>
-                  <form action={updateUserRoleAction} className="flex flex-1 items-center gap-2">
+                  <AdminMutationForm
+                    action={updateUserRoleAction}
+                    successMessage="Роль користувача оновлено."
+                    className="flex flex-1 items-center gap-2"
+                  >
                     <input type="hidden" name="userId" value={u.id} />
                     <select
                       name="role"
@@ -174,7 +179,7 @@ export default async function AdminUsersPage({
                     <SubmitButton size="sm" variant="secondary" className="w-fit" pendingLabel="...">
                       OK
                     </SubmitButton>
-                  </form>
+                  </AdminMutationForm>
                 </div>
               </CardContent>
             </Card>

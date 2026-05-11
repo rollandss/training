@@ -11,6 +11,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
 
+import { AdminMutationForm } from "../admin-mutation-form";
 import { updateUserCursorDayAction, updateUserRoleAction } from "../actions";
 
 function pad2(n: number) {
@@ -95,7 +96,11 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
                 {up ? `${up.program.name} · день ${up.cursorDay}/${up.program.durationDays}` : "не стартував"}
               </div>
               {up ? (
-                <form action={updateUserCursorDayAction} className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto] sm:items-end">
+                <AdminMutationForm
+                  action={updateUserCursorDayAction}
+                  successMessage="Відкритий день збережено. Пости й календар оновляться для користувача."
+                  className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto] sm:items-end"
+                >
                   <input type="hidden" name="userId" value={user.id} />
                   <input type="hidden" name="programId" value={up.programId} />
                   <div className="grid gap-1.5">
@@ -105,7 +110,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
                   <SubmitButton variant="secondary" className="w-fit" pendingLabel="Зберігаю...">
                     Зберегти
                   </SubmitButton>
-                </form>
+                </AdminMutationForm>
               ) : null}
             </div>
 
@@ -150,7 +155,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
             <CardDescription>Роль користувача</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <form action={updateUserRoleAction} className="grid gap-2">
+            <AdminMutationForm action={updateUserRoleAction} successMessage="Роль користувача оновлено." className="grid gap-2">
               <input type="hidden" name="userId" value={user.id} />
               <Label htmlFor="role">Role</Label>
               <select
@@ -165,7 +170,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
               <SubmitButton variant="secondary" className="w-fit" pendingLabel="...">
                 Оновити роль
               </SubmitButton>
-            </form>
+            </AdminMutationForm>
 
             <div className="rounded-[var(--radius)] border-4 border-border bg-background p-4 shadow-[8px_8px_0px_0px_var(--color-border)]">
               <div className="text-xs font-black uppercase tracking-wider text-muted-foreground">Профіль</div>
