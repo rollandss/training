@@ -4,6 +4,7 @@ import * as React from "react";
 import { Lock } from "lucide-react";
 import { toast } from "sonner";
 
+import { Button } from "@/components/ui/button";
 import { SubmitButton } from "@/components/submit-button";
 import { CardDescription, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -13,7 +14,9 @@ import { type TrainingVolumeMode } from "@/lib/calendar-access";
 import { summarizeTrainingLines } from "@/lib/user-exercise-utils";
 import { cn } from "@/lib/utils";
 
-import { TrainingDayForm, type TrainingExerciseLineFormValue, type TrainingVolumeProgress } from "./training-day-form";
+import { type TrainingDayFormValue, type TrainingExerciseLineFormValue, type TrainingVolumeProgress } from "./training-day-form";
+import { TrainingDaySessionForm } from "./training-day-session-form";
+import { TrainingDaySetupForm } from "./training-day-setup-form";
 import { TrainingRestOverlayPresence } from "./training-rest-overlay";
 import { saveCalendarDayAction, type CalendarStatus, type CalendarStatusOrNone } from "./actions";
 
@@ -39,6 +42,19 @@ type TrainingEntry = {
   lines: TrainingExerciseLineFormValue[];
 };
 
+type DayStep = "choose" | "setup" | "session";
+
+function buildTrainingConfig(
+  training: TrainingEntry | undefined,
+  fallbackLines: TrainingExerciseLineFormValue[],
+): TrainingDayFormValue {
+  return {
+    mode: training?.mode ?? "ROUNDS",
+    rounds: training?.rounds ?? 4,
+    lines: training?.lines ?? fallbackLines,
+  };
+}
+
 export function CalendarDayCell(props: {
   dayNum: number;
   dayKey: string;
@@ -50,8 +66,11 @@ export function CalendarDayCell(props: {
   const { dayNum, dayKey, locked, status, trainingLines, training } = props;
 
   const [open, setOpen] = React.useState(false);
-  const [step, setStep] = React.useState<"choose" | "training">("choose");
+  const [step, setStep] = React.useState<DayStep>("choose");
   const [localStatus, setLocalStatus] = React.useState<CalendarStatusOrNone>(status ?? "NONE");
+  const [trainingConfig, setTrainingConfig] = React.useState<TrainingDayFormValue>(() =>
+    buildTrainingConfig(training, trainingLines),
+  );
   const [restSeconds, setRestSeconds] = React.useState(60);
   const [restRemaining, setRestRemaining] = React.useState<number | null>(null);
   const [restDurationTotal, setRestDurationTotal] = React.useState(60);
@@ -135,9 +154,9 @@ export function CalendarDayCell(props: {
   const trainingSummary = training
     ? `${training.mode === "SETS" ? "Підх." : "Кіл"} ${training.rounds} · ${summarizeTrainingLines(training.lines)}`
     : null;
-  const trainingActive = step === "training";
+  const sessionActive = step === "session";
   const canSaveFromChoose = localStatus !== "NONE" && localStatus !== "TRAINING";
-  const trainingInitialLines = training?.lines ?? trainingLines;
+  const sessionKey = `${dayKey}-${trainingConfig.mode}-${trainingConfig.rounds}-${trainingConfig.lines.map((line) => line.exerciseId).join(",")}`;
 
   const volumeProgressLabel =
     volumeProgress == null
@@ -149,7 +168,7 @@ export function CalendarDayCell(props: {
   return (
     <Sheet
       open={open}
-      disablePointerDismissal={trainingActive}
+      disablePointerDismissal={sessionActive}
       onOpenChange={(v) => {
         if (locked) {
           setOpen(false);
@@ -158,13 +177,14 @@ export function CalendarDayCell(props: {
         if (v) {
           setLocalStatus(status ?? "NONE");
           setStep("choose");
+          setTrainingConfig(buildTrainingConfig(training, trainingLines));
           setVolumeProgress(null);
           setNotes(training?.notes ?? "");
           stopRestTimer();
           setOpen(true);
           return;
         }
-        if (trainingActive && !window.confirm("Закрити заняття без збереження?")) {
+        if (sessionActive && !window.confirm("Закрити заняття без збереження?")) {
           setOpen(true);
           return;
         }
@@ -222,7 +242,7 @@ export function CalendarDayCell(props: {
         side="bottom"
         className={cn(
           "flex w-full max-w-none flex-col gap-0 overflow-hidden border-4 border-border p-0 shadow-[10px_10px_0px_0px_var(--color-border)] sm:mx-auto sm:max-w-lg",
-          trainingActive
+          sessionActive
             ? "h-dvh max-h-dvh rounded-none data-[side=bottom]:h-dvh"
             : "h-[min(92dvh,100svh)] max-h-[92dvh] rounded-t-[var(--radius)]",
         )}
@@ -232,9 +252,11 @@ export function CalendarDayCell(props: {
           <SheetDescription className="text-xs font-medium">
             {step === "choose"
               ? "Обери тип дня."
-              : volumeProgress && volumeProgressLabel
-                ? `${volumeProgressLabel} ${volumeProgress.active} з ${volumeProgress.rounds} · повтори, таймер`
-                : "Повтори, круги або підходи, таймер."}
+              : step === "setup"
+                ? "Налаштуй план заняття: круги, порядок вправ і цілі."
+                : volumeProgress && volumeProgressLabel
+                  ? `${volumeProgressLabel} ${volumeProgress.active} з ${volumeProgress.rounds}`
+                  : "Проведи заняття за планом."}
           </SheetDescription>
         </SheetHeader>
 
@@ -253,6 +275,22 @@ export function CalendarDayCell(props: {
         >
           <input type="hidden" name="dayKey" value={dayKey} />
           <input type="hidden" name="notes" value={notes} />
+          {localStatus === "TRAINING" ? (
+            <>
+              <input type="hidden" name="mode" value={trainingConfig.mode} />
+              <input type="hidden" name="rounds" value={trainingConfig.rounds} />
+              <input
+                type="hidden"
+                name="exerciseLinesJson"
+                value={JSON.stringify(
+                  trainingConfig.lines.map((line) => ({
+                    exerciseId: line.exerciseId,
+                    reps: line.reps,
+                  })),
+                )}
+              />
+            </>
+          ) : null}
 
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3">
             <input type="hidden" name="status" value={localStatus} />
@@ -284,7 +322,9 @@ export function CalendarDayCell(props: {
                       onClick={() => {
                         setLocalStatus(s);
                         if (s === "TRAINING") {
-                          setStep("training");
+                          setStep("setup");
+                        } else {
+                          setStep("choose");
                         }
                       }}
                       className={cn(
@@ -312,18 +352,35 @@ export function CalendarDayCell(props: {
                   </button>
                 </div>
                 </div>
+                {localStatus === "TRAINING" ? (
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="font-black uppercase tracking-wider"
+                      onClick={() => setStep("setup")}
+                    >
+                      Налаштування заняття
+                    </Button>
+                    <Button type="button" className="font-black uppercase tracking-wider" onClick={() => setStep("session")}>
+                      Провести заняття
+                    </Button>
+                  </div>
+                ) : null}
               </div>
-            ) : (
-              <TrainingDayForm
-                key={`${dayKey}-${open ? "open" : "closed"}`}
-                initial={{
-                  mode: training?.mode ?? "ROUNDS",
-                  rounds: training?.rounds ?? 4,
-                  lines: trainingInitialLines,
-                }}
+            ) : step === "setup" ? (
+              <TrainingDaySetupForm
+                value={trainingConfig}
                 restSeconds={restSeconds}
-                restRemaining={restRemaining}
+                onChange={setTrainingConfig}
                 onRestSecondsChange={setRestSeconds}
+              />
+            ) : (
+              <TrainingDaySessionForm
+                key={sessionKey}
+                value={trainingConfig}
+                restRemaining={restRemaining}
+                onChange={setTrainingConfig}
                 onStartRest={startRestTimer}
                 onStartExerciseTimer={startExerciseTimer}
                 onActiveVolumeChange={setVolumeProgress}
@@ -331,7 +388,22 @@ export function CalendarDayCell(props: {
             )}
           </div>
 
-          {step === "training" || canSaveFromChoose ? (
+          {step === "setup" ? (
+            <SheetFooter className="shrink-0 border-t-4 border-border bg-popover px-4 py-3 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
+              <div className="grid w-full gap-2">
+                <Button
+                  type="button"
+                  className="w-full font-black uppercase tracking-wider"
+                  onClick={() => setStep("session")}
+                >
+                  Почати заняття
+                </Button>
+                <SubmitButton className="w-full" pendingLabel="Зберігаю...">
+                  Зберегти план
+                </SubmitButton>
+              </div>
+            </SheetFooter>
+          ) : step === "session" || canSaveFromChoose ? (
             <SheetFooter className="shrink-0 border-t-4 border-border bg-popover px-4 py-3 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
               <SubmitButton className="w-full" pendingLabel="Зберігаю...">
                 Зберегти
@@ -341,7 +413,7 @@ export function CalendarDayCell(props: {
         </form>
       </SheetContent>
       <TrainingRestOverlayPresence
-        open={trainingActive && restRemaining != null}
+        open={sessionActive && restRemaining != null}
         totalSeconds={restDurationTotal}
         remainingSeconds={restRemaining ?? 0}
         onSkip={stopRestTimer}
