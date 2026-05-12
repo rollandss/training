@@ -163,6 +163,68 @@
     font-weight: 900;
     line-height: 1.2;
   }
+  .post-body h3,
+  .tiptap-editor-content h3 {
+    margin-top: 1rem;
+    font-size: 1.15rem;
+    font-weight: 900;
+    line-height: 1.25;
+  }
+  .post-body code,
+  .tiptap-editor-content code {
+    border-radius: 0.25rem;
+    border: 2px solid var(--border);
+    background: var(--muted);
+    padding: 0.1rem 0.35rem;
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+  .post-body pre,
+  .tiptap-editor-content pre {
+    margin-top: 0.9rem;
+    overflow-x: auto;
+    border: 4px solid var(--border);
+    background: var(--card);
+    padding: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    box-shadow: 4px 4px 0 0 var(--border);
+  }
+  .post-body pre code,
+  .tiptap-editor-content pre code {
+    border: 0;
+    background: transparent;
+    padding: 0;
+  }
+  .post-body hr,
+  .tiptap-editor-content hr {
+    margin: 1rem 0;
+    border: 0;
+    border-top: 4px solid var(--border);
+  }
+  .post-body a,
+  .tiptap-editor-content a {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .post-body img,
+  .tiptap-editor-content img,
+  .post-inline-image {
+    margin-top: 0.9rem;
+    max-width: 100%;
+    height: auto;
+    border: 4px solid var(--border);
+    box-shadow: 6px 6px 0 0 var(--border);
+  }
+  .tiptap-editor-content p.is-editor-empty:first-child::before,
+  .tiptap-editor-content p.is-empty:first-child::before {
+    color: var(--muted-foreground);
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+  }
   .post-body ul,
   .post-body ol,
   .tiptap-editor-content ul,

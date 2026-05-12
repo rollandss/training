@@ -2,15 +2,29 @@
 
 import * as React from "react";
 import { EditorContent, useEditor, type Editor } from "@tiptap/react";
+import Image from "@tiptap/extension-image";
+import TextAlign from "@tiptap/extension-text-align";
+import { Placeholder } from "@tiptap/extensions";
 import StarterKit from "@tiptap/starter-kit";
 import {
+  AlignCenter,
+  AlignLeft,
+  AlignRight,
   Bold,
+  Code,
   Heading2,
+  Heading3,
+  ImageIcon,
   Italic,
+  Link2,
   List,
   ListOrdered,
+  Minus,
   Quote,
   Redo2,
+  SquareCode,
+  Strikethrough,
+  Underline,
   Undo2,
 } from "lucide-react";
 
@@ -42,8 +56,36 @@ function ToolbarButton({ label, active, disabled, onClick, children }: ToolbarBu
   );
 }
 
+function ToolbarSeparator() {
+  return <div className="mx-0.5 hidden h-7 w-px self-center bg-border sm:block" aria-hidden />;
+}
+
+function promptForUrl(message: string, initialValue = "") {
+  const value = window.prompt(message, initialValue);
+  if (value === null) return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : "";
+}
+
 function EditorToolbar({ editor }: { editor: Editor | null }) {
   if (!editor) return null;
+
+  const setLink = () => {
+    const previousUrl = editor.getAttributes("link").href as string | undefined;
+    const url = promptForUrl("Вставте посилання", previousUrl ?? "https://");
+    if (url === null) return;
+    if (url === "") {
+      editor.chain().focus().extendMarkRange("link").unsetLink().run();
+      return;
+    }
+    editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+  };
+
+  const insertImage = () => {
+    const url = promptForUrl("Вставте URL зображення", "https://");
+    if (!url) return;
+    editor.chain().focus().setImage({ src: url }).run();
+  };
 
   return (
     <div className="flex flex-wrap gap-1 border-b-4 border-border bg-muted/40 p-2">
@@ -62,11 +104,42 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
         <Italic className="size-4" />
       </ToolbarButton>
       <ToolbarButton
-        label="Заголовок"
+        label="Підкреслення"
+        active={editor.isActive("underline")}
+        onClick={() => editor.chain().focus().toggleUnderline().run()}
+      >
+        <Underline className="size-4" />
+      </ToolbarButton>
+      <ToolbarButton
+        label="Закреслення"
+        active={editor.isActive("strike")}
+        onClick={() => editor.chain().focus().toggleStrike().run()}
+      >
+        <Strikethrough className="size-4" />
+      </ToolbarButton>
+      <ToolbarButton
+        label="Код у рядку"
+        active={editor.isActive("code")}
+        onClick={() => editor.chain().focus().toggleCode().run()}
+      >
+        <Code className="size-4" />
+      </ToolbarButton>
+
+      <ToolbarSeparator />
+
+      <ToolbarButton
+        label="Заголовок 2"
         active={editor.isActive("heading", { level: 2 })}
         onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
       >
         <Heading2 className="size-4" />
+      </ToolbarButton>
+      <ToolbarButton
+        label="Заголовок 3"
+        active={editor.isActive("heading", { level: 3 })}
+        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+      >
+        <Heading3 className="size-4" />
       </ToolbarButton>
       <ToolbarButton
         label="Маркований список"
@@ -89,6 +162,52 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
       >
         <Quote className="size-4" />
       </ToolbarButton>
+      <ToolbarButton
+        label="Блок коду"
+        active={editor.isActive("codeBlock")}
+        onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+      >
+        <SquareCode className="size-4" />
+      </ToolbarButton>
+      <ToolbarButton
+        label="Розділювач"
+        onClick={() => editor.chain().focus().setHorizontalRule().run()}
+      >
+        <Minus className="size-4" />
+      </ToolbarButton>
+
+      <ToolbarSeparator />
+
+      <ToolbarButton
+        label="Вирівняти ліворуч"
+        active={editor.isActive({ textAlign: "left" })}
+        onClick={() => editor.chain().focus().setTextAlign("left").run()}
+      >
+        <AlignLeft className="size-4" />
+      </ToolbarButton>
+      <ToolbarButton
+        label="Вирівняти по центру"
+        active={editor.isActive({ textAlign: "center" })}
+        onClick={() => editor.chain().focus().setTextAlign("center").run()}
+      >
+        <AlignCenter className="size-4" />
+      </ToolbarButton>
+      <ToolbarButton
+        label="Вирівняти праворуч"
+        active={editor.isActive({ textAlign: "right" })}
+        onClick={() => editor.chain().focus().setTextAlign("right").run()}
+      >
+        <AlignRight className="size-4" />
+      </ToolbarButton>
+      <ToolbarButton label="Посилання" active={editor.isActive("link")} onClick={setLink}>
+        <Link2 className="size-4" />
+      </ToolbarButton>
+      <ToolbarButton label="Зображення" onClick={insertImage}>
+        <ImageIcon className="size-4" />
+      </ToolbarButton>
+
+      <ToolbarSeparator />
+
       <ToolbarButton label="Скасувати" disabled={!editor.can().undo()} onClick={() => editor.chain().focus().undo().run()}>
         <Undo2 className="size-4" />
       </ToolbarButton>
@@ -121,7 +240,28 @@ export function TiptapPostEditor({
   const editor = useEditor(
     {
       immediatelyRender: false,
-      extensions: [StarterKit],
+      extensions: [
+        StarterKit.configure({
+          heading: { levels: [2, 3] },
+          link: {
+            openOnClick: false,
+            HTMLAttributes: {
+              class: "nb-link",
+            },
+          },
+        }),
+        TextAlign.configure({
+          types: ["heading", "paragraph"],
+        }),
+        Image.configure({
+          HTMLAttributes: {
+            class: "post-inline-image",
+          },
+        }),
+        Placeholder.configure({
+          placeholder: "Почніть писати пост…",
+        }),
+      ],
       content: defaultValue,
       editorProps: {
         attributes: {
