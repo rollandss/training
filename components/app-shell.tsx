@@ -139,10 +139,8 @@ export function AppShell({ email, isAdmin }: Props) {
         <SiteLogo href="/" onClick={closeMenu} centered className="justify-self-center" markClassName="h-9 w-auto" />
 
         <div className="flex items-center justify-self-end gap-2">
-          <div className="flex items-center gap-2 rounded-[var(--radius)] border-4 border-border bg-card/80 p-1 shadow-[4px_4px_0px_0px_var(--color-border)]">
-            <ThemeToggle />
-            <UserMenu email={email} />
-          </div>
+          <ThemeToggle />
+          <UserMenu email={email} />
         </div>
       </div>
     </header>
