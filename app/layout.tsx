@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ParticlesBackground } from "@/components/particles-background";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { getMetadataBase, SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, SITE_TITLE } from "@/lib/site";
 
 import "./globals.css";
 
@@ -18,8 +19,25 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Стоденка — 100 днів",
-  description: "Безкоштовна україномовна платформа 100-денної програми з турніком.",
+  metadataBase: getMetadataBase(),
+  title: {
+    default: SITE_TITLE,
+    template: `%s · ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  openGraph: {
+    type: "website",
+    locale: "uk_UA",
+    siteName: SITE_NAME,
+    title: SITE_TITLE,
+    description: SITE_TAGLINE,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_TAGLINE,
+  },
 };
 
 export default function RootLayout({

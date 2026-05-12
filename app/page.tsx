@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { SiteLogo } from "@/components/site-logo";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +9,19 @@ import { cn } from "@/lib/utils";
 export default function HomePage() {
   return (
     <div className="flex flex-1 flex-col">
+      <header className="border-b-4 border-border bg-card/90 shadow-[0_6px_0px_0px_var(--color-border)]">
+        <div className="mx-auto flex w-full max-w-[1400px] items-center justify-between gap-3 px-3 py-3 md:px-6">
+          <SiteLogo href="/" />
+          <div className="flex items-center gap-2">
+            <Link href="/auth/login" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
+              Увійти
+            </Link>
+            <Link href="/auth/register" className={cn(buttonVariants({ size: "sm" }))}>
+              Почати
+            </Link>
+          </div>
+        </div>
+      </header>
       <main className="mx-auto flex w-full flex-1 flex-col gap-8 px-3 py-12 md:px-6">
         <div className="grid items-start gap-6 lg:grid-cols-[1.2fr_0.8fr]">
           <Card>

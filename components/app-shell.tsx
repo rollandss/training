@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Menu } from "lucide-react";
 
+import { SiteLogo } from "@/components/site-logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserMenu } from "@/components/user-menu";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -59,13 +60,7 @@ export function AppShell({ email, isAdmin }: Props) {
     <header className="border-b-4 border-border bg-card shadow-[0_6px_0px_0px_var(--color-border)]">
       <div className="mx-auto flex w-full max-w-[1400px] items-center justify-between gap-3 px-3 py-2 md:px-6">
         <div className="flex min-w-0 items-center gap-3">
-          <Link href="/app" className="flex shrink-0 items-center gap-2" onClick={closeMenu}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/stodenka-icon.svg" alt="" aria-hidden className="size-9 shrink-0" />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/stodenka-logo.svg" alt="Стоденка" className="hidden h-8 w-auto sm:block" />
-            <span className="text-base font-black uppercase tracking-wider sm:hidden">Стоденка</span>
-          </Link>
+          <SiteLogo href="/app" onClick={closeMenu} showMobileLabel className="shrink-0" />
 
           <nav className="hidden items-center gap-2 md:flex">
             {NAV_ITEMS.map((item, index) => (
