@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import Link from "next/link";
 
 import { registerAction, type AuthFormState } from "@/app/auth/actions";
+import { MotionReveal } from "@/components/motion-ui";
 import { SubmitButton } from "@/components/submit-button";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +17,8 @@ export function RegisterForm() {
   const [state, formAction] = useActionState(registerAction, undefined as AuthFormState);
 
   return (
-    <Card className="w-full max-w-md">
+    <MotionReveal>
+      <Card className="w-full max-w-md">
       <form action={formAction}>
         <CardHeader>
           <CardTitle>Реєстрація</CardTitle>
@@ -41,5 +43,6 @@ export function RegisterForm() {
         </CardFooter>
       </form>
     </Card>
+    </MotionReveal>
   );
 }

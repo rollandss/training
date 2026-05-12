@@ -1,11 +1,12 @@
+import Link from "next/link";
+
+import { TodayPostFeature } from "@/components/today-post-feature";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
-import { getPostBlockLabel } from "@/lib/posts";
 import { prisma } from "@/lib/prisma";
 import { unlockedProgramDay } from "@/lib/progress";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 
 export default async function AppDashboardPage() {
   const user = await getCurrentUser();
@@ -21,13 +22,15 @@ export default async function AppDashboardPage() {
 
   if (currentDay > program.durationDays || currentDay > 100) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Вітаємо з завершенням!</CardTitle>
-          <CardDescription>Ви пройшли програму. Усі пости доступні в архіві.</CardDescription>
+      <Card className="overflow-hidden border-4 border-border shadow-[10px_10px_0px_0px_var(--color-border)]">
+        <CardHeader className="space-y-2 border-b-4 border-border bg-card">
+          <CardTitle className="text-3xl font-extrabold uppercase tracking-wider">Вітаємо з завершенням</CardTitle>
+          <CardDescription className="text-sm font-semibold">
+            Ви пройшли програму. Усі пости доступні в архіві.
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <Link href="/app/posts" className={cn(buttonVariants())}>
+        <CardContent className="pt-6">
+          <Link href="/app/posts" className={cn(buttonVariants(), "w-full sm:w-auto")}>
             Відкрити всі пости
           </Link>
         </CardContent>
@@ -37,53 +40,21 @@ export default async function AppDashboardPage() {
 
   const dailyPost = await prisma.dailyPost.findFirst({
     where: { dayNumber: currentDay },
+    select: {
+      slug: true,
+      titleUk: true,
+      bodyUk: true,
+      imageUrl: true,
+      block: true,
+    },
   });
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Інфопост дня</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          {program.name} · день {currentDay} з {program.durationDays}
-        </p>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">
-            {dailyPost ? dailyPost.titleUk : `День ${currentDay}`}
-          </CardTitle>
-          <CardDescription>
-            У вебі доступні лише інформаційні пости. Тренування виконується в Android застосунку.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4 pt-4">
-          {dailyPost ? (
-            <Link
-              href={`/app/post/${dailyPost.slug}`}
-              className={cn(buttonVariants(), "w-full sm:w-auto")}
-            >
-              Пост дня ({getPostBlockLabel(dailyPost.block)})
-            </Link>
-          ) : (
-            <p className="text-muted-foreground text-sm">Пост для цього дня ще не призначений.</p>
-          )}
-          <Link
-            href="/app/posts"
-            className={cn(buttonVariants({ variant: "outline" }), "w-full sm:w-auto")}
-          >
-            Архів постів
-          </Link>
-          {dailyPost ? null : (
-            <Link
-              href="/app/posts"
-              className={cn(buttonVariants({ variant: "ghost" }), "w-full sm:w-auto")}
-            >
-              Відкрити доступні пости
-            </Link>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+    <TodayPostFeature
+      programName={program.name}
+      currentDay={currentDay}
+      durationDays={program.durationDays}
+      post={dailyPost}
+    />
   );
 }

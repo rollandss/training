@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import Link from "next/link";
 
 import { loginAction, type AuthFormState } from "@/app/auth/actions";
+import { MotionReveal } from "@/components/motion-ui";
 import { SubmitButton } from "@/components/submit-button";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +17,8 @@ export function LoginForm() {
   const [state, formAction] = useActionState(loginAction, undefined as AuthFormState);
 
   return (
-    <Card className="w-full max-w-md">
+    <MotionReveal>
+      <Card className="w-full max-w-md">
       <form action={formAction}>
         <CardHeader>
           <CardTitle>Вхід</CardTitle>
@@ -41,5 +43,6 @@ export function LoginForm() {
         </CardFooter>
       </form>
     </Card>
+    </MotionReveal>
   );
 }

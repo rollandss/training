@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Menu } from "lucide-react";
 
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -49,6 +50,7 @@ function AppNavLink(props: { href: string; label: string; onNavigate?: () => voi
 }
 
 export function AppShell({ email, isAdmin }: Props) {
+  const reduceMotion = useReducedMotion();
   const [menuOpen, setMenuOpen] = React.useState(false);
 
   const closeMenu = React.useCallback(() => setMenuOpen(false), []);
@@ -66,10 +68,25 @@ export function AppShell({ email, isAdmin }: Props) {
           </Link>
 
           <nav className="hidden items-center gap-2 md:flex">
-            {NAV_ITEMS.map((item) => (
-              <AppNavLink key={item.href} href={item.href} label={item.label} />
+            {NAV_ITEMS.map((item, index) => (
+              <motion.div
+                key={item.href}
+                initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, delay: index * 0.04 }}
+              >
+                <AppNavLink href={item.href} label={item.label} />
+              </motion.div>
             ))}
-            {isAdmin ? <AppNavLink href="/admin" label="Адмін" /> : null}
+            {isAdmin ? (
+              <motion.div
+                initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, delay: NAV_ITEMS.length * 0.04 }}
+              >
+                <AppNavLink href="/admin" label="Адмін" />
+              </motion.div>
+            ) : null}
           </nav>
         </div>
 
@@ -93,17 +110,35 @@ export function AppShell({ email, isAdmin }: Props) {
                 <SheetTitle className="text-left text-base font-black uppercase tracking-wider">Меню</SheetTitle>
               </SheetHeader>
               <nav className="flex flex-col gap-2 px-4 py-4">
-                {NAV_ITEMS.map((item) => (
-                  <AppNavLink
-                    key={item.href}
-                    href={item.href}
-                    label={item.label}
-                    onNavigate={closeMenu}
-                    className="w-full"
-                  />
-                ))}
-                {isAdmin ? (
-                  <AppNavLink href="/admin" label="Адмін" onNavigate={closeMenu} className="w-full" />
+                <AnimatePresence initial={false}>
+                  {menuOpen
+                    ? NAV_ITEMS.map((item, index) => (
+                        <motion.div
+                          key={item.href}
+                          initial={reduceMotion ? false : { opacity: 0, x: -12 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={reduceMotion ? undefined : { opacity: 0, x: -12 }}
+                          transition={{ duration: 0.18, delay: index * 0.04 }}
+                        >
+                          <AppNavLink
+                            href={item.href}
+                            label={item.label}
+                            onNavigate={closeMenu}
+                            className="w-full"
+                          />
+                        </motion.div>
+                      ))
+                    : null}
+                </AnimatePresence>
+                {isAdmin && menuOpen ? (
+                  <motion.div
+                    initial={reduceMotion ? false : { opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={reduceMotion ? undefined : { opacity: 0, x: -12 }}
+                    transition={{ duration: 0.18, delay: NAV_ITEMS.length * 0.04 }}
+                  >
+                    <AppNavLink href="/admin" label="Адмін" onNavigate={closeMenu} className="w-full" />
+                  </motion.div>
                 ) : null}
               </nav>
             </SheetContent>

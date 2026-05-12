@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { AppMain } from "@/components/app-main";
 import { AppShell } from "@/components/app-shell";
 import { getCurrentUser } from "@/lib/auth";
 
@@ -12,7 +13,7 @@ export default async function AppSectionLayout({ children }: { children: React.R
   return (
     <div className="flex min-h-full flex-col">
       <AppShell email={user.email} isAdmin={user.role === "ADMIN"} />
-      <div className="mx-auto w-full flex-1 px-3 py-6 md:px-6">{children}</div>
+      <AppMain>{children}</AppMain>
     </div>
   );
 }

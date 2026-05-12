@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "@/lib/auth";
+import { postBodyToPlainText } from "@/lib/post-text";
 import { POST_BLOCKS } from "@/lib/posts";
 import { prisma } from "@/lib/prisma";
 
@@ -16,13 +17,19 @@ function revalidatePostsSurfaces() {
   }
 }
 
+function parsePostBody(formData: FormData) {
+  const bodyUk = String(formData.get("bodyUk") ?? "").trim();
+  if (!postBodyToPlainText(bodyUk)) return "";
+  return bodyUk;
+}
+
 export async function createPostAction(formData: FormData) {
   const user = await getCurrentUser();
   if (!user || user.role !== "ADMIN") redirect("/app");
 
   const slug = String(formData.get("slug") ?? "").trim();
   const titleUk = String(formData.get("titleUk") ?? "").trim();
-  const bodyUk = String(formData.get("bodyUk") ?? "").trim();
+  const bodyUk = parsePostBody(formData);
   const imageUrl = String(formData.get("imageUrl") ?? "").trim();
   const block = String(formData.get("block") ?? "").trim().toUpperCase();
   const dayRaw = String(formData.get("dayNumber") ?? "").trim();
@@ -52,7 +59,7 @@ export async function updatePostAction(formData: FormData) {
 
   const id = String(formData.get("id") ?? "").trim();
   const titleUk = String(formData.get("titleUk") ?? "").trim();
-  const bodyUk = String(formData.get("bodyUk") ?? "").trim();
+  const bodyUk = parsePostBody(formData);
   const imageUrl = String(formData.get("imageUrl") ?? "").trim();
   const block = String(formData.get("block") ?? "").trim().toUpperCase();
   const dayRaw = String(formData.get("dayNumber") ?? "").trim();

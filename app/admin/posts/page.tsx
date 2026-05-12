@@ -5,7 +5,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { TiptapPostEditor } from "@/components/tiptap-post-editor";
 import { getPostBlockLabel, parsePostBlockSlug, POST_BLOCKS, POST_BLOCK_LABELS, type PostBlock } from "@/lib/posts";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
@@ -103,8 +103,14 @@ export default async function AdminPostsPage({ searchParams }: Props) {
               <Input id="create-image-url" name="imageUrl" placeholder="https://..." />
             </div>
             <div className="grid gap-1.5">
-              <Label htmlFor="create-body">Тіло поста (Markdown/Text)</Label>
-              <Textarea id="create-body" name="bodyUk" rows={10} required />
+              <Label htmlFor="create-body">Тіло поста</Label>
+              <TiptapPostEditor
+                key="create-post"
+                id="create-body"
+                name="bodyUk"
+                editorKey="create-post"
+                minHeightClassName="min-h-[220px]"
+              />
             </div>
             <SubmitButton className="w-fit">Створити пост</SubmitButton>
           </form>
@@ -205,7 +211,14 @@ export default async function AdminPostsPage({ searchParams }: Props) {
                   </div>
                   <div className="grid gap-1.5">
                     <Label htmlFor="selected-body">Тіло</Label>
-                    <Textarea id="selected-body" name="bodyUk" rows={18} defaultValue={selectedPost.bodyUk} required />
+                    <TiptapPostEditor
+                      key={selectedPost.id}
+                      id="selected-body"
+                      name="bodyUk"
+                      editorKey={selectedPost.id}
+                      defaultValue={selectedPost.bodyUk}
+                      minHeightClassName="min-h-[360px]"
+                    />
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <SubmitButton variant="secondary" className="w-fit">

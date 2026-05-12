@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 
 import { onboardingAction, type OnboardingState } from "@/app/onboarding/actions";
+import { MotionReveal } from "@/components/motion-ui";
 import { SubmitButton } from "@/components/submit-button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -19,7 +20,8 @@ export function OnboardingForm() {
   const [state, formAction] = useActionState(onboardingAction, undefined as OnboardingState);
 
   return (
-    <Card className="w-full max-w-lg">
+    <MotionReveal>
+      <Card className="w-full max-w-lg">
       <form action={formAction}>
         <CardHeader>
           <CardTitle>Онбординг</CardTitle>
@@ -74,5 +76,6 @@ export function OnboardingForm() {
         </CardFooter>
       </form>
     </Card>
+    </MotionReveal>
   );
 }

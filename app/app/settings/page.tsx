@@ -99,8 +99,16 @@ export default async function SettingsPage() {
             </SubmitButton>
           </form>
           <p className="text-muted-foreground text-sm font-medium">
-            Листи відправляються сервером за cron-розкладом. Якщо у вас нема налаштованого SMTP — відправка буде
-            вимкнена.
+            Щоб листи реально доходили, на сервері мають бути налаштовані SMTP (<code className="font-mono text-xs">SMTP_HOST</code>,{" "}
+            <code className="font-mono text-xs">SMTP_USER</code>, <code className="font-mono text-xs">SMTP_PASS</code>,{" "}
+            <code className="font-mono text-xs">EMAIL_FROM</code>, за потреби <code className="font-mono text-xs">SMTP_PORT</code>) і
+            публічна адреса сайту <code className="font-mono text-xs">PUBLIC_BASE_URL</code>. Vercel Cron щодня о 07:00 UTC викликає{" "}
+            <code className="font-mono text-xs">/api/cron/daily-email</code>; для ручного запуску можна передати{" "}
+            <code className="font-mono text-xs">CRON_TOKEN</code>.
+          </p>
+          <p className="text-muted-foreground text-sm font-medium">
+            Лист надсилається лише якщо у вас активна програма, для сьогоднішнього дня є опублікований пост, і ви ще не отримували лист
+            сьогодні.
           </p>
         </CardContent>
       </Card>

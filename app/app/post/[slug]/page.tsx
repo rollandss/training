@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
+import { PostBody } from "@/components/post-body";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -48,9 +49,7 @@ export default async function PostDetailsPage({ params }: Props) {
                 <img src={post.imageUrl} alt={post.titleUk} className="h-auto max-h-[520px] w-full object-cover" />
               </div>
             ) : null}
-            <article className="whitespace-pre-wrap text-base leading-7 text-foreground/95 md:text-lg md:leading-8">
-              {post.bodyUk}
-            </article>
+            <PostBody body={post.bodyUk} />
           </CardContent>
         </Card>
       </div>

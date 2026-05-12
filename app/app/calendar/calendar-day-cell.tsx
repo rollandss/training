@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Lock } from "lucide-react";
 import { toast } from "sonner";
 
@@ -64,6 +65,7 @@ export function CalendarDayCell(props: {
   training?: TrainingEntry;
 }) {
   const { dayNum, dayKey, locked, status, trainingLines, training } = props;
+  const reduceMotion = useReducedMotion();
 
   const [open, setOpen] = React.useState(false);
   const [step, setStep] = React.useState<DayStep>("choose");
@@ -298,8 +300,16 @@ export function CalendarDayCell(props: {
               Дата: <span className="font-mono">{dayKey}</span>
             </CardDescription>
 
-            {step === "choose" ? (
-              <div className="grid gap-4">
+            <AnimatePresence mode="wait" initial={false}>
+              {step === "choose" ? (
+                <motion.div
+                  key="choose"
+                  initial={reduceMotion ? false : { opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={reduceMotion ? undefined : { opacity: 0, x: 12 }}
+                  transition={{ duration: 0.2 }}
+                  className="grid gap-4"
+                >
                 <div className="grid gap-1.5">
                   <Label htmlFor={`notes-${dayKey}`} className="text-xs">
                     Нотатки (опц.)
@@ -367,25 +377,42 @@ export function CalendarDayCell(props: {
                     </Button>
                   </div>
                 ) : null}
-              </div>
-            ) : step === "setup" ? (
-              <TrainingDaySetupForm
-                value={trainingConfig}
-                restSeconds={restSeconds}
-                onChange={setTrainingConfig}
-                onRestSecondsChange={setRestSeconds}
-              />
-            ) : (
-              <TrainingDaySessionForm
-                key={sessionKey}
-                value={trainingConfig}
-                restRemaining={restRemaining}
-                onChange={setTrainingConfig}
-                onStartRest={startRestTimer}
-                onStartExerciseTimer={startExerciseTimer}
-                onActiveVolumeChange={setVolumeProgress}
-              />
-            )}
+                </motion.div>
+              ) : step === "setup" ? (
+                <motion.div
+                  key="setup"
+                  initial={reduceMotion ? false : { opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={reduceMotion ? undefined : { opacity: 0, x: 12 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <TrainingDaySetupForm
+                    value={trainingConfig}
+                    restSeconds={restSeconds}
+                    onChange={setTrainingConfig}
+                    onRestSecondsChange={setRestSeconds}
+                  />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="session"
+                  initial={reduceMotion ? false : { opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={reduceMotion ? undefined : { opacity: 0, x: 12 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <TrainingDaySessionForm
+                    key={sessionKey}
+                    value={trainingConfig}
+                    restRemaining={restRemaining}
+                    onChange={setTrainingConfig}
+                    onStartRest={startRestTimer}
+                    onStartExerciseTimer={startExerciseTimer}
+                    onActiveVolumeChange={setVolumeProgress}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {step === "setup" ? (

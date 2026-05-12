@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Minus, Plus } from "lucide-react";
 
+import { MotionReveal } from "@/components/motion-ui";
 import { SubmitButton } from "@/components/submit-button";
 import { Label } from "@/components/ui/label";
 import { DEFAULT_TRAINING_REPS, TRAINING_EXERCISES, type TrainingRepValues } from "@/lib/training-exercises";
@@ -62,11 +63,9 @@ export function ExerciseBaselineForm(props: { initial?: Partial<TrainingRepValue
         <input key={exercise.key} type="hidden" name={exercise.key} value={values[exercise.key]} />
       ))}
       <div className="grid gap-3">
-        {TRAINING_EXERCISES.map((exercise) => (
-          <div
-            key={exercise.key}
-            className="flex items-center gap-3 rounded-[var(--radius)] border-4 border-border bg-card px-3 py-3 shadow-[6px_6px_0px_0px_var(--color-border)]"
-          >
+        {TRAINING_EXERCISES.map((exercise, index) => (
+          <MotionReveal key={exercise.key} delay={index * 0.04}>
+            <div className="flex items-center gap-3 rounded-[var(--radius)] border-4 border-border bg-card px-3 py-3 shadow-[6px_6px_0px_0px_var(--color-border)]">
             <div className="flex size-10 shrink-0 items-center justify-center rounded-[var(--radius)] border-4 border-border bg-secondary text-sm font-black shadow-[4px_4px_0px_0px_var(--color-border)]">
               {exercise.short}
             </div>
@@ -81,7 +80,8 @@ export function ExerciseBaselineForm(props: { initial?: Partial<TrainingRepValue
               ariaLabel={exercise.label}
               onChange={(next) => setValues((current) => ({ ...current, [exercise.key]: next }))}
             />
-          </div>
+            </div>
+          </MotionReveal>
         ))}
       </div>
       <SubmitButton className="w-fit" pendingLabel="Зберігаю...">

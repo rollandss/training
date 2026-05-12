@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 import { canSendEmail, getBaseUrl, sendEmail } from "@/lib/email";
+import { postBodyToPlainText } from "@/lib/post-text";
 import { unlockedProgramDay } from "@/lib/progress";
 
 function dayKeyUTC(d: Date) {
@@ -80,7 +81,7 @@ export async function GET(req: Request) {
 
     const subject = `Стоденка — День ${day}: ${post.titleUk}`;
     const link = `${baseUrl}/app/post/${post.slug}`;
-    const text = `День ${day}\n\n${post.titleUk}\n\nВідкрити пост: ${link}\n`;
+    const text = `День ${day}\n\n${post.titleUk}\n\n${postBodyToPlainText(post.bodyUk)}\n\nВідкрити пост: ${link}\n`;
 
     try {
       await sendEmail({ to: s.user.email, subject, text });

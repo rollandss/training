@@ -152,4 +152,41 @@
   .nb-shadow-lg {
     box-shadow: 12px 12px 0 0 var(--border);
   }
+  .post-body p + p,
+  .tiptap-editor-content p + p {
+    margin-top: 0.9rem;
+  }
+  .post-body h2,
+  .tiptap-editor-content h2 {
+    margin-top: 1.25rem;
+    font-size: 1.35rem;
+    font-weight: 900;
+    line-height: 1.2;
+  }
+  .post-body ul,
+  .post-body ol,
+  .tiptap-editor-content ul,
+  .tiptap-editor-content ol {
+    margin-top: 0.75rem;
+    padding-left: 1.25rem;
+  }
+  .post-body ul,
+  .tiptap-editor-content ul {
+    list-style: disc;
+  }
+  .post-body ol,
+  .tiptap-editor-content ol {
+    list-style: decimal;
+  }
+  .post-body li + li,
+  .tiptap-editor-content li + li {
+    margin-top: 0.35rem;
+  }
+  .post-body blockquote,
+  .tiptap-editor-content blockquote {
+    margin-top: 0.9rem;
+    border-left: 4px solid var(--border);
+    padding-left: 0.9rem;
+    font-style: italic;
+  }
 }
