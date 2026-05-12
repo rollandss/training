@@ -138,8 +138,10 @@ export function AppShell({ email, isAdmin }: Props) {
               </nav>
             </SheetContent>
           </Sheet>
+        <div className="flex items-center gap-2 rounded-[var(--radius)] border-4 border-border bg-card/80 p-1 shadow-[4px_4px_0px_0px_var(--color-border)]">
           <ThemeToggle />
           <UserMenu email={email} />
+        </div>
         </div>
       </div>
     </header>
