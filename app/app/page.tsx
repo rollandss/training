@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { TodayPostFeature } from "@/components/today-post-feature";
 import { buttonVariants } from "@/components/ui/button";
@@ -10,7 +11,7 @@ import { cn } from "@/lib/utils";
 
 export default async function AppDashboardPage() {
   const user = await getCurrentUser();
-  if (!user?.userPrograms[0]) return null;
+  if (!user?.userPrograms[0]) redirect("/onboarding");
   const up = user.userPrograms[0];
   const { program } = up;
 
