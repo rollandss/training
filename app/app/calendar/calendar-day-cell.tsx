@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { type TrainingVolumeMode } from "@/lib/calendar-access";
+import { CALENDAR_STATUS_UI } from "@/lib/calendar-status";
 import { summarizeTrainingLines } from "@/lib/user-exercise-utils";
 import { cn } from "@/lib/utils";
 
@@ -20,21 +21,6 @@ import { TrainingDaySessionForm } from "./training-day-session-form";
 import { TrainingDaySetupForm } from "./training-day-setup-form";
 import { TrainingRestOverlayPresence } from "./training-rest-overlay";
 import { saveCalendarDayAction, type CalendarStatus, type CalendarStatusOrNone } from "./actions";
-
-const STATUS_UI: Record<
-  CalendarStatus,
-  {
-    label: string;
-    className: string;
-    short: string;
-    hint?: string;
-  }
-> = {
-  TRAINING: { label: "Тренування", short: "Т", className: "bg-primary text-primary-foreground" },
-  STRETCHING: { label: "Розтяжка", short: "Р", className: "bg-accent text-accent-foreground", hint: "Легка активність/мобільність" },
-  REST: { label: "Відпочинок", short: "В", className: "bg-secondary text-secondary-foreground" },
-  SICK: { label: "Хвороба", short: "Х", className: "bg-destructive text-primary-foreground" },
-};
 
 type TrainingEntry = {
   mode: TrainingVolumeMode;
@@ -201,39 +187,23 @@ export function CalendarDayCell(props: {
           <button
             type="button"
             className={cn(
-              "relative flex h-[92px] sm:h-[112px] w-full flex-col rounded-[var(--radius)] border-4 border-border bg-card p-2 text-left shadow-[8px_8px_0px_0px_var(--color-border)]",
-              locked && "opacity-95",
+              "relative flex h-14 w-full min-w-0 flex-col rounded-[var(--radius)] border-2 border-border bg-card p-1.5 text-left sm:h-[7rem] sm:border-4 sm:p-2 sm:shadow-[6px_6px_0px_0px_var(--color-border)]",
+              status ? CALENDAR_STATUS_UI[status].cellClassName : "bg-card text-foreground",
+              locked && "opacity-80",
               !locked &&
-                "transition-[transform,box-shadow] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[10px_10px_0px_0px_var(--color-border)] active:translate-x-0.5 active:translate-y-0.5",
+                "transition-[transform,box-shadow] sm:hover:-translate-x-0.5 sm:hover:-translate-y-0.5 sm:hover:shadow-[8px_8px_0px_0px_var(--color-border)] sm:active:translate-x-0.5 sm:active:translate-y-0.5",
             )}
             aria-label={`День ${dayNum}`}
           >
-            <div className="flex items-start justify-between gap-2">
-              <div className="text-sm font-black">{dayNum}</div>
-              {status ? (
-                <div
-                  className={cn(
-                    "inline-flex items-center rounded-[var(--radius)] border-4 border-border px-2 py-1 text-xs font-black uppercase tracking-wider shadow-[4px_4px_0px_0px_var(--color-border)]",
-                    STATUS_UI[status].className,
-                  )}
-                  title={STATUS_UI[status].label}
-                >
-                  {STATUS_UI[status].short}
-                </div>
-              ) : (
-                <div className="text-xs font-semibold text-muted-foreground">—</div>
-              )}
-            </div>
+            <div className="text-xs font-black sm:text-sm">{dayNum}</div>
 
             {status === "TRAINING" && trainingSummary ? (
-              <div className="mt-2 line-clamp-2 text-xs font-semibold text-muted-foreground">{trainingSummary}</div>
+              <div className="mt-1 hidden line-clamp-2 text-[11px] font-semibold opacity-90 sm:block">{trainingSummary}</div>
             ) : null}
 
             {locked ? (
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/10">
-                <div className="bg-card border-4 border-border p-2 shadow-[6px_6px_0px_0px_var(--color-border)]">
-                  <Lock className="size-6 text-foreground" />
-                </div>
+                <Lock className="size-4 text-foreground sm:size-5" />
               </div>
             ) : null}
           </button>
@@ -325,7 +295,7 @@ export function CalendarDayCell(props: {
                 <div className="grid gap-2">
                 <CardTitle className="text-base font-black">Тип дня</CardTitle>
                 <div className="grid grid-cols-2 gap-2">
-                  {(Object.keys(STATUS_UI) as CalendarStatus[]).map((s) => (
+                  {(Object.keys(CALENDAR_STATUS_UI) as CalendarStatus[]).map((s) => (
                     <button
                       key={s}
                       type="button"
@@ -339,13 +309,13 @@ export function CalendarDayCell(props: {
                       }}
                       className={cn(
                         "rounded-[var(--radius)] border-4 border-border px-3 py-3 text-left text-xs font-black uppercase tracking-wider shadow-[6px_6px_0px_0px_var(--color-border)] transition-[transform,box-shadow] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0px_0px_var(--color-border)] active:translate-x-0.5 active:translate-y-0.5",
-                        localStatus === s ? STATUS_UI[s].className : "bg-background text-foreground",
+                        localStatus === s ? CALENDAR_STATUS_UI[s].pickerClassName : "bg-background text-foreground",
                       )}
                       aria-pressed={localStatus === s}
                     >
-                      <div>{STATUS_UI[s].label}</div>
-                      {STATUS_UI[s].hint ? (
-                        <div className="mt-1 text-[11px] font-semibold opacity-80">{STATUS_UI[s].hint}</div>
+                      <div>{CALENDAR_STATUS_UI[s].label}</div>
+                      {CALENDAR_STATUS_UI[s].hint ? (
+                        <div className="mt-1 text-[11px] font-semibold opacity-80">{CALENDAR_STATUS_UI[s].hint}</div>
                       ) : null}
                     </button>
                   ))}

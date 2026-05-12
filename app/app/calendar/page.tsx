@@ -2,12 +2,14 @@ import { redirect } from "next/navigation";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { isCalendarDayEditable } from "@/lib/calendar-access";
+import { CALENDAR_STATUS_ORDER, CALENDAR_STATUS_UI } from "@/lib/calendar-status";
 import { unlockedProgramDay } from "@/lib/progress";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { resolveTrainingReps, trainingRepsFromEntry, trainingRepsFromProfile } from "@/lib/training-exercises";
 import { buildTrainingLinesForForm, legacyRepsFromEntry } from "@/lib/user-exercise-utils";
 import { listUserExercises } from "@/lib/user-exercises";
+import { cn } from "@/lib/utils";
 
 import { CalendarDayCell } from "./calendar-day-cell";
 import { type CalendarStatus } from "./actions";
@@ -154,34 +156,43 @@ export default async function CalendarPage({
             Позначай: тренування, розтяжка, відпочинок або хвороба. Минулі відкриті дні можна редагувати.
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-wrap items-center gap-2">
+        <CardContent className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
           <a
             href={prevLocked ? undefined : `/app/calendar?m=${prevKey}`}
             aria-disabled={prevLocked}
             className={[
-              "rounded-[var(--radius)] border-4 border-border bg-background px-3 py-2 text-sm font-black uppercase tracking-wider shadow-[6px_6px_0px_0px_var(--color-border)] transition-[transform,box-shadow]",
+              "rounded-[var(--radius)] border-2 border-border bg-background px-3 py-2 text-sm font-black uppercase tracking-wider sm:border-4 sm:shadow-[4px_4px_0px_0px_var(--color-border)]",
               prevLocked
-                ? "opacity-50 pointer-events-none"
-                : "hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[10px_10px_0px_0px_var(--color-border)] active:translate-x-1 active:translate-y-1",
+                ? "pointer-events-none opacity-50"
+                : "sm:hover:-translate-x-0.5 sm:hover:-translate-y-0.5 sm:hover:shadow-[6px_6px_0px_0px_var(--color-border)]",
             ].join(" ")}
           >
             ←
           </a>
-          <div className="rounded-[var(--radius)] border-4 border-border bg-card px-4 py-2 text-sm font-black uppercase tracking-wider shadow-[6px_6px_0px_0px_var(--color-border)]">
+          <div className="rounded-[var(--radius)] border-2 border-border bg-card px-3 py-2 text-center text-sm font-black uppercase tracking-wider sm:border-4 sm:px-4 sm:shadow-[4px_4px_0px_0px_var(--color-border)]">
             {monthKey}
           </div>
           <a
             href={`/app/calendar?m=${nextKey}`}
-            className="rounded-[var(--radius)] border-4 border-border bg-background px-3 py-2 text-sm font-black uppercase tracking-wider shadow-[6px_6px_0px_0px_var(--color-border)] hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[10px_10px_0px_0px_var(--color-border)] active:translate-x-1 active:translate-y-1 transition-[transform,box-shadow]"
+            className="rounded-[var(--radius)] border-2 border-border bg-background px-3 py-2 text-sm font-black uppercase tracking-wider sm:border-4 sm:shadow-[4px_4px_0px_0px_var(--color-border)] sm:hover:-translate-x-0.5 sm:hover:-translate-y-0.5 sm:hover:shadow-[6px_6px_0px_0px_var(--color-border)]"
           >
             →
           </a>
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-7 gap-2">
+      <div className="flex flex-wrap gap-2 text-xs font-semibold text-muted-foreground">
+        {CALENDAR_STATUS_ORDER.map((status) => (
+          <div key={status} className="inline-flex items-center gap-2">
+            <span className={cn("size-3 rounded-sm border border-border", CALENDAR_STATUS_UI[status].cellClassName)} />
+            <span>{CALENDAR_STATUS_UI[status].label}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-7 gap-1 sm:gap-2">
         {WEEKDAYS.map((d) => (
-          <div key={d} className="text-center text-xs font-black uppercase tracking-wider text-muted-foreground">
+          <div key={d} className="text-center text-[10px] font-black uppercase tracking-wider text-muted-foreground sm:text-xs">
             {d}
           </div>
         ))}
@@ -189,7 +200,7 @@ export default async function CalendarPage({
         {Array.from({ length: rows * 7 }).map((_, idx) => {
           const dayNum = idx - firstDow + 1;
           if (dayNum < 1 || dayNum > daysInMonth) {
-            return <div key={`empty-${idx}`} className="h-[92px] sm:h-[112px] rounded-[var(--radius)] border-4 border-border bg-card/40" />;
+            return <div key={`empty-${idx}`} className="h-14 rounded-[var(--radius)] border-2 border-border bg-card/40 sm:h-[7rem] sm:border-4" />;
           }
 
           const date = new Date(Date.UTC(clampedStart.getUTCFullYear(), clampedStart.getUTCMonth(), dayNum));
@@ -197,7 +208,7 @@ export default async function CalendarPage({
 
           // Don't show days before program start (in the first month).
           if (date.getTime() < programStart.getTime()) {
-            return <div key={`prestart-${dayKey}`} className="h-[92px] sm:h-[112px] rounded-[var(--radius)] border-4 border-border bg-card/40" />;
+            return <div key={`prestart-${dayKey}`} className="h-14 rounded-[var(--radius)] border-2 border-border bg-card/40 sm:h-[7rem] sm:border-4" />;
           }
 
           const status = byDayKey.get(dayKey);
