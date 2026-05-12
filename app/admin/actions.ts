@@ -10,6 +10,7 @@ import { prisma } from "@/lib/prisma";
 
 function revalidatePostsSurfaces() {
   revalidatePath("/admin/posts");
+  revalidatePath("/admin/posts/new");
   revalidatePath("/app/posts");
   revalidatePath("/app");
   for (const block of POST_BLOCKS) {
@@ -51,6 +52,7 @@ export async function createPostAction(formData: FormData) {
   });
 
   revalidatePostsSurfaces();
+  redirect(`/admin/posts?block=${block.toLowerCase()}&slug=${encodeURIComponent(slug)}`);
 }
 
 export async function updatePostAction(formData: FormData) {
