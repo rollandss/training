@@ -21,6 +21,12 @@ export function diffDaysUTC(a: Date, b: Date) {
   return Math.floor(ms / (1000 * 60 * 60 * 24));
 }
 
+export function programDayFromDayKey(dayKey: string, startedAt: Date) {
+  const date = dayKeyToUTCDate(dayKey);
+  if (!date) return null;
+  return diffDaysUTC(date, startedAt) + 1;
+}
+
 export function isCalendarDayEditable(params: {
   dayKey: string;
   startedAt: Date;

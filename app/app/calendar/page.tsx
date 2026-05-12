@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { isCalendarDayEditable } from "@/lib/calendar-access";
+import { diffDaysUTC, isCalendarDayEditable } from "@/lib/calendar-access";
 import { CALENDAR_STATUS_ORDER, CALENDAR_STATUS_UI } from "@/lib/calendar-status";
 import { unlockedProgramDay } from "@/lib/progress";
 import { getCurrentUser } from "@/lib/auth";
@@ -233,10 +233,13 @@ export default async function CalendarPage({
               )
             : buildTrainingLinesForForm(exercises, null, trainingRepDefaults);
 
+          const programDay = diffDaysUTC(date, programStart) + 1;
+
           return (
             <CalendarDayCell
               key={dayKey}
               dayNum={dayNum}
+              programDay={programDay}
               dayKey={dayKey}
               locked={locked}
               status={status}

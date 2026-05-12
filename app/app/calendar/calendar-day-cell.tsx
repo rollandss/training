@@ -44,13 +44,14 @@ function buildTrainingConfig(
 
 export function CalendarDayCell(props: {
   dayNum: number;
+  programDay: number;
   dayKey: string;
   locked: boolean;
   status?: CalendarStatus;
   trainingLines: TrainingExerciseLineFormValue[];
   training?: TrainingEntry;
 }) {
-  const { dayNum, dayKey, locked, status, trainingLines, training } = props;
+  const { dayNum, programDay, dayKey, locked, status, trainingLines, training } = props;
   const reduceMotion = useReducedMotion();
 
   const [open, setOpen] = React.useState(false);
@@ -193,7 +194,7 @@ export function CalendarDayCell(props: {
               !locked &&
                 "transition-[transform,box-shadow] sm:hover:-translate-x-0.5 sm:hover:-translate-y-0.5 sm:hover:shadow-[8px_8px_0px_0px_var(--color-border)] sm:active:translate-x-0.5 sm:active:translate-y-0.5",
             )}
-            aria-label={`День ${dayNum}`}
+            aria-label={`Дата ${dayNum}`}
           >
             <div className="text-xs font-black sm:text-sm">{dayNum}</div>
 
@@ -220,7 +221,7 @@ export function CalendarDayCell(props: {
         )}
       >
         <SheetHeader className="shrink-0 border-b-4 border-border px-4 py-3 pr-14">
-          <SheetTitle className="text-lg font-black">День {dayNum}</SheetTitle>
+          <SheetTitle className="text-lg font-black">День {programDay}</SheetTitle>
           <SheetDescription className="text-xs font-medium">
             {step === "choose"
               ? "Обери тип дня."
