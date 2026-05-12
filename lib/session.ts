@@ -3,6 +3,13 @@ import { cookies } from "next/headers";
 
 const COOKIE = "session";
 
+const SESSION_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  path: "/",
+};
+
 function getSecret() {
   const s = process.env.SESSION_SECRET ?? "dev-only-change-SESSION_SECRET-in-env-32chars";
   return new TextEncoder().encode(s);
@@ -27,10 +34,7 @@ export async function createSession(user: SessionPayload) {
 
   const jar = await cookies();
   jar.set(COOKIE, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
+    ...SESSION_COOKIE_OPTIONS,
     maxAge: 60 * 60 * 24 * 14,
   });
 }
@@ -53,5 +57,8 @@ export async function getSession(): Promise<SessionPayload | null> {
 
 export async function clearSession() {
   const jar = await cookies();
-  jar.delete(COOKIE);
+  jar.set(COOKIE, "", {
+    ...SESSION_COOKIE_OPTIONS,
+    maxAge: 0,
+  });
 }

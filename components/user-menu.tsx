@@ -1,5 +1,6 @@
 "use client";
 
+import { logoutAction } from "@/app/auth/actions";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -22,7 +23,7 @@ export function UserMenu({ email }: { email: string }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-40">
         <DropdownMenuItem className="cursor-pointer p-0">
-          <form action="/api/logout" method="POST" className="w-full">
+          <form action={logoutAction} className="w-full">
             <button
               type="submit"
               className="w-full cursor-pointer rounded-md px-2 py-1.5 text-left text-sm hover:bg-accent hover:text-accent-foreground"

@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
-import { createSession } from "@/lib/session";
+import { clearSession, createSession } from "@/lib/session";
 
 export type AuthFormState = { error: string } | undefined;
 
@@ -76,4 +76,9 @@ export async function loginAction(_prev: AuthFormState, formData: FormData): Pro
     redirect("/onboarding");
   }
   redirect("/app");
+}
+
+export async function logoutAction() {
+  await clearSession();
+  redirect("/auth/login");
 }
