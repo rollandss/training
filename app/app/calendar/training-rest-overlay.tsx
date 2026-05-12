@@ -16,8 +16,11 @@ function TrainingRestOverlayPanel(props: {
   totalSeconds: number;
   remainingSeconds: number;
   onSkip: () => void;
+  title: string;
+  subtitle: string;
+  skipLabel: string;
 }) {
-  const { totalSeconds, remainingSeconds, onSkip } = props;
+  const { totalSeconds, remainingSeconds, onSkip, title, subtitle, skipLabel } = props;
   const reduceMotion = useReducedMotion();
 
   const safeTotal = Math.max(1, totalSeconds);
@@ -48,9 +51,9 @@ function TrainingRestOverlayPanel(props: {
         transition={{ duration: 0.24, delay: reduceMotion ? 0 : 0.05 }}
       >
         <p id="training-rest-title" className="text-sm font-black uppercase tracking-[0.2em] opacity-80">
-          Відпочинок
+          {title}
         </p>
-        <p className="mt-2 text-xs font-semibold opacity-80">Дочекайся сигналу або пропусти таймер</p>
+        <p className="mt-2 text-xs font-semibold opacity-80">{subtitle}</p>
       </motion.div>
 
       <motion.div
@@ -118,9 +121,9 @@ function TrainingRestOverlayPanel(props: {
           size="lg"
           className="min-w-48 font-black uppercase tracking-wider"
           onClick={onSkip}
-          aria-label="Пропустити відпочинок"
+          aria-label={skipLabel}
         >
-          Пропустити
+          {skipLabel}
         </Button>
       </motion.div>
     </motion.div>
@@ -132,8 +135,19 @@ export function TrainingRestOverlayPresence(props: {
   totalSeconds: number;
   remainingSeconds: number;
   onSkip: () => void;
+  title?: string;
+  subtitle?: string;
+  skipLabel?: string;
 }) {
-  const { open, totalSeconds, remainingSeconds, onSkip } = props;
+  const {
+    open,
+    totalSeconds,
+    remainingSeconds,
+    onSkip,
+    title = "Відпочинок",
+    subtitle = "Дочекайся сигналу або пропусти таймер",
+    skipLabel = "Пропустити",
+  } = props;
 
   if (typeof document === "undefined") return null;
 
@@ -145,6 +159,9 @@ export function TrainingRestOverlayPresence(props: {
           totalSeconds={totalSeconds}
           remainingSeconds={remainingSeconds}
           onSkip={onSkip}
+          title={title}
+          subtitle={subtitle}
+          skipLabel={skipLabel}
         />
       ) : null}
     </AnimatePresence>,

@@ -9,7 +9,7 @@ import { SubmitButton } from "@/components/submit-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { type UserExerciseView } from "@/lib/user-exercise-utils";
+import { type ExerciseMetric, type UserExerciseView } from "@/lib/user-exercise-utils";
 import { cn } from "@/lib/utils";
 
 import {
@@ -28,11 +28,20 @@ function moveExercise(exercises: UserExerciseView[], index: number, direction: -
   return next;
 }
 
+function metricLabel(metric: ExerciseMetric) {
+  return metric === "TIME" ? "Час" : "Повтори";
+}
+
+function maxFieldLabel(metric: ExerciseMetric) {
+  return metric === "TIME" ? "Максимум секунд" : "Максимум повторень";
+}
+
 export function UserExercisesForm(props: { initial: UserExerciseView[] }) {
   const reduceMotion = useReducedMotion();
   const [exercises, setExercises] = React.useState(props.initial);
   const [draftLabel, setDraftLabel] = React.useState("");
   const [draftShort, setDraftShort] = React.useState("");
+  const [draftMetric, setDraftMetric] = React.useState<ExerciseMetric>("REPS");
 
   const persistOrder = React.useCallback(async (ordered: UserExerciseView[]) => {
     const formData = new FormData();
@@ -111,18 +120,36 @@ export function UserExercisesForm(props: { initial: UserExerciseView[] }) {
                 </div>
                 <div className="grid gap-1.5 sm:col-span-2">
                   <Label htmlFor={`exercise-max-${exercise.id}`} className="text-xs">
-                    Максимум повторень
+                    {maxFieldLabel(exercise.metric)}
                   </Label>
                   <Input
                     id={`exercise-max-${exercise.id}`}
                     name="maxReps"
                     type="number"
                     min={1}
-                    max={5000}
+                    max={exercise.metric === "TIME" ? 3600 : 5000}
                     defaultValue={exercise.maxReps}
                     required
                   />
                 </div>
+                {!exercise.isBuiltin ? (
+                  <div className="grid gap-1.5 sm:col-span-2">
+                    <Label htmlFor={`exercise-metric-${exercise.id}`} className="text-xs">
+                      Тип
+                    </Label>
+                    <select
+                      id={`exercise-metric-${exercise.id}`}
+                      name="metric"
+                      defaultValue={exercise.metric}
+                      className="h-9 rounded-[var(--radius)] border-4 border-border bg-background px-3 text-sm font-semibold shadow-[4px_4px_0px_0px_var(--color-border)]"
+                    >
+                      <option value="REPS">Повтори</option>
+                      <option value="TIME">Час</option>
+                    </select>
+                  </div>
+                ) : (
+                  <input type="hidden" name="metric" value="REPS" />
+                )}
               </motion.div>
               <div className="flex shrink-0 flex-col gap-1">
                 <button
@@ -192,6 +219,23 @@ export function UserExercisesForm(props: { initial: UserExerciseView[] }) {
         className="grid gap-3 rounded-[var(--radius)] border-4 border-dashed border-border bg-background/80 p-3 shadow-[6px_6px_0px_0px_var(--color-border)]"
       >
         <div className="text-sm font-black">Нова вправа</div>
+        <input type="hidden" name="metric" value={draftMetric} />
+        <div className="grid grid-cols-2 gap-2">
+          {(["REPS", "TIME"] as const).map((metric) => (
+            <button
+              key={metric}
+              type="button"
+              onClick={() => setDraftMetric(metric)}
+              className={cn(
+                "rounded-[var(--radius)] border-4 border-border px-3 py-2 text-xs font-black uppercase tracking-wider shadow-[4px_4px_0px_0px_var(--color-border)]",
+                draftMetric === metric ? "bg-primary text-primary-foreground" : "bg-background",
+              )}
+              aria-pressed={draftMetric === metric}
+            >
+              {metricLabel(metric)}
+            </button>
+          ))}
+        </div>
         <div className="grid gap-2 sm:grid-cols-2">
           <div className="grid gap-1.5">
             <Label htmlFor="new-exercise-label" className="text-xs">

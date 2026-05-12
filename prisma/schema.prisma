@@ -162,6 +162,7 @@ model UserExercise {
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   label      String
   short      String
+  metric     String   @default("REPS") // REPS | TIME
   maxReps    Int      @default(5000)
   sortOrder  Int
   builtinKey String?

@@ -1,9 +1,12 @@
 import { TRAINING_EXERCISES, type TrainingExerciseKey, type TrainingRepValues } from "@/lib/training-exercises";
 
+export type ExerciseMetric = "REPS" | "TIME";
+
 export type UserExerciseView = {
   id: string;
   label: string;
   short: string;
+  metric: ExerciseMetric;
   maxReps: number;
   sortOrder: number;
   builtinKey: TrainingExerciseKey | null;
@@ -14,6 +17,11 @@ export type TrainingExerciseLineInput = {
   exerciseId: string;
   reps: number;
 };
+
+export function formatExerciseValue(line: { short: string; reps: number; metric: ExerciseMetric }) {
+  if (line.metric === "TIME") return `${line.short}${line.reps}с`;
+  return `${line.short}${line.reps}`;
+}
 
 export function legacyRepsFromEntry(entry?: Partial<TrainingRepValues> | null): Partial<TrainingRepValues> {
   if (!entry) return {};
@@ -53,11 +61,12 @@ export function buildTrainingLinesForForm(
   return ordered.map((exercise) => {
     const saved = byExerciseId.get(exercise.id);
     const legacyValue = exercise.builtinKey ? legacyEntry?.[exercise.builtinKey] : undefined;
-    const defaultValue = exercise.builtinKey ? repDefaults[exercise.builtinKey] : 0;
+    const defaultValue = exercise.builtinKey ? repDefaults[exercise.builtinKey] : exercise.metric === "TIME" ? 30 : 0;
     return {
       exerciseId: exercise.id,
       label: exercise.label,
       short: exercise.short,
+      metric: exercise.metric,
       maxReps: exercise.maxReps,
       builtinKey: exercise.builtinKey,
       reps: saved?.reps ?? legacyValue ?? defaultValue ?? 0,
@@ -65,6 +74,6 @@ export function buildTrainingLinesForForm(
   });
 }
 
-export function summarizeTrainingLines(lines: Array<{ short: string; reps: number }>) {
-  return lines.map((line) => `${line.short}${line.reps}`).join(" · ");
+export function summarizeTrainingLines(lines: Array<{ short: string; reps: number; metric: ExerciseMetric }>) {
+  return lines.map((line) => formatExerciseValue(line)).join(" · ");
 }

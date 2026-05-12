@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { listUserExercises } from "@/lib/user-exercises";
+import { type ExerciseMetric } from "@/lib/user-exercise-utils";
 import { TRAINING_EXERCISES } from "@/lib/training-exercises";
 
 function parseIntField(formData: FormData, key: string, opts?: { min?: number; max?: number }) {
@@ -77,13 +78,20 @@ function normalizeExerciseLabel(value: string) {
   return trimmed.slice(0, 80);
 }
 
+function parseExerciseMetric(value: string): ExerciseMetric {
+  return value === "TIME" ? "TIME" : "REPS";
+}
+
 export async function createUserExerciseAction(formData: FormData) {
   const user = await getCurrentUser();
   if (!user) throw new Error("Unauthorized");
 
   const label = normalizeExerciseLabel(String(formData.get("label") ?? ""));
   const short = normalizeExerciseShort(String(formData.get("short") ?? ""));
-  const maxReps = parseIntField(formData, "maxReps", { min: 1, max: 5000 }) ?? 5000;
+  const metric = parseExerciseMetric(String(formData.get("metric") ?? "REPS"));
+  const maxReps =
+    parseIntField(formData, "maxReps", { min: 1, max: metric === "TIME" ? 3600 : 5000 }) ??
+    (metric === "TIME" ? 600 : 5000);
   if (!label || !short) throw new Error("Fill exercise name and short label");
 
   const exercises = await listUserExercises(user.id);
@@ -94,6 +102,7 @@ export async function createUserExerciseAction(formData: FormData) {
       userId: user.id,
       label,
       short,
+      metric,
       maxReps,
       sortOrder,
     },
@@ -110,7 +119,8 @@ export async function updateUserExerciseAction(formData: FormData) {
   const id = String(formData.get("id") ?? "").trim();
   const label = normalizeExerciseLabel(String(formData.get("label") ?? ""));
   const short = normalizeExerciseShort(String(formData.get("short") ?? ""));
-  const maxReps = parseIntField(formData, "maxReps", { min: 1, max: 5000 });
+  const metric = parseExerciseMetric(String(formData.get("metric") ?? "REPS"));
+  const maxReps = parseIntField(formData, "maxReps", { min: 1, max: metric === "TIME" ? 3600 : 5000 });
   if (!id || !label || !short || maxReps == null) throw new Error("Invalid exercise");
 
   const exercise = await prisma.userExercise.findFirst({
@@ -121,11 +131,14 @@ export async function updateUserExerciseAction(formData: FormData) {
 
   await prisma.userExercise.update({
     where: { id: exercise.id },
-    data: {
-      label,
-      short,
-      maxReps,
-    },
+    data: exercise.builtinKey
+      ? { maxReps }
+      : {
+          label,
+          short,
+          metric,
+          maxReps,
+        },
   });
 
   revalidatePath("/app/settings");

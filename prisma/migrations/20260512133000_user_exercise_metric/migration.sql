@@ -1,0 +1,1 @@
+ALTER TABLE "UserExercise" ADD COLUMN "metric" TEXT NOT NULL DEFAULT 'REPS';

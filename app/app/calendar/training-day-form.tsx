@@ -2,12 +2,13 @@
 
 import * as React from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ArrowDown, ArrowUp, Minus, Plus, RotateCcw, Sparkles } from "lucide-react";
+import { ArrowDown, ArrowUp, Minus, Plus, RotateCcw, Timer } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { type TrainingVolumeMode } from "@/lib/calendar-access";
+import { type ExerciseMetric } from "@/lib/user-exercise-utils";
 import { type TrainingExerciseKey } from "@/lib/training-exercises";
 import { cn } from "@/lib/utils";
 
@@ -63,10 +64,10 @@ export type TrainingExerciseLineFormValue = {
   exerciseId: string;
   label: string;
   short: string;
+  metric: ExerciseMetric;
   maxReps: number;
   builtinKey: TrainingExerciseKey | null;
   reps: number;
-  isNew?: boolean;
 };
 
 export type TrainingDayFormValue = {
@@ -96,17 +97,16 @@ export function TrainingDayForm(props: {
   restRemaining: number | null;
   onRestSecondsChange: (seconds: number) => void;
   onStartRest: () => void;
+  onStartExerciseTimer: (payload: { label: string; seconds: number }) => void;
   onActiveVolumeChange?: (progress: TrainingVolumeProgress) => void;
 }) {
-  const { initial, restSeconds, restRemaining, onRestSecondsChange, onStartRest, onActiveVolumeChange } = props;
+  const { initial, restSeconds, restRemaining, onRestSecondsChange, onStartRest, onStartExerciseTimer, onActiveVolumeChange } = props;
   const reduceMotion = useReducedMotion();
 
   const [mode, setModeState] = React.useState<TrainingVolumeMode>(initial?.mode ?? "ROUNDS");
   const [rounds, setRoundsState] = React.useState(initial?.rounds ?? 4);
   const [lines, setLines] = React.useState<TrainingExerciseLineFormValue[]>(initial?.lines ?? []);
   const [activeVolume, setActiveVolume] = React.useState(1);
-  const [draftLabel, setDraftLabel] = React.useState("");
-  const [draftShort, setDraftShort] = React.useState("");
   const clampedActiveVolume = Math.max(1, Math.min(activeVolume, rounds));
 
   const setMode = React.useCallback((next: TrainingVolumeMode) => {
@@ -134,26 +134,6 @@ export function TrainingDayForm(props: {
   React.useEffect(() => {
     onActiveVolumeChange?.({ mode, active: clampedActiveVolume, rounds });
   }, [clampedActiveVolume, mode, onActiveVolumeChange, rounds]);
-
-  const addCustomExercise = React.useCallback(() => {
-    const label = draftLabel.trim();
-    const short = draftShort.trim();
-    if (!label || !short) return;
-    setLines((current) => [
-      ...current,
-      {
-        exerciseId: `new-${crypto.randomUUID()}`,
-        label,
-        short,
-        maxReps: 5000,
-        builtinKey: null,
-        reps: 0,
-        isNew: true,
-      },
-    ]);
-    setDraftLabel("");
-    setDraftShort("");
-  }, [draftLabel, draftShort]);
 
   const volumeChips = (
     <motion.div layout className="flex flex-wrap gap-1.5">
@@ -194,10 +174,6 @@ export function TrainingDayForm(props: {
           lines.map((line) => ({
             exerciseId: line.exerciseId,
             reps: line.reps,
-            isNew: line.isNew === true,
-            label: line.label,
-            short: line.short,
-            maxReps: line.maxReps,
           })),
         )}
       />
@@ -280,8 +256,7 @@ export function TrainingDayForm(props: {
                   {line.label}
                 </motion.div>
                 <motion.div layout className="text-[11px] font-semibold text-muted-foreground">
-                  {repsLabel} · {activeVolumeLabel} {clampedActiveVolume}
-                  {line.isNew ? " · нова" : null}
+                  {line.metric === "TIME" ? "Секунди в колі" : repsLabel} · {activeVolumeLabel} {clampedActiveVolume}
                 </motion.div>
               </motion.div>
               <div className="flex shrink-0 flex-col gap-1">
@@ -306,7 +281,7 @@ export function TrainingDayForm(props: {
               </div>
               <Stepper
                 value={line.reps}
-                min={0}
+                min={line.metric === "TIME" ? 5 : 0}
                 max={line.maxReps}
                 ariaLabel={line.label}
                 onChange={(next) =>
@@ -315,54 +290,22 @@ export function TrainingDayForm(props: {
                   )
                 }
               />
+              {line.metric === "TIME" ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="shrink-0 font-black uppercase tracking-wider"
+                  disabled={line.reps < 5 || restRemaining != null}
+                  onClick={() => onStartExerciseTimer({ label: line.label, seconds: line.reps })}
+                >
+                  <Timer className="size-4" />
+                  Таймер
+                </Button>
+              ) : null}
             </motion.div>
           ))}
         </AnimatePresence>
-
-        <motion.div
-          layout
-          className="rounded-[var(--radius)] border-4 border-dashed border-border bg-background/80 p-3 shadow-[6px_6px_0px_0px_var(--color-border)]"
-        >
-          <motion.div layout className="flex items-center gap-2 text-sm font-black">
-            <Sparkles className="size-4" />
-            Своя вправа
-          </motion.div>
-          <div className="mt-3 grid gap-2">
-            <div className="grid gap-1.5">
-              <Label htmlFor="custom-exercise-label" className="text-xs">
-                Назва
-              </Label>
-              <Input
-                id="custom-exercise-label"
-                value={draftLabel}
-                onChange={(event) => setDraftLabel(event.target.value)}
-                placeholder="Напр.: планка"
-              />
-            </div>
-            <div className="grid gap-1.5">
-              <Label htmlFor="custom-exercise-short" className="text-xs">
-                Коротко
-              </Label>
-              <Input
-                id="custom-exercise-short"
-                value={draftShort}
-                onChange={(event) => setDraftShort(event.target.value)}
-                placeholder="Пл"
-                maxLength={6}
-              />
-            </div>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="w-fit font-black uppercase tracking-wider"
-              disabled={!draftLabel.trim() || !draftShort.trim()}
-              onClick={addCustomExercise}
-            >
-              Додати вправу
-            </Button>
-          </div>
-        </motion.div>
 
         <motion.div
           layout
@@ -408,7 +351,7 @@ export function TrainingDayForm(props: {
           />
           <p className="text-[11px] font-semibold text-muted-foreground">
             {restRemaining != null
-              ? "Повноекранний відпочинок активний."
+              ? "Повноекранний таймер активний."
               : "Після «Коло виконано» відкриється повноекранний відлік."}
           </p>
         </div>

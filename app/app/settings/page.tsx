@@ -67,8 +67,7 @@ export default async function SettingsPage() {
         <CardHeader>
           <CardTitle>Мої вправи</CardTitle>
           <CardDescription>
-            Порядок і назви вправ для календаря. Базові вправи залишаються в списку, свої можна додавати, перейменовувати
-            і переміщувати.
+            Додавай свої вправи тут: повтори або час (наприклад планка). Порядок і назви використовуються в календарі.
           </CardDescription>
         </CardHeader>
         <CardContent>

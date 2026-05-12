@@ -55,6 +55,9 @@ export function CalendarDayCell(props: {
   const [restSeconds, setRestSeconds] = React.useState(60);
   const [restRemaining, setRestRemaining] = React.useState<number | null>(null);
   const [restDurationTotal, setRestDurationTotal] = React.useState(60);
+  const [timerTitle, setTimerTitle] = React.useState("Відпочинок");
+  const [timerSubtitle, setTimerSubtitle] = React.useState("Дочекайся сигналу або пропусти таймер");
+  const [timerSkipLabel, setTimerSkipLabel] = React.useState("Пропустити");
   const [volumeProgress, setVolumeProgress] = React.useState<TrainingVolumeProgress | null>(null);
   const [notes, setNotes] = React.useState(training?.notes ?? "");
   const intervalRef = React.useRef<number | null>(null);
@@ -67,22 +70,61 @@ export function CalendarDayCell(props: {
     setRestRemaining(null);
   }, []);
 
-  const startRestTimer = React.useCallback(() => {
-    stopRestTimer();
-    const startedAt = Date.now();
-    const durationMs = restSeconds * 1000;
-    setRestDurationTotal(restSeconds);
-    setRestRemaining(restSeconds);
-    intervalRef.current = window.setInterval(() => {
-      const elapsed = Date.now() - startedAt;
-      const remaining = Math.ceil((durationMs - elapsed) / 1000);
-      if (remaining <= 0) {
-        stopRestTimer();
-        return;
+  const startCountdown = React.useCallback(
+    (
+      seconds: number,
+      labels: {
+        title: string;
+        subtitle: string;
+        skipLabel: string;
+      },
+    ) => {
+      if (intervalRef.current != null) {
+        window.clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
-      setRestRemaining(remaining);
-    }, 250);
-  }, [restSeconds, stopRestTimer]);
+      const startedAt = Date.now();
+      const durationMs = seconds * 1000;
+      setTimerTitle(labels.title);
+      setTimerSubtitle(labels.subtitle);
+      setTimerSkipLabel(labels.skipLabel);
+      setRestDurationTotal(seconds);
+      setRestRemaining(seconds);
+      intervalRef.current = window.setInterval(() => {
+        const elapsed = Date.now() - startedAt;
+        const remaining = Math.ceil((durationMs - elapsed) / 1000);
+        if (remaining <= 0) {
+          if (intervalRef.current != null) {
+            window.clearInterval(intervalRef.current);
+            intervalRef.current = null;
+          }
+          setRestRemaining(null);
+          return;
+        }
+        setRestRemaining(remaining);
+      }, 250);
+    },
+    [],
+  );
+
+  const startRestTimer = React.useCallback(() => {
+    startCountdown(restSeconds, {
+      title: "Відпочинок",
+      subtitle: "Дочекайся сигналу або пропусти таймер",
+      skipLabel: "Пропустити",
+    });
+  }, [restSeconds, startCountdown]);
+
+  const startExerciseTimer = React.useCallback(
+    (payload: { label: string; seconds: number }) => {
+      startCountdown(payload.seconds, {
+        title: payload.label,
+        subtitle: "Виконай вправу до сигналу або пропусти таймер",
+        skipLabel: "Пропустити",
+      });
+    },
+    [startCountdown],
+  );
 
   React.useEffect(() => {
     return () => {
@@ -283,6 +325,7 @@ export function CalendarDayCell(props: {
                 restRemaining={restRemaining}
                 onRestSecondsChange={setRestSeconds}
                 onStartRest={startRestTimer}
+                onStartExerciseTimer={startExerciseTimer}
                 onActiveVolumeChange={setVolumeProgress}
               />
             )}
@@ -302,6 +345,9 @@ export function CalendarDayCell(props: {
         totalSeconds={restDurationTotal}
         remainingSeconds={restRemaining ?? 0}
         onSkip={stopRestTimer}
+        title={timerTitle}
+        subtitle={timerSubtitle}
+        skipLabel={timerSkipLabel}
       />
     </Sheet>
   );
