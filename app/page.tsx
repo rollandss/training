@@ -10,15 +10,18 @@ export default function HomePage() {
   return (
     <div className="flex flex-1 flex-col">
       <header className="border-b-4 border-border bg-card/90 shadow-[0_6px_0px_0px_var(--color-border)]">
-        <div className="mx-auto flex w-full max-w-[1400px] items-center justify-between gap-3 px-3 py-3 md:px-6">
-          <SiteLogo href="/" />
-          <div className="flex items-center gap-2">
+        <div className="mx-auto w-full max-w-[1400px] px-3 py-3 md:px-6">
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+            <div />
+            <SiteLogo href="/" centered markClassName="h-9 w-auto" />
+            <div className="flex items-center justify-end gap-2">
             <Link href="/auth/login" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
               Увійти
             </Link>
             <Link href="/auth/register" className={cn(buttonVariants({ size: "sm" }))}>
               Почати
             </Link>
+            </div>
           </div>
         </div>
       </header>

@@ -58,34 +58,8 @@ export function AppShell({ email, isAdmin }: Props) {
 
   return (
     <header className="border-b-4 border-border bg-card shadow-[0_6px_0px_0px_var(--color-border)]">
-      <div className="mx-auto flex w-full max-w-[1400px] items-center justify-between gap-3 px-3 py-2 md:px-6">
-        <div className="flex min-w-0 items-center gap-3">
-          <SiteLogo href="/app" onClick={closeMenu} showMobileLabel className="shrink-0" />
-
-          <nav className="hidden items-center gap-2 md:flex">
-            {NAV_ITEMS.map((item, index) => (
-              <motion.div
-                key={item.href}
-                initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2, delay: index * 0.04 }}
-              >
-                <AppNavLink href={item.href} label={item.label} />
-              </motion.div>
-            ))}
-            {isAdmin ? (
-              <motion.div
-                initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2, delay: NAV_ITEMS.length * 0.04 }}
-              >
-                <AppNavLink href="/admin" label="Адмін" />
-              </motion.div>
-            ) : null}
-          </nav>
-        </div>
-
-        <div className="flex shrink-0 items-center gap-2">
+      <div className="mx-auto grid w-full max-w-[1400px] grid-cols-[1fr_auto_1fr] items-center gap-3 px-3 py-2 md:px-6">
+        <div className="flex min-w-0 items-center gap-2 justify-self-start">
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger
               render={
@@ -138,10 +112,37 @@ export function AppShell({ email, isAdmin }: Props) {
               </nav>
             </SheetContent>
           </Sheet>
-        <div className="flex items-center gap-2 rounded-[var(--radius)] border-4 border-border bg-card/80 p-1 shadow-[4px_4px_0px_0px_var(--color-border)]">
-          <ThemeToggle />
-          <UserMenu email={email} />
+
+          <nav className="hidden items-center gap-2 md:flex">
+            {NAV_ITEMS.map((item, index) => (
+              <motion.div
+                key={item.href}
+                initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, delay: index * 0.04 }}
+              >
+                <AppNavLink href={item.href} label={item.label} />
+              </motion.div>
+            ))}
+            {isAdmin ? (
+              <motion.div
+                initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, delay: NAV_ITEMS.length * 0.04 }}
+              >
+                <AppNavLink href="/admin" label="Адмін" />
+              </motion.div>
+            ) : null}
+          </nav>
         </div>
+
+        <SiteLogo href="/app" onClick={closeMenu} centered className="justify-self-center" markClassName="h-9 w-auto" />
+
+        <div className="flex items-center justify-self-end gap-2">
+          <div className="flex items-center gap-2 rounded-[var(--radius)] border-4 border-border bg-card/80 p-1 shadow-[4px_4px_0px_0px_var(--color-border)]">
+            <ThemeToggle />
+            <UserMenu email={email} />
+          </div>
         </div>
       </div>
     </header>
