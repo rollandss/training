@@ -1,14 +1,16 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "@/lib/auth";
+import { POSTS_CACHE_TAG } from "@/lib/post-cache";
 import { postBodyToPlainText } from "@/lib/post-text";
 import { POST_BLOCKS } from "@/lib/posts";
 import { prisma } from "@/lib/prisma";
 
 function revalidatePostsSurfaces() {
+  updateTag(POSTS_CACHE_TAG);
   revalidatePath("/admin/posts");
   revalidatePath("/admin/posts/new");
   revalidatePath("/app/posts");

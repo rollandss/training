@@ -5,7 +5,7 @@ import { TodayPostFeature } from "@/components/today-post-feature";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { getPostByDayCached } from "@/lib/post-cache";
 import { unlockedProgramDay } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 
@@ -39,16 +39,7 @@ export default async function AppDashboardPage() {
     );
   }
 
-  const dailyPost = await prisma.dailyPost.findFirst({
-    where: { dayNumber: currentDay },
-    select: {
-      slug: true,
-      titleUk: true,
-      bodyUk: true,
-      imageUrl: true,
-      block: true,
-    },
-  });
+  const dailyPost = await getPostByDayCached(currentDay);
 
   return (
     <TodayPostFeature

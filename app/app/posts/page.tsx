@@ -5,8 +5,8 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BlocksTabs } from "@/components/blocks-tabs";
 import { getCurrentUser } from "@/lib/auth";
+import { getPostCatalogCached } from "@/lib/post-cache";
 import { POST_BLOCK_LABELS, POST_BLOCK_ORDER, getPostBlockSlug } from "@/lib/posts";
-import { prisma } from "@/lib/prisma";
 import { unlockedProgramDay } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 
@@ -15,9 +15,7 @@ export default async function PostsPage() {
   if (!user?.userPrograms[0]) redirect("/auth/login");
   const up = user.userPrograms[0];
 
-  const posts = await prisma.dailyPost.findMany({
-    orderBy: [{ dayNumber: "asc" }, { createdAt: "asc" }],
-  });
+  const posts = await getPostCatalogCached();
 
   const unlockedDay = Math.min(
     unlockedProgramDay({

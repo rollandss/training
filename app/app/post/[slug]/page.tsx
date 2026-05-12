@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
+import { getPostBySlugCached } from "@/lib/post-cache";
 import { getPostBlockLabel } from "@/lib/posts";
-import { prisma } from "@/lib/prisma";
 import { unlockedProgramDay } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 
@@ -19,7 +19,7 @@ export default async function PostDetailsPage({ params }: Props) {
   const up = user.userPrograms[0];
   const { slug } = await params;
 
-  const post = await prisma.dailyPost.findUnique({ where: { slug } });
+  const post = await getPostBySlugCached(slug);
   if (!post) notFound();
   const unlockedDay = unlockedProgramDay({
     cursorDay: up.cursorDay,

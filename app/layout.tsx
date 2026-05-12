@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
-import { ParticlesBackground } from "@/components/particles-background";
+import { ParticlesBackgroundLazy } from "@/components/particles-background-lazy";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { getMetadataBase, SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, SITE_TITLE } from "@/lib/site";
@@ -54,7 +54,7 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <ParticlesBackground />
+          <ParticlesBackgroundLazy />
           <div className="relative z-[2] flex min-h-full flex-1 flex-col">{children}</div>
           <Toaster richColors position="bottom-right" />
         </ThemeProvider>

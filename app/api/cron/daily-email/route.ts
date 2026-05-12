@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { getPostByDayCached } from "@/lib/post-cache";
 import { prisma } from "@/lib/prisma";
 import { canSendEmail, getBaseUrl, sendEmail } from "@/lib/email";
 import { postBodyToPlainText } from "@/lib/post-text";
@@ -73,7 +74,7 @@ export async function GET(req: Request) {
       durationDays: up.program.durationDays,
       today,
     });
-    const post = await prisma.dailyPost.findFirst({ where: { dayNumber: day } });
+    const post = await getPostByDayCached(day);
     if (!post) {
       skipped++;
       continue;

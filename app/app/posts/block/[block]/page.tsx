@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { BlocksTabs } from "@/components/blocks-tabs";
 import { getCurrentUser } from "@/lib/auth";
+import { getPostsByBlockCached } from "@/lib/post-cache";
 import { getPostBlockLabel, parsePostBlockSlug, type PostBlock } from "@/lib/posts";
-import { prisma } from "@/lib/prisma";
 import { unlockedProgramDay } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 
@@ -28,10 +28,7 @@ export default async function PostsBlockPage({ params }: Props) {
   if (!block) notFound();
   const activeBlock = block as PostBlock;
 
-  const posts = await prisma.dailyPost.findMany({
-    where: { block },
-    orderBy: [{ dayNumber: "asc" }, { createdAt: "asc" }],
-  });
+  const posts = await getPostsByBlockCached(activeBlock);
 
   return (
     <div className="space-y-6">
