@@ -22,7 +22,6 @@ const NAV_ITEMS = [
   { href: "/app", label: "Пост дня" },
   { href: "/app/posts", label: "Пости" },
   { href: "/app/calendar", label: "Календар" },
-  { href: "/app/settings", label: "Налаштування" },
 ] as const;
 
 function isNavActive(pathname: string, href: string) {

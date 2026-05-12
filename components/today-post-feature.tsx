@@ -49,8 +49,8 @@ export function TodayPostFeature({ programName, currentDay, durationDays, post }
                 {progress}%
               </Badge>
             </div>
-            <div className="h-3 overflow-hidden rounded-[var(--radius)] border-4 border-border bg-background shadow-[4px_4px_0px_0px_var(--color-border)]">
-              <div className="h-full bg-primary transition-[width] duration-500" style={{ width: `${progress}%` }} />
+            <div className="h-3 overflow-hidden rounded-[var(--radius)] border-4 border-border bg-muted shadow-[4px_4px_0px_0px_var(--color-border)]">
+              <div className="h-full bg-secondary transition-[width] duration-500" style={{ width: `${progress}%` }} />
             </div>
           </div>
         </div>

@@ -50,7 +50,7 @@ export function TrainingDaySessionForm(props: {
             onClick={() => setActiveVolume(volumeNumber)}
             className={cn(
               "inline-flex min-w-9 items-center justify-center rounded-[var(--radius)] border-4 border-border px-2 py-1 text-sm font-black tabular-nums shadow-[4px_4px_0px_0px_var(--color-border)] transition-[transform,box-shadow,background-color,color]",
-              isActive && "bg-background text-foreground",
+              isActive && "bg-card text-foreground",
               isDone && !isActive && "bg-secondary text-secondary-foreground",
               !isActive && !isDone && "bg-primary-foreground/10 text-primary-foreground",
             )}

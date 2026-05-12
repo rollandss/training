@@ -90,7 +90,7 @@ function TrainingRestOverlayPanel(props: {
             initial={{ strokeDashoffset: circumference }}
             animate={{ strokeDashoffset: dashOffset }}
             transition={ringTransition}
-            className="text-background"
+            className="text-foreground"
           />
         </svg>
         <motion.div

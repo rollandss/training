@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { ChevronDown, LogOut, Settings2 } from "lucide-react";
 
@@ -18,6 +19,12 @@ import { cn } from "@/lib/utils";
 export function UserMenu({ email }: { email: string }) {
   const initials = getUserInitials(email);
   const shortLabel = getUserShortLabel(email);
+  const logoutFormRef = React.useRef<HTMLFormElement>(null);
+
+  const handleLogoutClick = () => {
+    if (!window.confirm("Вийти з акаунту?")) return;
+    logoutFormRef.current?.requestSubmit();
+  };
 
   return (
     <DropdownMenu>
@@ -49,10 +56,11 @@ export function UserMenu({ email }: { email: string }) {
             Налаштування
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer p-0">
-          <form action={logoutAction} className="w-full">
+        <DropdownMenuItem variant="destructive" className="cursor-pointer p-0">
+          <form ref={logoutFormRef} action={logoutAction} className="w-full">
             <button
-              type="submit"
+              type="button"
+              onClick={handleLogoutClick}
               className="flex w-full cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm font-medium hover:bg-accent hover:text-accent-foreground"
             >
               <LogOut className="size-4" />
