@@ -35,7 +35,7 @@ export function LoginForm() {
             <PasswordInput id="password" name="password" autoComplete="current-password" required />
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col gap-3 bg-transparent sm:flex-row sm:justify-between">
+        <CardFooter className="flex flex-col  gap-3 bg-transparent sm:flex-row sm:justify-between">
           <SubmitButton className="w-full sm:w-auto">Увійти</SubmitButton>
           <Link href="/auth/register" className={cn(buttonVariants({ variant: "ghost" }), "text-center text-sm")}>
             Реєстрація
