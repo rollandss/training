@@ -10,10 +10,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { type TrainingVolumeMode } from "@/lib/calendar-access";
-import { resolveTrainingReps, type TrainingRepValues } from "@/lib/training-exercises";
+import { summarizeTrainingLines } from "@/lib/user-exercise-utils";
 import { cn } from "@/lib/utils";
 
-import { TrainingDayForm, type TrainingVolumeProgress } from "./training-day-form";
+import { TrainingDayForm, type TrainingExerciseLineFormValue, type TrainingVolumeProgress } from "./training-day-form";
 import { TrainingRestOverlayPresence } from "./training-rest-overlay";
 import { saveCalendarDayAction, type CalendarStatus, type CalendarStatusOrNone } from "./actions";
 
@@ -35,11 +35,8 @@ const STATUS_UI: Record<
 type TrainingEntry = {
   mode: TrainingVolumeMode;
   rounds: number;
-  pullupsReps: number;
-  squatsReps: number;
-  pushupsReps: number;
-  lungesReps: number;
   notes: string | null;
+  lines: TrainingExerciseLineFormValue[];
 };
 
 export function CalendarDayCell(props: {
@@ -47,10 +44,10 @@ export function CalendarDayCell(props: {
   dayKey: string;
   locked: boolean;
   status?: CalendarStatus;
-  trainingRepDefaults: TrainingRepValues;
+  trainingLines: TrainingExerciseLineFormValue[];
   training?: TrainingEntry;
 }) {
-  const { dayNum, dayKey, locked, status, trainingRepDefaults, training } = props;
+  const { dayNum, dayKey, locked, status, trainingLines, training } = props;
 
   const [open, setOpen] = React.useState(false);
   const [step, setStep] = React.useState<"choose" | "training">("choose");
@@ -94,21 +91,11 @@ export function CalendarDayCell(props: {
   }, []);
 
   const trainingSummary = training
-    ? `${training.mode === "SETS" ? "Підх." : "Кіл"} ${training.rounds} · П${training.pullupsReps} · Пр${training.squatsReps} · Вд${training.pushupsReps} · Вп${training.lungesReps}`
+    ? `${training.mode === "SETS" ? "Підх." : "Кіл"} ${training.rounds} · ${summarizeTrainingLines(training.lines)}`
     : null;
   const trainingActive = step === "training";
   const canSaveFromChoose = localStatus !== "NONE" && localStatus !== "TRAINING";
-  const trainingInitial = resolveTrainingReps(
-    trainingRepDefaults,
-    training
-      ? {
-          pullupsReps: training.pullupsReps,
-          squatsReps: training.squatsReps,
-          pushupsReps: training.pushupsReps,
-          lungesReps: training.lungesReps,
-        }
-      : undefined,
-  );
+  const trainingInitialLines = training?.lines ?? trainingLines;
 
   const volumeProgressLabel =
     volumeProgress == null
@@ -290,10 +277,7 @@ export function CalendarDayCell(props: {
                 initial={{
                   mode: training?.mode ?? "ROUNDS",
                   rounds: training?.rounds ?? 4,
-                  pullupsReps: trainingInitial.pullupsReps,
-                  squatsReps: trainingInitial.squatsReps,
-                  pushupsReps: trainingInitial.pushupsReps,
-                  lungesReps: trainingInitial.lungesReps,
+                  lines: trainingInitialLines,
                 }}
                 restSeconds={restSeconds}
                 restRemaining={restRemaining}

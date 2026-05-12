@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 export default function AdminHomePage() {
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold tracking-tight">Адмінка</h1>
+      <h1 className="text-2xl font-black tracking-tight">Адмінка</h1>
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Учасники</CardTitle>

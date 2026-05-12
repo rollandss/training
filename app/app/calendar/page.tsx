@@ -6,6 +6,8 @@ import { unlockedProgramDay } from "@/lib/progress";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { resolveTrainingReps, trainingRepsFromEntry, trainingRepsFromProfile } from "@/lib/training-exercises";
+import { buildTrainingLinesForForm, legacyRepsFromEntry } from "@/lib/user-exercise-utils";
+import { listUserExercises } from "@/lib/user-exercises";
 
 import { CalendarDayCell } from "./calendar-day-cell";
 import { type CalendarStatus } from "./actions";
@@ -88,6 +90,8 @@ export default async function CalendarPage({
 
   const byDayKey = new Map(existing.map((e) => [e.dayKey, e.status as CalendarStatus]));
 
+  const exercises = await listUserExercises(user.id);
+
   const [training, latestTraining] = await Promise.all([
     prisma.trainingDayEntry.findMany({
       where: { userId: user.id, dayKey: { in: dayKeys } },
@@ -100,6 +104,21 @@ export default async function CalendarPage({
         pushupsReps: true,
         lungesReps: true,
         notes: true,
+        lines: {
+          orderBy: { sortOrder: "asc" },
+          select: {
+            reps: true,
+            sortOrder: true,
+            userExerciseId: true,
+            userExercise: {
+              select: {
+                label: true,
+                short: true,
+                builtinKey: true,
+              },
+            },
+          },
+        },
       },
     }),
     prisma.trainingDayEntry.findFirst({
@@ -190,6 +209,18 @@ export default async function CalendarPage({
             cursorDay: up.cursorDay,
           });
           const t = trainingByDayKey.get(dayKey);
+          const trainingLines = t
+            ? buildTrainingLinesForForm(
+                exercises,
+                t.lines.map((line) => ({
+                  userExerciseId: line.userExerciseId,
+                  reps: line.reps,
+                  sortOrder: line.sortOrder,
+                })),
+                trainingRepDefaults,
+                legacyRepsFromEntry(t),
+              )
+            : buildTrainingLinesForForm(exercises, null, trainingRepDefaults);
 
           return (
             <CalendarDayCell
@@ -198,17 +229,14 @@ export default async function CalendarPage({
               dayKey={dayKey}
               locked={locked}
               status={status}
-              trainingRepDefaults={trainingRepDefaults}
+              trainingLines={trainingLines}
               training={
                 t
                   ? {
                       mode: t.mode === "SETS" ? "SETS" : "ROUNDS",
                       rounds: t.rounds,
-                      pullupsReps: t.pullupsReps,
-                      squatsReps: t.squatsReps,
-                      pushupsReps: t.pushupsReps,
-                      lungesReps: t.lungesReps,
                       notes: t.notes,
+                      lines: trainingLines,
                     }
                   : undefined
               }

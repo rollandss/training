@@ -19,6 +19,7 @@ model User {
   calendarDays UserCalendarDay[]
   trainingDays TrainingDayEntry[]
   userPrograms UserProgram[]
+  exercises    UserExercise[]
 }
 
 model UserProfile {
@@ -149,9 +150,40 @@ model TrainingDayEntry {
   notes      String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  lines      TrainingDayExerciseLine[]
 
   @@unique([userId, dayKey])
   @@index([userId, dayKey])
+}
+
+model UserExercise {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label      String
+  short      String
+  maxReps    Int      @default(5000)
+  sortOrder  Int
+  builtinKey String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  lines      TrainingDayExerciseLine[]
+
+  @@unique([userId, builtinKey])
+  @@index([userId, sortOrder])
+}
+
+model TrainingDayExerciseLine {
+  id                 String           @id @default(cuid())
+  trainingDayEntryId String
+  trainingDayEntry   TrainingDayEntry @relation(fields: [trainingDayEntryId], references: [id], onDelete: Cascade)
+  userExerciseId     String
+  userExercise       UserExercise     @relation(fields: [userExerciseId], references: [id], onDelete: Cascade)
+  reps               Int
+  sortOrder          Int
+
+  @@unique([trainingDayEntryId, userExerciseId])
+  @@index([trainingDayEntryId, sortOrder])
 }
 
 model UserEmailSubscription {

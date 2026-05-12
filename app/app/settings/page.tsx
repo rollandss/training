@@ -7,19 +7,21 @@ import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 import { trainingRepsFromProfile } from "@/lib/training-exercises";
+import { listUserExercises } from "@/lib/user-exercises";
 import Link from "next/link";
 
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import { ExerciseBaselineForm } from "./baseline-form";
+import { UserExercisesForm } from "./user-exercises-form";
 import { setEmailSubscriptionEnabledAction } from "./actions";
 
 export default async function SettingsPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/auth/login");
 
-  const [sub, profile] = await Promise.all([
+  const [sub, profile, exercises] = await Promise.all([
     prisma.userEmailSubscription.findUnique({
       where: { userId: user.id },
       select: { enabled: true },
@@ -33,6 +35,7 @@ export default async function SettingsPage() {
         lungesMax: true,
       },
     }),
+    listUserExercises(user.id),
   ]);
 
   return (
@@ -57,6 +60,19 @@ export default async function SettingsPage() {
           <Link href="/app/posts/block/preparation" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
             Підготовчі пости про тест максимумів
           </Link>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Мої вправи</CardTitle>
+          <CardDescription>
+            Порядок і назви вправ для календаря. Базові вправи залишаються в списку, свої можна додавати, перейменовувати
+            і переміщувати.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <UserExercisesForm key={exercises.map((exercise) => exercise.id).join("-")} initial={exercises} />
         </CardContent>
       </Card>
 
