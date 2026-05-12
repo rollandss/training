@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import Link from "next/link";
 import { ChevronDown, LogOut, Settings2 } from "lucide-react";
 
@@ -10,6 +9,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuLinkItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -19,16 +19,16 @@ import { cn } from "@/lib/utils";
 export function UserMenu({ email }: { email: string }) {
   const initials = getUserInitials(email);
   const shortLabel = getUserShortLabel(email);
-  const logoutFormRef = React.useRef<HTMLFormElement>(null);
 
-  const handleLogoutClick = () => {
+  const handleLogout = () => {
     if (!window.confirm("Вийти з акаунту?")) return;
-    logoutFormRef.current?.requestSubmit();
+    void logoutAction();
   };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
+        type="button"
         title={email}
         className={cn(
           "inline-flex h-9 max-w-[12rem] items-center gap-2 rounded-md px-1.5 text-left text-sm font-medium text-foreground",
@@ -47,26 +47,17 @@ export function UserMenu({ email }: { email: string }) {
           <div className="mt-1 truncate text-sm font-medium normal-case tracking-normal text-foreground">{email}</div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="p-0">
-          <Link
-            href="/app/settings"
-            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium"
-          >
-            <Settings2 className="size-4" />
-            Налаштування
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem variant="destructive" className="cursor-pointer p-0">
-          <form ref={logoutFormRef} action={logoutAction} className="w-full">
-            <button
-              type="button"
-              onClick={handleLogoutClick}
-              className="flex w-full cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-            >
-              <LogOut className="size-4" />
-              Вийти
-            </button>
-          </form>
+        <DropdownMenuLinkItem
+          closeOnClick
+          label="Налаштування"
+          render={<Link href="/app/settings" />}
+        >
+          <Settings2 className="size-4" />
+          Налаштування
+        </DropdownMenuLinkItem>
+        <DropdownMenuItem variant="destructive" label="Вийти" onClick={handleLogout}>
+          <LogOut className="size-4" />
+          Вийти
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

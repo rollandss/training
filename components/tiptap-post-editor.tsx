@@ -88,7 +88,7 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
   };
 
   return (
-    <div className="flex flex-wrap gap-1 border-b-4 border-border bg-muted/40 p-2">
+    <div className="shrink-0 flex flex-wrap gap-1 border-b-4 border-border bg-card p-2 shadow-[0_4px_0px_0px_var(--color-border)]">
       <ToolbarButton
         label="Жирний"
         active={editor.isActive("bold")}
@@ -224,6 +224,7 @@ type TiptapPostEditorProps = {
   defaultValue?: string;
   editorKey?: string;
   minHeightClassName?: string;
+  maxHeightClassName?: string;
   required?: boolean;
 };
 
@@ -233,6 +234,7 @@ export function TiptapPostEditor({
   defaultValue = "",
   editorKey,
   minHeightClassName = "min-h-[280px]",
+  maxHeightClassName = "max-h-[min(75vh,52rem)]",
   required = true,
 }: TiptapPostEditorProps) {
   const [value, setValue] = React.useState(defaultValue);
@@ -281,10 +283,15 @@ export function TiptapPostEditor({
   return (
     <div
       id={id}
-      className="overflow-hidden rounded-[var(--radius)] border-4 border-border bg-background shadow-[4px_4px_0px_0px_var(--color-border)]"
+      className={cn(
+        "flex flex-col overflow-hidden rounded-[var(--radius)] border-4 border-border bg-background shadow-[4px_4px_0px_0px_var(--color-border)]",
+        maxHeightClassName,
+      )}
     >
       <EditorToolbar editor={editor} />
-      <EditorContent editor={editor} />
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+        <EditorContent editor={editor} />
+      </div>
       <input type="hidden" name={name} value={value} required={required} readOnly />
     </div>
   );
