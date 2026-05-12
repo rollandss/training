@@ -164,6 +164,7 @@ model UserExercise {
   short      String
   metric     String   @default("REPS") // REPS | TIME
   maxReps    Int      @default(5000)
+  enabled    Boolean  @default(true)
   sortOrder  Int
   builtinKey String?
   createdAt  DateTime @default(now())

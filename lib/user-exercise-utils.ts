@@ -8,6 +8,7 @@ export type UserExerciseView = {
   short: string;
   metric: ExerciseMetric;
   maxReps: number;
+  enabled: boolean;
   sortOrder: number;
   builtinKey: TrainingExerciseKey | null;
   isBuiltin: boolean;
@@ -51,12 +52,13 @@ export function buildTrainingLinesForForm(
   legacyEntry?: Partial<TrainingRepValues> | null,
 ) {
   const byExerciseId = new Map((savedLines ?? []).map((line) => [line.userExerciseId, line]));
+  const activeExercises = exercises.filter((exercise) => exercise.enabled);
   const ordered = savedLines?.length
     ? [...savedLines]
         .sort((a, b) => a.sortOrder - b.sortOrder)
         .map((line) => exercises.find((exercise) => exercise.id === line.userExerciseId))
         .filter((exercise): exercise is UserExerciseView => Boolean(exercise))
-    : exercises;
+    : activeExercises;
 
   return ordered.map((exercise) => {
     const saved = byExerciseId.get(exercise.id);

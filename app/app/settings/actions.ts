@@ -82,6 +82,37 @@ function parseExerciseMetric(value: string): ExerciseMetric {
   return value === "TIME" ? "TIME" : "REPS";
 }
 
+export async function setUserExerciseEnabledAction(formData: FormData) {
+  const user = await getCurrentUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const id = String(formData.get("id") ?? "").trim();
+  const enabled = String(formData.get("enabled") ?? "") === "true";
+  if (!id) throw new Error("Invalid exercise");
+
+  const exercise = await prisma.userExercise.findFirst({
+    where: { id, userId: user.id },
+    select: { id: true, enabled: true },
+  });
+  if (!exercise) throw new Error("Exercise not found");
+  if (exercise.enabled === enabled) return;
+
+  if (!enabled) {
+    const enabledCount = await prisma.userExercise.count({
+      where: { userId: user.id, enabled: true, NOT: { id } },
+    });
+    if (enabledCount === 0) throw new Error("At least one exercise must stay enabled");
+  }
+
+  await prisma.userExercise.update({
+    where: { id: exercise.id },
+    data: { enabled },
+  });
+
+  revalidatePath("/app/settings");
+  revalidatePath("/app/calendar");
+}
+
 export async function createUserExerciseAction(formData: FormData) {
   const user = await getCurrentUser();
   if (!user) throw new Error("Unauthorized");

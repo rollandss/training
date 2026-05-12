@@ -1,12 +1,14 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { SubmitButton } from "@/components/submit-button";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { type ExerciseMetric, type UserExerciseView } from "@/lib/user-exercise-utils";
@@ -16,6 +18,7 @@ import {
   createUserExerciseAction,
   deleteUserExerciseAction,
   reorderUserExercisesAction,
+  setUserExerciseEnabledAction,
   updateUserExerciseAction,
 } from "./actions";
 
@@ -37,11 +40,13 @@ function maxFieldLabel(metric: ExerciseMetric) {
 }
 
 export function UserExercisesForm(props: { initial: UserExerciseView[] }) {
+  const router = useRouter();
   const reduceMotion = useReducedMotion();
   const [exercises, setExercises] = React.useState(props.initial);
   const [draftLabel, setDraftLabel] = React.useState("");
   const [draftShort, setDraftShort] = React.useState("");
   const [draftMetric, setDraftMetric] = React.useState<ExerciseMetric>("REPS");
+  const [togglingId, setTogglingId] = React.useState<string | null>(null);
 
   const persistOrder = React.useCallback(async (ordered: UserExerciseView[]) => {
     const formData = new FormData();
@@ -66,6 +71,37 @@ export function UserExercisesForm(props: { initial: UserExerciseView[] }) {
     [persistOrder],
   );
 
+  const toggleEnabled = React.useCallback(
+    async (exercise: UserExerciseView, enabled: boolean) => {
+      setTogglingId(exercise.id);
+      setExercises((current) =>
+        current.map((item) => (item.id === exercise.id ? { ...item, enabled } : item)),
+      );
+
+      const formData = new FormData();
+      formData.set("id", exercise.id);
+      formData.set("enabled", String(enabled));
+
+      try {
+        await setUserExerciseEnabledAction(formData);
+        toast.success(enabled ? "Вправу увімкнено" : "Вправу вимкнено");
+        router.refresh();
+      } catch {
+        setExercises((current) =>
+          current.map((item) => (item.id === exercise.id ? { ...item, enabled: exercise.enabled } : item)),
+        );
+        toast.error(
+          enabled
+            ? "Не вдалося увімкнути вправу"
+            : "Не вдалося вимкнути вправу. Має лишитися хоча б одна активна вправа.",
+        );
+      } finally {
+        setTogglingId(null);
+      }
+    },
+    [router],
+  );
+
   return (
     <div className="grid gap-4">
       <AnimatePresence initial={false} mode="popLayout">
@@ -85,9 +121,31 @@ export function UserExercisesForm(props: { initial: UserExerciseView[] }) {
                 toast.error("Не вдалося оновити вправу");
               }
             }}
-            className="grid gap-3 rounded-[var(--radius)] border-4 border-border bg-card p-3 shadow-[6px_6px_0px_0px_var(--color-border)]"
+            className={cn(
+              "grid gap-3 rounded-[var(--radius)] border-4 border-border bg-card p-3 shadow-[6px_6px_0px_0px_var(--color-border)]",
+              !exercise.enabled && "opacity-80",
+            )}
           >
             <input type="hidden" name="id" value={exercise.id} />
+            <motion.div layout className="flex flex-wrap items-center gap-2">
+              <Checkbox
+                id={`exercise-enabled-${exercise.id}`}
+                checked={exercise.enabled}
+                disabled={togglingId === exercise.id}
+                onCheckedChange={(checked) => {
+                  void toggleEnabled(exercise, checked === true);
+                }}
+              />
+              <Label
+                htmlFor={`exercise-enabled-${exercise.id}`}
+                className="text-xs font-black uppercase tracking-wider"
+              >
+                У тренуванні
+              </Label>
+              {!exercise.enabled ? (
+                <span className="text-xs font-semibold text-muted-foreground">Вимкнено</span>
+              ) : null}
+            </motion.div>
             <div className="flex items-start gap-2">
               <div className="flex size-10 shrink-0 items-center justify-center rounded-[var(--radius)] border-4 border-border bg-secondary text-sm font-black shadow-[4px_4px_0px_0px_var(--color-border)]">
                 {exercise.short}

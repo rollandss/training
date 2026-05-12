@@ -67,11 +67,14 @@ export default async function SettingsPage() {
         <CardHeader>
           <CardTitle>Мої вправи</CardTitle>
           <CardDescription>
-            Додавай свої вправи тут: повтори або час (наприклад планка). Порядок і назви використовуються в календарі.
+            Увімкни вправи для тренування, змінюй порядок і додавай свої: повтори або час (наприклад планка).
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <UserExercisesForm key={exercises.map((exercise) => exercise.id).join("-")} initial={exercises} />
+          <UserExercisesForm
+            key={exercises.map((exercise) => `${exercise.id}:${exercise.enabled}`).join("-")}
+            initial={exercises}
+          />
         </CardContent>
       </Card>
 

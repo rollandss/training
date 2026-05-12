@@ -137,11 +137,25 @@ export async function saveCalendarDayAction(formData: FormData) {
 
       const exercises = await listUserExercises(user.id);
       const byId = new Map(exercises.map((exercise) => [exercise.id, exercise]));
+      const existingEntry = await prisma.trainingDayEntry.findUnique({
+        where: { userId_dayKey: { userId: user.id, dayKey } },
+        select: {
+          lines: {
+            select: { userExerciseId: true },
+          },
+        },
+      });
+      const existingExerciseIds = new Set(
+        existingEntry?.lines.map((line) => line.userExerciseId) ?? [],
+      );
       const resolvedLines: Array<{ exerciseId: string; reps: number }> = [];
 
       for (const line of parsedLines) {
         const exercise = byId.get(line.exerciseId);
         if (!exercise) throw new Error("Exercise not found");
+        if (!exercise.enabled && !existingExerciseIds.has(line.exerciseId)) {
+          throw new Error("Exercise is disabled");
+        }
         if (line.reps > exercise.maxReps) throw new Error("Value exceeds exercise maximum");
         if (exercise.metric === "TIME" && line.reps < 5) throw new Error("Set at least 5 seconds for timed exercises");
         if (exercise.metric === "REPS" && line.reps > 5000) throw new Error("Reps exceed exercise maximum");
