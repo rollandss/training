@@ -75,3 +75,10 @@ Endpoint дозволяє виклики від Vercel Cron через заго�
 
 - `postgresql://user:pass@host:5432/db?schema=public`
 
+
+## Контент постів
+
+Джерело текстів — `posts_uk_md/*.md`. На production-деплої `vercel-build` запускає `posts:sync`:
+оновлюються лише пости, які ще не редагували в адмінці (їхній текст досі markdown). Пости, збережені з редактора (HTML), не чіпаються — скрипт лише виводить їхній список.
+
+Вручну: `npm run posts:sync` (пробний прогін) або `npm run posts:sync -- --apply`.
