@@ -1,3 +1,5 @@
+import { timingSafeEqual } from "node:crypto";
+
 import { NextResponse } from "next/server";
 
 import { getPostByDayCached } from "@/lib/post-cache";
@@ -13,16 +15,20 @@ function dayKeyUTC(d: Date) {
   return `${y}-${m}-${da}`;
 }
 
-export async function GET(req: Request) {
-  const url = new URL(req.url);
-  const expected = process.env.CRON_TOKEN ?? "";
-  const token = url.searchParams.get("token") ?? "";
-  const isVercelCron = req.headers.get("x-vercel-cron") === "1";
-  const tokenOk = expected && token === expected;
+function isAuthorizedCron(req: Request) {
+  const secret = process.env.CRON_SECRET;
+  if (!secret || secret.length < 16) return false;
+  const header = req.headers.get("authorization") ?? "";
+  const expected = `Bearer ${secret}`;
+  if (header.length !== expected.length) return false;
+  return timingSafeEqual(Buffer.from(header), Buffer.from(expected));
+}
 
-  // Allow calls from Vercel Cron without embedding secrets into the URL.
-  // For manual/other cron systems, keep token-based auth.
-  if (!isVercelCron && !tokenOk) {
+export async function GET(req: Request) {
+  // Vercel Cron sends `Authorization: Bearer $CRON_SECRET` when CRON_SECRET is set.
+  // External schedulers must send the same header. Headers like `x-vercel-cron`
+  // can be spoofed by anyone, and query-string tokens end up in logs.
+  if (!isAuthorizedCron(req)) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 

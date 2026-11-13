@@ -5,9 +5,10 @@ import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "@/lib/auth";
 import { POSTS_CACHE_TAG } from "@/lib/post-cache";
-import { postBodyToPlainText } from "@/lib/post-text";
+import { postBodyLooksLikeHtml, postBodyToPlainText } from "@/lib/post-text";
 import { POST_BLOCKS } from "@/lib/posts";
 import { prisma } from "@/lib/prisma";
+import { sanitizePostHtml } from "@/lib/sanitize-post";
 
 function revalidatePostsSurfaces() {
   updateTag(POSTS_CACHE_TAG);
@@ -21,7 +22,8 @@ function revalidatePostsSurfaces() {
 }
 
 function parsePostBody(formData: FormData) {
-  const bodyUk = String(formData.get("bodyUk") ?? "").trim();
+  const raw = String(formData.get("bodyUk") ?? "").trim();
+  const bodyUk = postBodyLooksLikeHtml(raw) ? sanitizePostHtml(raw) : raw;
   if (!postBodyToPlainText(bodyUk)) return "";
   return bodyUk;
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { GeistMono } from "geist/font/mono";
+import { GeistSans } from "geist/font/sans";
 
 import { ParticlesBackgroundLazy } from "@/components/particles-background-lazy";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -8,16 +9,8 @@ import { getMetadataBase, SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, SITE_TITLE 
 
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin", "latin-ext"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin", "latin-ext"],
-});
-
+// Self-hosted Geist (includes Cyrillic). The Google variant was loaded with latin subsets only,
+// so all Ukrainian text silently fell back to the system font.
 export const metadata: Metadata = {
   metadataBase: getMetadataBase(),
   title: {
@@ -46,7 +39,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="uk" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`} suppressHydrationWarning>
+    <html lang="uk" className={`${GeistSans.variable} ${GeistMono.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="relative flex min-h-full flex-col">
         <ThemeProvider
           attribute="class"

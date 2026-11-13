@@ -1,6 +1,8 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 
+import { getSessionSecret } from "@/lib/session-secret";
+
 const COOKIE = "session";
 
 const SESSION_COOKIE_OPTIONS = {
@@ -10,10 +12,6 @@ const SESSION_COOKIE_OPTIONS = {
   path: "/",
 };
 
-function getSecret() {
-  const s = process.env.SESSION_SECRET ?? "dev-only-change-SESSION_SECRET-in-env-32chars";
-  return new TextEncoder().encode(s);
-}
 
 export type SessionPayload = {
   sub: string;
@@ -30,7 +28,7 @@ export async function createSession(user: SessionPayload) {
     .setProtectedHeader({ alg: "HS256" })
     .setExpirationTime("14d")
     .setIssuedAt()
-    .sign(getSecret());
+    .sign(getSessionSecret());
 
   const jar = await cookies();
   jar.set(COOKIE, token, {
@@ -44,7 +42,7 @@ export async function getSession(): Promise<SessionPayload | null> {
   const token = jar.get(COOKIE)?.value;
   if (!token) return null;
   try {
-    const { payload } = await jwtVerify(token, getSecret());
+    const { payload } = await jwtVerify(token, getSessionSecret());
     return {
       sub: String(payload.sub),
       email: String(payload.email),

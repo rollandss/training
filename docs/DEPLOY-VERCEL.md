@@ -14,7 +14,7 @@
 Це зробить:
 
 - `prisma generate`
-- `prisma migrate deploy`
+- `prisma migrate deploy` — **лише на production-білді** (`VERCEL_ENV=production`). На preview міграції пропускаються, щоб гілка не змінила продакшн-базу. Якщо для preview є окрема БД — постав `MIGRATE_ON_PREVIEW=1` у Preview env.
 - `next build`
 
 Після першого деплою (або якщо в БД немає контенту) один раз виконай seed:
@@ -41,7 +41,7 @@ npx prisma db seed
 - `SMTP_USER`
 - `SMTP_PASS`
 - `EMAIL_FROM`
-- `CRON_TOKEN` (опц., якщо запускати cron НЕ через Vercel Cron)
+- `CRON_SECRET` (обовʼязково для cron; Vercel сам передає його як `Authorization: Bearer ...`)
 
 ## 4) Vercel Cron (опц.)
 
