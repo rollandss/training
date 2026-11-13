@@ -31,7 +31,12 @@ export function LoginForm() {
             <Input id="email" name="email" type="email" autoComplete="email" required />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="password">Пароль</Label>
+            <div className="flex items-baseline justify-between gap-2">
+              <Label htmlFor="password">Пароль</Label>
+              <Link href="/auth/forgot" className="text-xs font-bold text-muted-foreground underline underline-offset-4 hover:text-foreground">
+                Забули пароль?
+              </Link>
+            </div>
             <PasswordInput id="password" name="password" autoComplete="current-password" required />
           </div>
         </CardContent>

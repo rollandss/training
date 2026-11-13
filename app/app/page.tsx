@@ -8,7 +8,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { CALENDAR_STATUS_UI } from "@/lib/calendar-status";
 import { getPostByDayCached } from "@/lib/post-cache";
 import { prisma } from "@/lib/prisma";
-import { unlockedProgramDay } from "@/lib/progress";
+import { todayKey as getTodayKey, unlockedProgramDay } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 
 export default async function AppDashboardPage() {
@@ -41,8 +41,7 @@ export default async function AppDashboardPage() {
     );
   }
 
-  const now = new Date();
-  const todayKey = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-${String(now.getUTCDate()).padStart(2, "0")}`;
+  const todayKey = getTodayKey();
   const [dailyPost, todayMark] = await Promise.all([
     getPostByDayCached(currentDay),
     prisma.userCalendarDay.findUnique({

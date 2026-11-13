@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { calendarDate } from "@/lib/progress";
 
 function pad2(n: number) {
   return String(n).padStart(2, "0");
@@ -20,7 +21,7 @@ export default async function AdminStatsPage() {
   const totalUsers = await prisma.user.count();
   const totalPrograms = await prisma.userProgram.count();
 
-  const now = new Date();
+  const now = calendarDate(new Date()); // wall-clock date in APP_TIMEZONE
   const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
   const monthEnd = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
   const monthStartKey = toDayKeyUTC(monthStart);
