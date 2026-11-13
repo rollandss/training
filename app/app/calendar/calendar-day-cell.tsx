@@ -209,7 +209,7 @@ export function CalendarDayCell(props: {
             className={cn(
               "relative flex h-14 w-full min-w-0 flex-col rounded-[var(--radius)] border-2 border-border bg-card p-1.5 text-left sm:h-[7rem] sm:border-4 sm:p-2 sm:shadow-[6px_6px_0px_0px_var(--color-border)]",
               status ? CALENDAR_STATUS_UI[status].cellClassName : "bg-card text-foreground",
-              locked && "opacity-80",
+              locked && "border-dashed border-foreground/25 bg-transparent text-foreground/40 shadow-none sm:shadow-none",
               isToday && "ring-4 ring-foreground ring-offset-2 ring-offset-background",
               !locked &&
                 "transition-[transform,box-shadow] sm:hover:-translate-x-0.5 sm:hover:-translate-y-0.5 sm:hover:shadow-[8px_8px_0px_0px_var(--color-border)] sm:active:translate-x-0.5 sm:active:translate-y-0.5",
@@ -220,7 +220,7 @@ export function CalendarDayCell(props: {
             <div className="flex items-baseline justify-between gap-1">
               <span className="text-xs font-black sm:text-sm">{dayNum}</span>
               {isToday ? (
-                <span className="hidden rounded-sm bg-foreground px-1 text-[10px] font-black uppercase tracking-wider text-background sm:inline">
+                <span className="hidden rounded-sm bg-foreground px-1 text-[10px] font-black text-background sm:inline">
                   Сьогодні
                 </span>
               ) : null}
@@ -231,14 +231,14 @@ export function CalendarDayCell(props: {
             ) : null}
 
             {!locked ? (
-              <div className="mt-auto hidden text-[10px] font-bold uppercase tracking-wider opacity-60 sm:block">
+              <div className="mt-auto hidden text-[10px] font-bold opacity-60 sm:block">
                 День {programDay}
               </div>
             ) : null}
 
             {locked ? (
-              <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/10">
-                <Lock className="size-4 text-foreground sm:size-5" />
+              <div className="pointer-events-none absolute right-1.5 top-1.5 sm:right-2 sm:top-2">
+                <Lock className="size-3 sm:size-3.5" aria-hidden />
               </div>
             ) : null}
           </button>
@@ -307,7 +307,7 @@ export function CalendarDayCell(props: {
               {postSlug && step === "choose" ? (
                 <Link
                   href={`/app/post/${postSlug}`}
-                  className="inline-flex items-center gap-1 text-xs font-black uppercase tracking-wider underline underline-offset-4"
+                  className="inline-flex items-center gap-1 text-xs font-black underline underline-offset-4"
                 >
                   <BookOpen className="size-3.5" /> Пост дня {programDay}
                 </Link>
@@ -340,7 +340,7 @@ export function CalendarDayCell(props: {
                         }
                       }}
                       className={cn(
-                        "rounded-[var(--radius)] border-4 border-border px-3 py-3 text-left text-xs font-black uppercase tracking-wider shadow-[6px_6px_0px_0px_var(--color-border)] transition-[transform,box-shadow] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0px_0px_var(--color-border)] active:translate-x-0.5 active:translate-y-0.5",
+                        "rounded-[var(--radius)] border-4 border-border px-3 py-3 text-left text-xs font-black shadow-[6px_6px_0px_0px_var(--color-border)] transition-[transform,box-shadow] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0px_0px_var(--color-border)] active:translate-x-0.5 active:translate-y-0.5",
                         localStatus === s ? CALENDAR_STATUS_UI[s].pickerClassName : "bg-background text-foreground",
                       )}
                       aria-pressed={localStatus === s}
@@ -356,7 +356,7 @@ export function CalendarDayCell(props: {
                       type="button"
                       onClick={() => setLocalStatus("NONE")}
                       className={cn(
-                        "col-span-2 rounded-[var(--radius)] border-4 border-dashed border-border bg-background px-3 py-2.5 text-left text-xs font-black uppercase tracking-wider transition-colors hover:bg-muted",
+                        "col-span-2 rounded-[var(--radius)] border-4 border-dashed border-border bg-background px-3 py-2.5 text-left text-xs font-black transition-colors hover:bg-muted",
                         localStatus === "NONE" && "bg-muted",
                       )}
                       aria-pressed={localStatus === "NONE"}
@@ -383,12 +383,12 @@ export function CalendarDayCell(props: {
                     <Button
                       type="button"
                       variant="outline"
-                      className="font-black uppercase tracking-wider"
+                      className="font-black"
                       onClick={() => setStep("setup")}
                     >
                       Налаштування заняття
                     </Button>
-                    <Button type="button" className="font-black uppercase tracking-wider" onClick={() => setStep("session")}>
+                    <Button type="button" className="font-black" onClick={() => setStep("session")}>
                       Провести заняття
                     </Button>
                   </div>
@@ -436,7 +436,7 @@ export function CalendarDayCell(props: {
               <div className="grid w-full gap-2">
                 <Button
                   type="button"
-                  className="w-full font-black uppercase tracking-wider"
+                  className="w-full font-black"
                   onClick={() => setStep("session")}
                 >
                   Почати заняття

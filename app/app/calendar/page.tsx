@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { diffDaysUTC, isCalendarDayEditable } from "@/lib/calendar-access";
 import { CALENDAR_STATUS_ORDER, CALENDAR_STATUS_UI } from "@/lib/calendar-status";
 import { calendarDate, dayKeyFromCalendarDate, unlockedProgramDay } from "@/lib/progress";
@@ -155,22 +154,22 @@ export default async function CalendarPage({
   });
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">Календар</CardTitle>
-          <CardDescription>
-            Дні відкриваються поступово: доступно до дня <span className="font-black text-foreground">{unlockedDay}</span>.
-            Позначай: тренування, розтяжка, відпочинок або хвороба. Минулі відкриті дні можна редагувати.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
+    <div className="space-y-8">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="font-display text-[clamp(2.25rem,6vw,3.25rem)] font-black leading-[1] tracking-[-0.02em]">Календар</h1>
+          <p className="mt-3 max-w-[60ch] text-base font-medium">
+            Відкрито {unlockedDay} {unlockedDay === 1 ? "день" : unlockedDay < 5 ? "дні" : "днів"}. Натисни на день, щоб
+            відмітити тренування, розтяжку, відпочинок чи хворобу. Минулі дні теж можна змінити.
+          </p>
+        </div>
+        <div className="grid grid-cols-[auto_minmax(10rem,auto)_auto] items-center gap-2">
           <a
             href={prevLocked ? undefined : `/app/calendar?m=${prevKey}`}
             aria-disabled={prevLocked}
             aria-label="Попередній місяць"
             className={[
-              "rounded-[var(--radius)] border-2 border-border bg-background px-3 py-2 text-sm font-black uppercase tracking-wider sm:border-4 sm:shadow-[4px_4px_0px_0px_var(--color-border)]",
+              "rounded-[var(--radius)] border-2 border-border bg-background px-3 py-2 text-sm font-black sm:border-4 sm:shadow-[4px_4px_0px_0px_var(--color-border)]",
               prevLocked
                 ? "pointer-events-none opacity-50"
                 : "sm:hover:-translate-x-0.5 sm:hover:-translate-y-0.5 sm:hover:shadow-[6px_6px_0px_0px_var(--color-border)]",
@@ -178,15 +177,13 @@ export default async function CalendarPage({
           >
             ←
           </a>
-          <div className="rounded-[var(--radius)] border-2 border-border bg-card px-3 py-2 text-center text-sm font-black uppercase tracking-wider sm:border-4 sm:px-4 sm:shadow-[4px_4px_0px_0px_var(--color-border)]">
-            {monthLabel}
-          </div>
+          <div className="font-display px-2 text-center text-lg font-bold first-letter:uppercase">{monthLabel}</div>
           <a
             href={nextLocked ? undefined : `/app/calendar?m=${nextKey}`}
             aria-disabled={nextLocked}
             aria-label="Наступний місяць"
             className={cn(
-              "rounded-[var(--radius)] border-2 border-border bg-background px-3 py-2 text-sm font-black uppercase tracking-wider sm:border-4 sm:shadow-[4px_4px_0px_0px_var(--color-border)]",
+              "rounded-[var(--radius)] border-2 border-border bg-background px-3 py-2 text-sm font-black sm:border-4 sm:shadow-[4px_4px_0px_0px_var(--color-border)]",
               nextLocked
                 ? "pointer-events-none opacity-50"
                 : "sm:hover:-translate-x-0.5 sm:hover:-translate-y-0.5 sm:hover:shadow-[6px_6px_0px_0px_var(--color-border)]",
@@ -194,8 +191,8 @@ export default async function CalendarPage({
           >
             →
           </a>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs font-bold text-foreground">
         {CALENDAR_STATUS_ORDER.map((status) => (
@@ -208,7 +205,7 @@ export default async function CalendarPage({
 
       <div className="grid grid-cols-7 gap-1 sm:gap-2">
         {WEEKDAYS.map((d) => (
-          <div key={d} className="text-center text-[10px] font-black uppercase tracking-wider text-muted-foreground sm:text-xs">
+          <div key={d} className="text-center text-[10px] font-black text-muted-foreground sm:text-xs">
             {d}
           </div>
         ))}
@@ -216,7 +213,7 @@ export default async function CalendarPage({
         {Array.from({ length: rows * 7 }).map((_, idx) => {
           const dayNum = idx - firstDow + 1;
           if (dayNum < 1 || dayNum > daysInMonth) {
-            return <div key={`empty-${idx}`} className="h-14 rounded-[var(--radius)] border-2 border-border bg-card/40 sm:h-[7rem] sm:border-4" />;
+            return <div key={`empty-${idx}`} className="h-14 sm:h-[7rem]" aria-hidden />;
           }
 
           const date = new Date(Date.UTC(clampedStart.getUTCFullYear(), clampedStart.getUTCMonth(), dayNum));

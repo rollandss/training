@@ -17,7 +17,7 @@ export function ForgotForm() {
 
   return (
     <MotionReveal>
-      <Card className="w-full max-w-md">
+      <Card className="w-full">
         {state?.ok ? (
           <>
             <CardHeader>

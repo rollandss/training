@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { OnboardingForm } from "@/app/onboarding/onboarding-form";
+import { AuthFrame } from "@/components/auth-frame";
 import { getCurrentUser } from "@/lib/auth";
 
 export default async function OnboardingPage() {
@@ -9,8 +10,8 @@ export default async function OnboardingPage() {
   if (user.profile?.onboardingDone) redirect("/app");
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center px-4 py-12">
+    <AuthFrame backHref={null}>
       <OnboardingForm />
-    </div>
+    </AuthFrame>
   );
 }

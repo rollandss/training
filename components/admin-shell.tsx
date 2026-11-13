@@ -33,7 +33,7 @@ function AdminNavLink(props: { href: string; label: string; onNavigate?: () => v
       onClick={props.onNavigate}
       className={cn(
         buttonVariants({ variant: active ? "secondary" : "outline", size: "sm" }),
-        "border-4 border-border font-black uppercase tracking-wider shadow-[4px_4px_0px_0px_var(--color-border)] transition-[transform,box-shadow] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_var(--color-border)]",
+        "border-4 border-border font-black shadow-[4px_4px_0px_0px_var(--color-border)] transition-[transform,box-shadow] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_var(--color-border)]",
         props.className,
       )}
       aria-current={active ? "page" : undefined}
@@ -82,7 +82,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               />
               <SheetContent side="left" className="w-[min(88vw,20rem)] border-r-4 border-border p-0 shadow-[10px_10px_0px_0px_var(--color-border)]">
                 <SheetHeader className="border-b-4 border-border px-4 py-3 pr-14">
-                  <SheetTitle className="text-left text-base font-black uppercase tracking-wider">Адмін</SheetTitle>
+                  <SheetTitle className="text-left text-base font-black">Адмін</SheetTitle>
                 </SheetHeader>
                 <nav className="flex flex-col gap-2 px-4 py-4">
                   <AnimatePresence initial={false}>
@@ -107,7 +107,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               href="/app"
               className={cn(
                 buttonVariants({ size: "sm" }),
-                "border-4 border-border font-black uppercase tracking-wider shadow-[4px_4px_0px_0px_var(--color-border)]",
+                "border-4 border-border font-black shadow-[4px_4px_0px_0px_var(--color-border)]",
               )}
             >
               Кабінет

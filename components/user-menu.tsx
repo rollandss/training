@@ -59,7 +59,7 @@ export function UserMenu({ email }: { email: string }) {
           "hover:bg-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
         )}
       >
-        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-black uppercase tracking-wide text-primary-foreground">
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-black text-primary-foreground">
           {initials}
         </span>
         <span className="hidden min-w-0 truncate sm:block">{shortLabel}</span>

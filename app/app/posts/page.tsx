@@ -1,14 +1,20 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Lock } from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BlocksTabs } from "@/components/blocks-tabs";
+
 import { getCurrentUser } from "@/lib/auth";
 import { getPostCatalogCached } from "@/lib/post-cache";
 import { POST_BLOCK_LABELS, POST_BLOCK_ORDER, getPostBlockSlug } from "@/lib/posts";
 import { unlockedProgramDay } from "@/lib/progress";
 import { cn } from "@/lib/utils";
+
+const BLOCK_COLOR: Record<string, string> = {
+  PREPARATION: "bg-card",
+  BASIC: "bg-primary",
+  ADVANCED: "bg-secondary",
+  TURBO: "bg-accent",
+  CONCLUSION: "bg-foreground",
+};
 
 export default async function PostsPage() {
   const user = await getCurrentUser();
@@ -16,64 +22,83 @@ export default async function PostsPage() {
   const up = user.userPrograms[0];
 
   const posts = await getPostCatalogCached();
-
   const unlockedDay = Math.min(
-    unlockedProgramDay({
-      cursorDay: up.cursorDay,
-      startedAt: up.startedAt,
-      durationDays: up.program.durationDays,
-    }),
+    unlockedProgramDay({ cursorDay: up.cursorDay, startedAt: up.startedAt, durationDays: up.program.durationDays }),
     100,
   );
 
   return (
-    <div className="space-y-8">
-      <div className="relative inline-flex w-full flex-col gap-2 rounded-[var(--radius)] border-4 border-border bg-card p-4 shadow-[10px_10px_0px_0px_var(--color-border)]">
-        <div className="pointer-events-none absolute right-3 top-3 size-10 border-4 border-border bg-secondary shadow-[6px_6px_0px_0px_var(--color-border)]" />
-        <h1 className="text-3xl font-extrabold uppercase tracking-wider">Пости програми</h1>
-        <p className="text-muted-foreground text-sm font-semibold">
-          Відкрито до дня <span className="text-foreground font-black">{unlockedDay}</span>. Далі — по одному посту щодня.
-        </p>
-      </div>
+    <div className="mx-auto max-w-3xl">
+      <h1 className="font-display text-[clamp(2.25rem,6vw,3.25rem)] font-black leading-[1] tracking-[-0.02em]">Усі пости</h1>
+      <p className="mt-3 text-lg font-medium">
+        Відкрито {unlockedDay} {unlockedDay === 1 ? "день" : unlockedDay < 5 ? "дні" : "днів"} зі 100. Наступний пост — завтра.
+      </p>
 
-      <BlocksTabs active="ALL" />
+      <nav className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm font-bold" aria-label="Блоки">
+        {POST_BLOCK_ORDER.map((block) => (
+          <a key={block} href={`#${getPostBlockSlug(block)}`} className="underline decoration-2 underline-offset-4 hover:no-underline">
+            {POST_BLOCK_LABELS[block]}
+          </a>
+        ))}
+      </nav>
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-10 space-y-14">
         {POST_BLOCK_ORDER.map((block) => {
-          const inBlock = posts.filter((post) => post.block === block);
+          const inBlock = posts.filter((p) => p.block === block);
           if (inBlock.length === 0) return null;
-          const unlocked = inBlock.filter((post) => post.dayNumber === null || post.dayNumber <= unlockedDay).length;
-          const locked = unlocked === 0;
+          const open = inBlock.filter((p) => p.dayNumber === null || p.dayNumber <= unlockedDay).length;
           return (
-            <Card
-              key={block}
-              className={cn(
-                "relative overflow-hidden",
-                locked && "bg-muted/40 text-muted-foreground",
-              )}
-            >
-              <CardHeader>
-                <CardTitle className="text-xl">{POST_BLOCK_LABELS[block]}</CardTitle>
-                <CardDescription>
-                  Доступно {unlocked} з {inBlock.length}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {locked ? (
-                  <div className="flex items-center gap-2 rounded-[var(--radius)] border-4 border-border bg-background px-3 py-2 text-xs font-black uppercase tracking-wider shadow-[6px_6px_0px_0px_var(--color-border)]">
-                    <Lock className="size-4" />
-                    Закрито
-                  </div>
-                ) : (
-                  <Link
-                    href={`/app/posts/block/${getPostBlockSlug(block)}`}
-                    className={cn(buttonVariants(), "w-full")}
-                  >
-                    Відкрити блок
-                  </Link>
-                )}
-              </CardContent>
-            </Card>
+            <section key={block} id={getPostBlockSlug(block)} className="scroll-mt-6" aria-labelledby={`h-${block}`}>
+              <div className="flex items-end justify-between gap-4">
+                <h2 id={`h-${block}`} className="font-display text-2xl font-bold tracking-[-0.01em]">
+                  {POST_BLOCK_LABELS[block]}
+                </h2>
+                <p className="shrink-0 text-sm font-bold tabular-nums">
+                  {open} з {inBlock.length}
+                </p>
+              </div>
+              <div className="mt-3 h-3 overflow-hidden rounded-[var(--radius)] border-2 border-border bg-card" aria-hidden>
+                <div className={cn("h-full border-r-2 border-border", BLOCK_COLOR[block])} style={{ width: `${(open / inBlock.length) * 100}%` }} />
+              </div>
+
+              <ol className="mt-4 divide-y-2 divide-border/15 rounded-[var(--radius)] border-4 border-border bg-card">
+                {inBlock.map((post) => {
+                  const locked = post.dayNumber !== null && post.dayNumber > unlockedDay;
+                  const label = post.dayNumber ? `День ${post.dayNumber}` : "До старту";
+                  const title = post.titleUk.replace(/^День\s+\d+\.\s*/i, "").replace(/^\d+\.\s*/, "");
+                  return (
+                    <li key={post.id}>
+                      {locked ? (
+                        <div className="flex items-center gap-4 px-4 py-3 text-foreground/45">
+                          <span className="w-20 shrink-0 text-sm font-bold tabular-nums">{label}</span>
+                          <span className="min-w-0 flex-1 truncate text-base">{title}</span>
+                          <span className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold">
+                            <Lock className="size-3.5" aria-hidden />
+                            через {post.dayNumber! - unlockedDay} дн.
+                          </span>
+                        </div>
+                      ) : (
+                        <Link
+                          href={`/app/post/${post.slug}`}
+                          className={cn(
+                            "flex items-center gap-4 px-4 py-3 outline-none hover:bg-primary focus-visible:bg-primary",
+                            post.dayNumber === unlockedDay && "bg-primary/40",
+                          )}
+                        >
+                          <span className="w-20 shrink-0 text-sm font-bold tabular-nums">{label}</span>
+                          <span className="min-w-0 flex-1 text-base font-semibold">{title}</span>
+                          {post.dayNumber === unlockedDay ? (
+                            <span className="shrink-0 rounded-[3px] bg-foreground px-1.5 py-0.5 text-xs font-bold text-background">
+                              сьогодні
+                            </span>
+                          ) : null}
+                        </Link>
+                      )}
+                    </li>
+                  );
+                })}
+              </ol>
+            </section>
           );
         })}
       </div>

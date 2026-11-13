@@ -22,7 +22,7 @@ export function OnboardingForm() {
 
   return (
     <MotionReveal>
-      <Card className="w-full max-w-lg">
+      <Card className="w-full">
       <form action={formAction}>
         <CardHeader>
           <CardTitle>Налаштуймо старт</CardTitle>

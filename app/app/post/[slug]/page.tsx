@@ -3,13 +3,11 @@ import { notFound, redirect } from "next/navigation";
 
 import { PostCover } from "@/components/post-cover";
 import { PostBody } from "@/components/post-body";
-import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
-import { getPostBySlugCached } from "@/lib/post-cache";
+import { getPostByDayCached, getPostBySlugCached } from "@/lib/post-cache";
 import { getPostBlockLabel } from "@/lib/posts";
-import { unlockedProgramDay } from "@/lib/progress";
+import { todayKey as getTodayKey, unlockedProgramDay } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -29,32 +27,49 @@ export default async function PostDetailsPage({ params }: Props) {
   });
   if (post.dayNumber !== null && post.dayNumber > unlockedDay) redirect("/app/posts");
 
+  const prev = post.dayNumber && post.dayNumber > 1 ? await getPostByDayCached(post.dayNumber - 1) : null;
+  const next = post.dayNumber && post.dayNumber < unlockedDay ? await getPostByDayCached(post.dayNumber + 1) : null;
+  const title = post.titleUk.replace(/^День\s+\d+\.\s*/i, "").replace(/^\d+\.\s*/, "");
+
   return (
-    <div className="space-y-5">
-      <Link href="/app/posts" className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "px-0")}>
-        ← До постів
+    <article className="mx-auto max-w-[68ch]">
+      <Link href="/app/posts" className="text-sm font-bold underline decoration-2 underline-offset-4 hover:no-underline">
+        Усі пости
       </Link>
-      <div className="mx-auto w-full max-w-[78ch]">
-        <Card>
-          <CardHeader className="space-y-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="secondary">{getPostBlockLabel(post.block)}</Badge>
-              {post.dayNumber ? <Badge variant="outline">День {post.dayNumber}</Badge> : null}
-            </div>
-            <CardTitle className="text-3xl font-black leading-tight md:text-4xl">{post.titleUk}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-5">
-            {post.imageUrl ? (
-              <div className="overflow-hidden rounded-[var(--radius)] border-4 border-border shadow-[10px_10px_0px_0px_var(--color-border)]">
-                <div className="aspect-[16/9] max-h-[520px] w-full">
-                  <PostCover src={post.imageUrl} alt={post.titleUk} />
-                </div>
-              </div>
-            ) : null}
-            <PostBody body={post.bodyUk} />
-          </CardContent>
-        </Card>
+      <p className="mt-8 text-base font-bold">
+        {post.dayNumber ? `День ${post.dayNumber}` : "Перед стартом"}, {getPostBlockLabel(post.block).toLowerCase()} блок
+      </p>
+      <h1 className="font-display mt-2 text-[clamp(2rem,5.5vw,3rem)] font-black leading-[1.05] tracking-[-0.02em]">{title}</h1>
+      {post.imageUrl ? (
+        <div className="mt-8 aspect-[16/9] w-full overflow-hidden rounded-[var(--radius)] border-4 border-border shadow-[8px_8px_0px_0px_var(--color-border)] has-[[data-cover-failed]]:hidden">
+          <PostCover src={post.imageUrl} alt="" hideOnError />
+        </div>
+      ) : null}
+      <div className="mt-8 rounded-[var(--radius)] border-4 border-border bg-card px-5 py-6 sm:px-8 sm:py-8">
+        <PostBody body={post.bodyUk} />
       </div>
-    </div>
+
+      <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        {post.dayNumber === unlockedDay ? (
+          <Link href={`/app/calendar?open=${getTodayKey()}`} className={cn(buttonVariants({ size: "lg" }), "h-12 px-6")}>
+            Відмітити сьогодні
+          </Link>
+        ) : (
+          <span />
+        )}
+        <nav className="flex gap-5 text-sm font-bold" aria-label="Сусідні дні">
+          {prev ? (
+            <Link href={`/app/post/${prev.slug}`} className="underline decoration-2 underline-offset-4 hover:no-underline">
+              ← День {prev.dayNumber}
+            </Link>
+          ) : null}
+          {next ? (
+            <Link href={`/app/post/${next.slug}`} className="underline decoration-2 underline-offset-4 hover:no-underline">
+              День {next.dayNumber} →
+            </Link>
+          ) : null}
+        </nav>
+      </div>
+    </article>
   );
 }

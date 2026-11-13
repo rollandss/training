@@ -41,13 +41,11 @@ export default async function SettingsPage() {
   ]);
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">Налаштування</CardTitle>
-          <CardDescription>Сповіщення та персональні параметри.</CardDescription>
-        </CardHeader>
-      </Card>
+    <div className="mx-auto max-w-3xl space-y-8">
+      <div>
+        <h1 className="font-display text-[clamp(2.25rem,6vw,3.25rem)] font-black leading-[1] tracking-[-0.02em]">Налаштування</h1>
+        <p className="mt-3 text-base font-medium">Твої максимуми, вправи для тренувань і пошта.</p>
+      </div>
 
       <Card>
         <CardHeader>
@@ -95,7 +93,7 @@ export default async function SettingsPage() {
                 defaultChecked={sub?.enabled ?? false}
                 className="size-5 accent-black"
               />
-              <Label htmlFor="email-enabled" className="font-black uppercase tracking-wider">
+              <Label htmlFor="email-enabled" className="font-black">
                 Увімкнути щоденні листи
               </Label>
             </div>
