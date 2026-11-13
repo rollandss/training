@@ -1,4 +1,4 @@
-import { unlockedProgramDay, unlockedProgramDayByTime } from "@/lib/progress";
+import { calendarDate, unlockedProgramDay, unlockedProgramDayByTime } from "@/lib/progress";
 
 export type TrainingVolumeMode = "ROUNDS" | "SETS";
 
@@ -18,13 +18,13 @@ export function dayKeyToUTCDate(dayKey: string) {
 
 export function diffDaysUTC(a: Date, b: Date) {
   const ms = startOfDayUTC(a).getTime() - startOfDayUTC(b).getTime();
-  return Math.floor(ms / (1000 * 60 * 60 * 24));
+  return Math.round(ms / (1000 * 60 * 60 * 24));
 }
 
 export function programDayFromDayKey(dayKey: string, startedAt: Date) {
   const date = dayKeyToUTCDate(dayKey);
   if (!date) return null;
-  return diffDaysUTC(date, startedAt) + 1;
+  return diffDaysUTC(date, calendarDate(startedAt)) + 1;
 }
 
 export function isCalendarDayEditable(params: {
@@ -38,19 +38,20 @@ export function isCalendarDayEditable(params: {
   const date = dayKeyToUTCDate(params.dayKey);
   if (!date) return false;
 
-  const todayUTC = startOfDayUTC(params.today ?? new Date());
-  const programStart = startOfDayUTC(params.startedAt);
-  const registeredAtUTC = startOfDayUTC(params.registeredAt);
+  const now = params.today ?? new Date();
+  const todayUTC = calendarDate(now);
+  const programStart = calendarDate(params.startedAt);
+  const registeredAtUTC = calendarDate(params.registeredAt);
   const timeUnlockedDay = unlockedProgramDayByTime({
     startedAt: params.startedAt,
     durationDays: params.durationDays,
-    today: todayUTC,
+    today: now,
   });
   const unlockedDay = unlockedProgramDay({
     cursorDay: params.cursorDay,
     startedAt: params.startedAt,
     durationDays: params.durationDays,
-    today: todayUTC,
+    today: now,
   });
   const programDay = diffDaysUTC(date, programStart) + 1;
 

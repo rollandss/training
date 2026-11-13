@@ -6,14 +6,7 @@ import { getPostByDayCached } from "@/lib/post-cache";
 import { prisma } from "@/lib/prisma";
 import { canSendEmail, getBaseUrl, sendEmail } from "@/lib/email";
 import { postBodyToPlainText } from "@/lib/post-text";
-import { unlockedProgramDay } from "@/lib/progress";
-
-function dayKeyUTC(d: Date) {
-  const y = d.getUTCFullYear();
-  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
-  const da = String(d.getUTCDate()).padStart(2, "0");
-  return `${y}-${m}-${da}`;
-}
+import { todayKey as getTodayKey, unlockedProgramDay } from "@/lib/progress";
 
 function isAuthorizedCron(req: Request) {
   const secret = process.env.CRON_SECRET;
@@ -37,7 +30,7 @@ export async function GET(req: Request) {
   }
 
   const today = new Date();
-  const todayKey = dayKeyUTC(today);
+  const todayKey = getTodayKey(today);
   const baseUrl = getBaseUrl();
 
   const subs = await prisma.userEmailSubscription.findMany({

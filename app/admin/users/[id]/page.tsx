@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { AdminDeleteUserForm } from "../delete-user-form";
 import { AdminMutationForm } from "../admin-mutation-form";
 import { updateUserAccountAction, updateUserCursorDayAction } from "../actions";
+import { calendarDate } from "@/lib/progress";
 
 function pad2(n: number) {
   return String(n).padStart(2, "0");
@@ -23,7 +24,7 @@ function toDayKeyUTC(d: Date) {
   return `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())}`;
 }
 
-function monthRangeKeysUTC(d = new Date()) {
+function monthRangeKeysUTC(d = calendarDate(new Date())) {
   const start = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1));
   const end = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1));
   return { startKey: toDayKeyUTC(start), endKeyExclusive: toDayKeyUTC(end), monthKey: `${start.getUTCFullYear()}-${pad2(start.getUTCMonth() + 1)}` };
