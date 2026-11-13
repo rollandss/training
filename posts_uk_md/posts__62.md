@@ -40,15 +40,6 @@
 
 1. Всесвітня організація охорони здоров'я. Питання та відповіді про канцерогенність червоного м'яса та м'ясної продукції. Жовтень 2015 року.
 2. Appleby PN, Crowe FL, Bradbury KE, Travis RC, Key TJ, Mortality in vegetarians and comparable nonvegetarians in the United Kingdom, 2016
-3. Борис Цацулін. китайське дослідження. Помилки та обман. Науковий розбір.
-https://www.youtube.com/watch?v=TKD5XEm1TtA
-4. Harvard Health Publishing. Harward Medical School. Becoming a vegetarian
+3. Harvard Health Publishing. Harward Medical School. Becoming a vegetarian
 https://www.health.harvard.edu/staying-healthy/becoming-a-vegetarian
-5. Борис Цацулін. Правда про сироїдіння та веганство. Наслідки. Хвороби. Жертви
-https://www.youtube.com/watch?v=0Al330i1skc
-6. Human Resource Council, Current & Former Vegetarians & Vegans, 2014
-7. Борис Цацулін, Сироїдіння/Веганство. Що каже наука? Смертність, рак, інтелект, кістки, вітаміни.
-https://www.youtube.com/watch?v=wZJfJ8bWbaI
-Якщо вам сподобався цей інфопост, і ви бажаєте підтримати проект SOTKA,
-то зробити донат можна на сайті
-https://boosty.to/swrussia
+4. Human Resource Council, Current & Former Vegetarians & Vegans, 2014

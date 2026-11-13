@@ -72,6 +72,12 @@ function blockByDay(day: number): string {
   return "CONCLUSION";
 }
 
+/** Posts saved from the admin editor are HTML; re-seeding must not overwrite them (or their images). */
+async function isEditedInAdmin(slug: string) {
+  const row = await prisma.dailyPost.findUnique({ where: { slug }, select: { bodyUk: true } });
+  return Boolean(row && row.bodyUk.trimStart().startsWith("<"));
+}
+
 function parsePostTitle(content: string, fallback: string) {
   const firstLine = content.split("\n").find((line) => line.trim().length > 0);
   if (!firstLine) return fallback;
@@ -489,15 +495,17 @@ async function main() {
         sourceFile: name,
         programDayId: dayRow?.id ?? null,
       },
-      update: {
-        dayNumber: day,
-        block: blockByDay(day),
-        titleUk,
-        bodyUk,
-        imageUrl: defaultPostImage(day),
-        sourceFile: name,
-        programDayId: dayRow?.id ?? null,
-      },
+      update: (await isEditedInAdmin(`day-${day}`))
+        ? { dayNumber: day, block: blockByDay(day), sourceFile: name, programDayId: dayRow?.id ?? null }
+        : {
+            dayNumber: day,
+            block: blockByDay(day),
+            titleUk,
+            bodyUk,
+            imageUrl: defaultPostImage(day),
+            sourceFile: name,
+            programDayId: dayRow?.id ?? null,
+          },
     });
   }
 
@@ -518,14 +526,16 @@ async function main() {
           imageUrl: defaultPostImage(null),
           sourceFile: name,
         },
-        update: {
-          dayNumber: null,
-          block: "PREPARATION",
-          titleUk: parsePostTitle(bodyUk, baseSlug),
-          bodyUk,
-          imageUrl: defaultPostImage(null),
-          sourceFile: name,
-        },
+        update: (await isEditedInAdmin(`prep-${baseSlug}`))
+          ? { dayNumber: null, block: "PREPARATION", sourceFile: name }
+          : {
+              dayNumber: null,
+              block: "PREPARATION",
+              titleUk: parsePostTitle(bodyUk, baseSlug),
+              bodyUk,
+              imageUrl: defaultPostImage(null),
+              sourceFile: name,
+            },
       });
     } catch {
       // skip optional preparation files

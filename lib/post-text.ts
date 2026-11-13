@@ -6,8 +6,12 @@ export function stripHtmlTags(html: string) {
     .trim();
 }
 
+/**
+ * TipTap output always starts with a tag; seeded markdown starts with "# Title".
+ * (Matching any tag anywhere misfired on markdown that contained stray markup.)
+ */
 export function postBodyLooksLikeHtml(body: string) {
-  return /<\/?[a-z][\s\S]*>/i.test(body);
+  return body.trimStart().startsWith("<");
 }
 
 /** Rough markdown → text for excerpts and plain-text emails (no parser needed on the client). */

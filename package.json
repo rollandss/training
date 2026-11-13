@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
-    "vercel-build": "prisma generate && tsx scripts/migrate-deploy.ts && next build",
+    "vercel-build": "prisma generate && tsx scripts/migrate-deploy.ts && tsx scripts/sync-posts-on-deploy.ts && next build",
     "start": "next start",
     "lint": "eslint",
     "db:migrate": "prisma migrate dev",
@@ -14,7 +14,8 @@
     "db:admin:reset": "tsx scripts/reset-admin.ts",
     "db:studio": "prisma studio",
     "postinstall": "prisma generate",
-    "test": "tsx --test tests/*.test.ts"
+    "test": "tsx --test tests/*.test.ts",
+    "posts:sync": "tsx scripts/sync-posts.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
