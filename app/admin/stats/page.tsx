@@ -55,7 +55,7 @@ export default async function AdminStatsPage() {
   return (
     <div className="space-y-8">
       <div className="relative inline-flex flex-col gap-2 rounded-[var(--radius)] border-4 border-border bg-card p-4 shadow-[10px_10px_0px_0px_var(--color-border)]">
-        <h1 className="text-3xl font-extrabold uppercase tracking-wider">Статистика</h1>
+        <h1 className="text-3xl font-extrabold">Статистика</h1>
         <p className="text-muted-foreground text-sm font-semibold">Загальні метрики і активність через календарні позначки.</p>
       </div>
 

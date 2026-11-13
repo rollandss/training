@@ -1,10 +1,21 @@
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 
-import { HundredBoard } from "@/components/landing/hundred-board";
+import { HundredBoard, type BoardMark } from "@/components/hundred-board";
 import { SiteLogo } from "@/components/site-logo";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+// A plausible first five weeks for the hero board: train 5 days, stretch, rest, one short illness.
+const SAMPLE_TODAY = 38;
+const SAMPLE_MARKS = new Map<number, BoardMark>(
+  Array.from({ length: SAMPLE_TODAY - 1 }, (_, i) => {
+    const day = i + 1;
+    const mark: BoardMark =
+      day === 23 || day === 24 ? "SICK" : day % 7 === 0 ? "REST" : day % 7 === 6 ? "STRETCHING" : "TRAINING";
+    return [day, mark];
+  }),
+);
 
 // Proportional to the real program: days 1–49, 50–91, 92–98, 99–100.
 const PHASES = [
@@ -91,7 +102,12 @@ export default function HomePage() {
             <p className="mt-6 text-sm font-semibold">Безкоштовно, українською, без тренажерного залу.</p>
           </div>
 
-          <HundredBoard />
+          <HundredBoard
+            marks={SAMPLE_MARKS}
+            today={SAMPLE_TODAY}
+            animate
+            label={`Приклад календаря Стоденки: відмічено ${SAMPLE_TODAY - 1} днів зі 100, сьогодні день ${SAMPLE_TODAY}`}
+          />
         </section>
 
         {/* What one day looks like — real content from day 1. */}

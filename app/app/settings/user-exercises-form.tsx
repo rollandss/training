@@ -138,7 +138,7 @@ export function UserExercisesForm(props: { initial: UserExerciseView[] }) {
               />
               <Label
                 htmlFor={`exercise-enabled-${exercise.id}`}
-                className="text-xs font-black uppercase tracking-wider"
+                className="text-xs font-black"
               >
                 У тренуванні
               </Label>
@@ -243,7 +243,7 @@ export function UserExercisesForm(props: { initial: UserExerciseView[] }) {
                   type="button"
                   size="sm"
                   variant="outline"
-                  className="font-black uppercase tracking-wider"
+                  className="font-black"
                   onClick={async () => {
                     const formData = new FormData();
                     formData.set("id", exercise.id);
@@ -289,7 +289,7 @@ export function UserExercisesForm(props: { initial: UserExerciseView[] }) {
               type="button"
               onClick={() => setDraftMetric(metric)}
               className={cn(
-                "rounded-[var(--radius)] border-4 border-border px-3 py-2 text-xs font-black uppercase tracking-wider shadow-[4px_4px_0px_0px_var(--color-border)]",
+                "rounded-[var(--radius)] border-4 border-border px-3 py-2 text-xs font-black shadow-[4px_4px_0px_0px_var(--color-border)]",
                 draftMetric === metric ? "bg-primary text-primary-foreground" : "bg-background",
               )}
               aria-pressed={draftMetric === metric}

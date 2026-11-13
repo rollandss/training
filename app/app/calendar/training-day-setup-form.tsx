@@ -44,7 +44,7 @@ export function TrainingDaySetupForm(props: {
             type="button"
             onClick={() => onChange({ ...value, mode: option.id })}
             className={cn(
-              "rounded-[var(--radius)] px-2 py-2 text-xs font-black uppercase tracking-wider transition-[transform,box-shadow,background-color,color] sm:text-sm",
+              "rounded-[var(--radius)] px-2 py-2 text-xs font-black transition-[transform,box-shadow,background-color,color] sm:text-sm",
               value.mode === option.id
                 ? "bg-primary text-primary-foreground shadow-[4px_4px_0px_0px_var(--color-border)]"
                 : "bg-transparent text-foreground hover:bg-background",
@@ -76,7 +76,7 @@ export function TrainingDaySetupForm(props: {
       </div>
 
       <div className="space-y-2">
-        <div className="text-xs font-black uppercase tracking-wider text-muted-foreground">Черговість і цілі</div>
+        <div className="text-xs font-black text-muted-foreground">Черговість і цілі</div>
         <AnimatePresence initial={false} mode="popLayout">
           {value.lines.map((line, index) => (
             <motion.div
@@ -137,7 +137,7 @@ export function TrainingDaySetupForm(props: {
       </div>
 
       <div className="rounded-[var(--radius)] border-4 border-border bg-background p-2.5 shadow-[8px_8px_0px_0px_var(--color-border)]">
-        <div className="text-xs font-black uppercase tracking-wider text-muted-foreground">Відпочинок між колами</div>
+        <div className="text-xs font-black text-muted-foreground">Відпочинок між колами</div>
         <div className="mt-2 grid gap-1.5">
           <Label htmlFor="restSeconds" className="text-xs">
             Секунди

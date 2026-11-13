@@ -6,19 +6,17 @@ import Link from "next/link";
 import { registerAction, type AuthFormState } from "@/app/auth/actions";
 import { MotionReveal } from "@/components/motion-ui";
 import { SubmitButton } from "@/components/submit-button";
-import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { PasswordInput } from "@/components/password-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
 
 export function RegisterForm() {
   const [state, formAction] = useActionState(registerAction, undefined as AuthFormState);
 
   return (
     <MotionReveal>
-      <Card className="w-full max-w-md">
+      <Card className="w-full">
       <form action={formAction}>
         <CardHeader>
           <CardTitle>Реєстрація</CardTitle>
@@ -35,11 +33,14 @@ export function RegisterForm() {
             <PasswordInput id="password" name="password" autoComplete="new-password" required />
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col gap-3 border-t bg-transparent sm:flex-row sm:justify-between">
-          <SubmitButton className="w-full sm:w-auto">Створити акаунт</SubmitButton>
-          <Link href="/auth/login" className={cn(buttonVariants({ variant: "ghost" }), "text-center text-sm")}>
-            Уже є акаунт
-          </Link>
+        <CardFooter className="flex flex-col items-stretch gap-4 border-t-0 bg-transparent">
+          <SubmitButton className="h-12 w-full text-base">Створити акаунт</SubmitButton>
+          <p className="text-center text-sm font-medium">
+            Уже є акаунт?{" "}
+            <Link href="/auth/login" className="font-bold underline decoration-2 underline-offset-4 hover:no-underline">
+              Увійти
+            </Link>
+          </p>
         </CardFooter>
       </form>
     </Card>

@@ -6,23 +6,21 @@ import Link from "next/link";
 import { loginAction, type AuthFormState } from "@/app/auth/actions";
 import { MotionReveal } from "@/components/motion-ui";
 import { SubmitButton } from "@/components/submit-button";
-import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { PasswordInput } from "@/components/password-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
 
 export function LoginForm() {
   const [state, formAction] = useActionState(loginAction, undefined as AuthFormState);
 
   return (
     <MotionReveal>
-      <Card className="w-full max-w-md">
+      <Card className="w-full">
       <form action={formAction}>
         <CardHeader>
           <CardTitle>Вхід</CardTitle>
-          <CardDescription>Введіть email і пароль.</CardDescription>
+          <CardDescription>З поверненням! Твій день уже чекає.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
           {state?.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
@@ -40,11 +38,14 @@ export function LoginForm() {
             <PasswordInput id="password" name="password" autoComplete="current-password" required />
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col gap-3 border-t-0 bg-transparent sm:flex-row sm:justify-between">
-          <SubmitButton className="w-full sm:w-auto">Увійти</SubmitButton>
-          <Link href="/auth/register" className={cn(buttonVariants({ variant: "ghost" }), "text-center text-sm")}>
-            Реєстрація
-          </Link>
+        <CardFooter className="flex flex-col items-stretch gap-4 border-t-0 bg-transparent">
+          <SubmitButton className="h-12 w-full text-base">Увійти</SubmitButton>
+          <p className="text-center text-sm font-medium">
+            Ще немає акаунта?{" "}
+            <Link href="/auth/register" className="font-bold underline decoration-2 underline-offset-4 hover:no-underline">
+              Зареєструватися
+            </Link>
+          </p>
         </CardFooter>
       </form>
     </Card>

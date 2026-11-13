@@ -18,7 +18,7 @@ export function ResetForm({ token }: { token: string }) {
   if (state?.ok) {
     return (
       <MotionReveal>
-        <Card className="w-full max-w-md">
+        <Card className="w-full">
           <CardHeader>
             <CardTitle>Пароль змінено</CardTitle>
             <CardDescription>Тепер увійдіть із новим паролем.</CardDescription>
@@ -35,7 +35,7 @@ export function ResetForm({ token }: { token: string }) {
 
   return (
     <MotionReveal>
-      <Card className="w-full max-w-md">
+      <Card className="w-full">
         <form action={formAction}>
           <input type="hidden" name="token" value={token} />
           <CardHeader>

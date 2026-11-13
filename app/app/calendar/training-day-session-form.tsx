@@ -72,7 +72,7 @@ export function TrainingDaySessionForm(props: {
         className="sticky top-0 z-10 -mx-4 border-b-4 border-border bg-primary px-4 py-3 text-primary-foreground shadow-[8px_8px_0px_0px_var(--color-border)]"
         aria-live="polite"
       >
-        <div className="text-[11px] font-black uppercase tracking-wider opacity-80">Зараз</div>
+        <div className="text-[11px] font-black opacity-80">Зараз</div>
         <div className="mt-1 text-2xl font-black tabular-nums">
           {activeVolumeLabel} {clampedActiveVolume} <span className="text-base opacity-80">з {value.rounds}</span>
         </div>
@@ -82,7 +82,7 @@ export function TrainingDaySessionForm(props: {
             type="button"
             size="sm"
             variant="secondary"
-            className="font-black uppercase tracking-wider"
+            className="font-black"
             disabled={clampedActiveVolume >= value.rounds}
             onClick={completeActiveVolume}
           >
@@ -134,7 +134,7 @@ export function TrainingDaySessionForm(props: {
                   type="button"
                   size="sm"
                   variant="outline"
-                  className="shrink-0 font-black uppercase tracking-wider"
+                  className="shrink-0 font-black"
                   disabled={line.reps < 5 || restRemaining != null}
                   onClick={() => onStartExerciseTimer({ label: line.label, seconds: line.reps })}
                 >

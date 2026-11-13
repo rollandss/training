@@ -101,7 +101,7 @@ export default async function AdminUsersPage({
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="relative inline-flex flex-col gap-2 rounded-[var(--radius)] border-4 border-border bg-card p-4 shadow-[10px_10px_0px_0px_var(--color-border)]">
           <div className="pointer-events-none absolute right-3 top-3 size-10 border-4 border-border bg-secondary shadow-[6px_6px_0px_0px_var(--color-border)]" />
-          <h1 className="text-3xl font-extrabold uppercase tracking-wider">Користувачі</h1>
+          <h1 className="text-3xl font-extrabold">Користувачі</h1>
           <p className="text-muted-foreground text-sm font-semibold">
             Прогрес: курсор дня + позначки календаря за поточний місяць.
           </p>
@@ -135,7 +135,7 @@ export default async function AdminUsersPage({
               <select
                 id="create-role"
                 name="role"
-                className="border-input bg-background h-9 rounded-[var(--radius)] border-4 px-2 text-xs font-black uppercase tracking-wider shadow-[4px_4px_0px_0px_var(--color-border)]"
+                className="border-input bg-background h-9 rounded-[var(--radius)] border-4 px-2 text-xs font-black shadow-[4px_4px_0px_0px_var(--color-border)]"
                 defaultValue="USER"
               >
                 <option value="USER">USER</option>
@@ -190,7 +190,7 @@ export default async function AdminUsersPage({
                 </div>
 
                 <div className="rounded-[var(--radius)] border-4 border-border bg-background p-3 shadow-[6px_6px_0px_0px_var(--color-border)]">
-                  <div className="text-xs font-black uppercase tracking-wider text-muted-foreground">Програма</div>
+                  <div className="text-xs font-black text-muted-foreground">Програма</div>
                   <div className="mt-1 text-sm font-black">
                     {up ? `${up.program.name} · день ${up.cursorDay}/${up.program.durationDays}` : "не стартував"}
                   </div>
@@ -208,7 +208,7 @@ export default async function AdminUsersPage({
                     <input type="hidden" name="userId" value={u.id} />
                     <select
                       name="role"
-                      className="border-input bg-background h-9 flex-1 rounded-[var(--radius)] border-4 px-2 text-xs font-black uppercase tracking-wider shadow-[4px_4px_0px_0px_var(--color-border)]"
+                      className="border-input bg-background h-9 flex-1 rounded-[var(--radius)] border-4 px-2 text-xs font-black shadow-[4px_4px_0px_0px_var(--color-border)]"
                       defaultValue={u.role}
                       aria-label="Роль"
                     >

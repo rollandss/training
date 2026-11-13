@@ -50,7 +50,7 @@ function TrainingRestOverlayPanel(props: {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.24, delay: reduceMotion ? 0 : 0.05 }}
       >
-        <p id="training-rest-title" className="text-sm font-black uppercase tracking-[0.2em] opacity-80">
+        <p id="training-rest-title" className="text-sm font-black opacity-80">
           {title}
         </p>
         <p className="mt-2 text-xs font-semibold opacity-80">{subtitle}</p>
@@ -119,7 +119,7 @@ function TrainingRestOverlayPanel(props: {
           type="button"
           variant="secondary"
           size="lg"
-          className="min-w-48 font-black uppercase tracking-wider"
+          className="min-w-48 font-black"
           onClick={onSkip}
           aria-label={skipLabel}
         >

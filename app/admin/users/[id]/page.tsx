@@ -75,7 +75,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="relative inline-flex flex-col gap-2 rounded-[var(--radius)] border-4 border-border bg-card p-4 shadow-[10px_10px_0px_0px_var(--color-border)]">
           <div className="pointer-events-none absolute right-3 top-3 size-10 border-4 border-border bg-primary shadow-[6px_6px_0px_0px_var(--color-border)]" />
-          <h1 className="text-2xl font-extrabold uppercase tracking-wider">{user.email}</h1>
+          <h1 className="text-2xl font-extrabold">{user.email}</h1>
           <p className="text-muted-foreground text-sm font-semibold">
             {user.role} · {user.profile?.onboardingDone ? "онбординг ✓" : "онбординг —"} · створено {user.createdAt.toISOString().slice(0, 10)}
           </p>
@@ -93,7 +93,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="rounded-[var(--radius)] border-4 border-border bg-background p-4 shadow-[8px_8px_0px_0px_var(--color-border)]">
-              <div className="text-xs font-black uppercase tracking-wider text-muted-foreground">Програма</div>
+              <div className="text-xs font-black text-muted-foreground">Програма</div>
               <div className="mt-1 text-sm font-black">
                 {up ? `${up.program.name} · день ${up.cursorDay}/${up.program.durationDays}` : "не стартував"}
               </div>
@@ -139,7 +139,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
                     recent.map((r) => (
                       <div key={r.dayKey} className="flex items-center justify-between gap-3 text-sm">
                         <div className="font-mono text-xs">{r.dayKey}</div>
-                        <div className="font-black uppercase tracking-wider">{r.status}</div>
+                        <div className="font-black">{r.status}</div>
                       </div>
                     ))
                   ) : (
@@ -179,7 +179,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
                 <select
                   id="role"
                   name="role"
-                  className="border-input bg-background h-10 rounded-[var(--radius)] border-4 px-2 text-sm font-black uppercase tracking-wider shadow-[6px_6px_0px_0px_var(--color-border)]"
+                  className="border-input bg-background h-10 rounded-[var(--radius)] border-4 px-2 text-sm font-black shadow-[6px_6px_0px_0px_var(--color-border)]"
                   defaultValue={user.role}
                 >
                   <option value="USER">USER</option>
@@ -194,7 +194,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
             <AdminDeleteUserForm userId={user.id} disabled={me.id === user.id} />
 
             <div className="rounded-[var(--radius)] border-4 border-border bg-background p-4 shadow-[8px_8px_0px_0px_var(--color-border)]">
-              <div className="text-xs font-black uppercase tracking-wider text-muted-foreground">Профіль</div>
+              <div className="text-xs font-black text-muted-foreground">Профіль</div>
               <div className="mt-2 space-y-1 text-sm font-medium text-muted-foreground">
                 <div>
                   <span className="font-black text-foreground">Рівень:</span> {user.profile?.levelSelfAssessment ?? "—"}
@@ -215,16 +215,16 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
         </CardHeader>
         <CardContent>
           <div className="grid gap-2 sm:grid-cols-3">
-            <div className="rounded-[var(--radius)] border-4 border-border bg-primary p-3 text-sm font-black uppercase tracking-wider text-primary-foreground shadow-[8px_8px_0px_0px_var(--color-border)]">
+            <div className="rounded-[var(--radius)] border-4 border-border bg-primary p-3 text-sm font-black text-primary-foreground shadow-[8px_8px_0px_0px_var(--color-border)]">
               TRAINING
             </div>
-            <div className="rounded-[var(--radius)] border-4 border-border bg-accent p-3 text-sm font-black uppercase tracking-wider text-accent-foreground shadow-[8px_8px_0px_0px_var(--color-border)]">
+            <div className="rounded-[var(--radius)] border-4 border-border bg-accent p-3 text-sm font-black text-accent-foreground shadow-[8px_8px_0px_0px_var(--color-border)]">
               STRETCHING
             </div>
-            <div className="rounded-[var(--radius)] border-4 border-border bg-secondary p-3 text-sm font-black uppercase tracking-wider text-secondary-foreground shadow-[8px_8px_0px_0px_var(--color-border)]">
+            <div className="rounded-[var(--radius)] border-4 border-border bg-secondary p-3 text-sm font-black text-secondary-foreground shadow-[8px_8px_0px_0px_var(--color-border)]">
               REST
             </div>
-            <div className="rounded-[var(--radius)] border-4 border-border bg-destructive p-3 text-sm font-black uppercase tracking-wider text-primary-foreground shadow-[8px_8px_0px_0px_var(--color-border)]">
+            <div className="rounded-[var(--radius)] border-4 border-border bg-destructive p-3 text-sm font-black text-primary-foreground shadow-[8px_8px_0px_0px_var(--color-border)]">
               SICK
             </div>
           </div>
