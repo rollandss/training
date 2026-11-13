@@ -1,13 +1,10 @@
 import { jwtVerify } from "jose";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { getSessionSecret } from "@/lib/session-secret";
+
 const COOKIE = "session";
 
-function secret() {
-  return new TextEncoder().encode(
-    process.env.SESSION_SECRET ?? "dev-only-change-SESSION_SECRET-in-env-32chars",
-  );
-}
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -23,7 +20,7 @@ export async function proxy(req: NextRequest) {
   }
 
   try {
-    const { payload } = await jwtVerify(token, secret());
+    const { payload } = await jwtVerify(token, getSessionSecret());
     if (pathname.startsWith("/admin") && payload.role !== "ADMIN") {
       return NextResponse.redirect(new URL("/app", req.url));
     }

@@ -1,4 +1,7 @@
+import "server-only";
+
 import { postBodyLooksLikeHtml } from "@/lib/post-text";
+import { sanitizePostHtml } from "@/lib/sanitize-post";
 import { cn } from "@/lib/utils";
 
 type PostBodyProps = {
@@ -11,7 +14,7 @@ export function PostBody({ body, className }: PostBodyProps) {
     return (
       <article
         className={cn("post-body text-base leading-7 text-foreground/95 md:text-lg md:leading-8", className)}
-        dangerouslySetInnerHTML={{ __html: body }}
+        dangerouslySetInnerHTML={{ __html: sanitizePostHtml(body) }}
       />
     );
   }

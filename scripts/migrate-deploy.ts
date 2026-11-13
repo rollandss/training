@@ -8,6 +8,15 @@ function sleep(ms: number) {
 }
 
 async function main() {
+  // Preview builds share env vars with production unless a separate preview DB is configured.
+  // Running `migrate deploy` from a feature branch would then apply its migrations to prod.
+  const vercelEnv = process.env.VERCEL_ENV;
+  const force = process.env.MIGRATE_ON_PREVIEW === "1";
+  if (vercelEnv && vercelEnv !== "production" && !force) {
+    console.log(`Skipping prisma migrate deploy on VERCEL_ENV=${vercelEnv} (set MIGRATE_ON_PREVIEW=1 with a separate preview DB to enable).`);
+    return;
+  }
+
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const result = spawnSync("npx", ["prisma", "migrate", "deploy"], {
       stdio: "inherit",

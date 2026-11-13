@@ -197,3 +197,14 @@ model UserEmailSubscription {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+
+// Failed/attempted auth actions for rate limiting (login, register).
+// Rows older than a day are pruned opportunistically.
+model AuthAttempt {
+  id        String   @id @default(cuid())
+  key       String   // e.g. "login:email:foo@bar.com", "login:ip:1.2.3.4", "register:ip:1.2.3.4"
+  createdAt DateTime @default(now())
+
+  @@index([key, createdAt])
+  @@index([createdAt])
+}

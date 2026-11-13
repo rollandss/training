@@ -5,7 +5,18 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
+import {
+  RATE_LIMIT_MESSAGE,
+  clearAttempts,
+  clientIp,
+  isRateLimited,
+  loginRules,
+  recordAttempt,
+  registerRules,
+} from "@/lib/rate-limit";
 import { clearSession, createSession } from "@/lib/session";
+
+const DUMMY_HASH = "$2b$12$UwnsmXQwmAuSAQczE5qs3uNoNLoe8dkX7B3vemRNvgpu.y9YNmTQy";
 
 export type AuthFormState = { error: string } | undefined;
 
@@ -24,12 +35,18 @@ export async function registerAction(_prev: AuthFormState, formData: FormData): 
   }
   const email = parsed.data.email.trim().toLowerCase();
   const password = parsed.data.password.trim();
+  const ip = await clientIp();
+  const regRules = registerRules(ip);
+  if (await isRateLimited(regRules)) {
+    return { error: RATE_LIMIT_MESSAGE };
+  }
   const exists = await prisma.user.findFirst({
     where: { email: { equals: email, mode: "insensitive" } },
   });
   if (exists) {
     return { error: "Користувач з таким email уже існує" };
   }
+  await recordAttempt(regRules.map((r) => r.key));
   const passwordHash = await bcrypt.hash(password, 12);
   const user = await prisma.user.create({
     data: {
@@ -56,17 +73,21 @@ export async function loginAction(_prev: AuthFormState, formData: FormData): Pro
   }
   const email = parsed.data.email.trim().toLowerCase();
   const password = parsed.data.password.trim();
+  const rules = loginRules(email, await clientIp());
+  if (await isRateLimited(rules)) {
+    return { error: RATE_LIMIT_MESSAGE };
+  }
   const user = await prisma.user.findFirst({
     where: { email: { equals: email, mode: "insensitive" } },
     include: { profile: true },
   });
-  if (!user) {
+  // Compare against a dummy hash when the user is missing so timing doesn't reveal which emails exist.
+  const ok = await bcrypt.compare(password, user?.passwordHash ?? DUMMY_HASH);
+  if (!user || !ok) {
+    await recordAttempt(rules.map((r) => r.key));
     return { error: "Невірний email або пароль" };
   }
-  const ok = await bcrypt.compare(password, user.passwordHash);
-  if (!ok) {
-    return { error: "Невірний email або пароль" };
-  }
+  await clearAttempts([rules[0].key]);
   await createSession({
     sub: user.id,
     email: user.email,
