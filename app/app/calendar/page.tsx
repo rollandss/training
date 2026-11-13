@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { diffDaysUTC, isCalendarDayEditable } from "@/lib/calendar-access";
 import { CALENDAR_STATUS_ORDER, CALENDAR_STATUS_UI } from "@/lib/calendar-status";
-import { unlockedProgramDay } from "@/lib/progress";
+import { calendarDate, dayKeyFromCalendarDate, unlockedProgramDay } from "@/lib/progress";
 import { getCurrentUser } from "@/lib/auth";
 import { getPostCatalogCached } from "@/lib/post-cache";
 import { prisma } from "@/lib/prisma";
@@ -36,10 +36,6 @@ function addMonthsUTC(d: Date, delta: number) {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + delta, 1));
 }
 
-function startOfDayUTC(d: Date) {
-  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
-}
-
 const WEEKDAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"] as const;
 
 export default async function CalendarPage({
@@ -56,11 +52,11 @@ export default async function CalendarPage({
   const monthParam = typeof sp.m === "string" ? sp.m : Array.isArray(sp.m) ? sp.m[0] : undefined;
   const monthStart = monthParam ? monthKeyToUTCDate(monthParam) : null;
 
-  const startedAt = new Date(up.startedAt);
-  const programStart = startOfDayUTC(startedAt);
-  const programMonthStart = new Date(Date.UTC(startedAt.getUTCFullYear(), startedAt.getUTCMonth(), 1));
-  const now = new Date();
-  const currentMonthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+  // Calendar dates in APP_TIMEZONE (UTC-midnight Dates), see lib/progress.ts.
+  const programStart = calendarDate(new Date(up.startedAt));
+  const programMonthStart = new Date(Date.UTC(programStart.getUTCFullYear(), programStart.getUTCMonth(), 1));
+  const today = calendarDate(new Date());
+  const currentMonthStart = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1));
   const start = monthStart ?? currentMonthStart;
   const clampedStart = start.getTime() < programMonthStart.getTime() ? programMonthStart : start;
   const prevMonth = addMonthsUTC(clampedStart, -1);
@@ -69,11 +65,11 @@ export default async function CalendarPage({
   const nextKey = `${nextMonth.getUTCFullYear()}-${pad2(nextMonth.getUTCMonth() + 1)}`;
   const prevLocked = prevMonth.getTime() < programMonthStart.getTime();
   // Days unlock one per day, so a month that starts after today has nothing to edit yet.
-  const nextLocked = nextMonth.getTime() > startOfDayUTC(now).getTime();
+  const nextLocked = nextMonth.getTime() > today.getTime();
   const monthLabel = new Intl.DateTimeFormat("uk-UA", { month: "long", year: "numeric", timeZone: "UTC" })
     .format(clampedStart)
     .replace(/\s*р\.$/, "");
-  const todayKey = toDayKeyUTC(now);
+  const todayKey = dayKeyFromCalendarDate(today);
   const openParam = typeof sp.open === "string" ? sp.open : undefined;
 
   const monthEndExclusive = new Date(Date.UTC(clampedStart.getUTCFullYear(), clampedStart.getUTCMonth() + 1, 1));
