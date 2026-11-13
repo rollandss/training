@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { CALENDAR_STATUS_ORDER, CALENDAR_STATUS_UI } from "@/lib/calendar-status";
 import { calendarDate } from "@/lib/progress";
 
 function pad2(n: number) {
@@ -25,6 +26,9 @@ export default async function AdminStatsPage() {
   const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
   const monthEnd = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
   const monthStartKey = toDayKeyUTC(monthStart);
+  const monthLabel = new Intl.DateTimeFormat("uk-UA", { month: "long", year: "numeric", timeZone: "UTC" })
+    .format(monthStart)
+    .replace(/\s*р\.$/, "");
   const monthEndKey = toDayKeyUTC(monthEnd);
 
   const monthCounts = await prisma.userCalendarDay.groupBy({
@@ -51,7 +55,6 @@ export default async function AdminStatsPage() {
   return (
     <div className="space-y-8">
       <div className="relative inline-flex flex-col gap-2 rounded-[var(--radius)] border-4 border-border bg-card p-4 shadow-[10px_10px_0px_0px_var(--color-border)]">
-        <div className="pointer-events-none absolute right-3 top-3 size-10 border-4 border-border bg-primary shadow-[6px_6px_0px_0px_var(--color-border)]" />
         <h1 className="text-3xl font-extrabold uppercase tracking-wider">Статистика</h1>
         <p className="text-muted-foreground text-sm font-semibold">Загальні метрики і активність через календарні позначки.</p>
       </div>
@@ -67,18 +70,18 @@ export default async function AdminStatsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Стартували програму</CardTitle>
-            <CardDescription>Записи `UserProgram`</CardDescription>
+            <CardDescription>Пройшли онбординг</CardDescription>
           </CardHeader>
           <CardContent className="text-3xl font-black">{totalPrograms}</CardContent>
         </Card>
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Активні</CardTitle>
-            <CardDescription>Є позначки в календарі</CardDescription>
+            <CardDescription>Ставили позначки в календарі</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
-            <Badge className="bg-primary text-primary-foreground">7д: {activeLast7.length}</Badge>
-            <Badge variant="secondary">30д: {activeLast30.length}</Badge>
+            <Badge className="bg-primary text-primary-foreground">За 7 днів: {activeLast7.length}</Badge>
+            <Badge variant="secondary">За 30 днів: {activeLast30.length}</Badge>
           </CardContent>
         </Card>
       </div>
@@ -86,16 +89,14 @@ export default async function AdminStatsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Позначки за місяць</CardTitle>
-          <CardDescription>
-            Діапазон: <span className="font-mono text-xs">{monthStartKey}</span> …{" "}
-            <span className="font-mono text-xs">{monthEndKey}</span>
-          </CardDescription>
+          <CardDescription className="first-letter:uppercase">{monthLabel}</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
-          <Badge className="bg-primary text-primary-foreground">TRAINING: {monthMap.get("TRAINING") ?? 0}</Badge>
-          <Badge className="bg-accent text-accent-foreground">STRETCHING: {monthMap.get("STRETCHING") ?? 0}</Badge>
-          <Badge variant="secondary">REST: {monthMap.get("REST") ?? 0}</Badge>
-          <Badge variant="outline">SICK: {monthMap.get("SICK") ?? 0}</Badge>
+                    {CALENDAR_STATUS_ORDER.map((status) => (
+            <Badge key={status} className={CALENDAR_STATUS_UI[status].pickerClassName}>
+              {CALENDAR_STATUS_UI[status].label}: {monthMap.get(status) ?? 0}
+            </Badge>
+          ))}
         </CardContent>
       </Card>
     </div>

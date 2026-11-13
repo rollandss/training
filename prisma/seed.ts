@@ -352,7 +352,7 @@ async function main() {
     program = await prisma.program.update({
       where: { id: program.id },
       data: {
-        name: "Сотка: 100 днів (турнік)",
+        name: "Стоденка: 100 днів (турнік)",
         description:
           "Статична 100-денна програма з турніком: тяга, віджимання, ноги, кор. Українською; структура натхненна класичним курсом «Сотка».",
         durationDays: 100,
@@ -362,7 +362,7 @@ async function main() {
     program = await prisma.program.create({
       data: {
         slug: "100-dniv",
-        name: "Сотка: 100 днів (турнік)",
+        name: "Стоденка: 100 днів (турнік)",
         description:
           "Статична 100-денна програма з турніком: тяга, віджимання, ноги, кор. Українською; структура натхненна класичним курсом «Сотка».",
         durationDays: 100,

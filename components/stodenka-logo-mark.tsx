@@ -8,7 +8,7 @@ type StodenkaLogoMarkProps = {
 export function StodenkaLogoMark({ className, title = "Стоденка" }: StodenkaLogoMarkProps) {
   return (
     <svg
-      viewBox="0 0 200 80"
+      viewBox="0 0 250 80"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-label={title}
@@ -23,7 +23,7 @@ export function StodenkaLogoMark({ className, title = "Стоденка" }: Stod
           fontFamily="Arial, Helvetica, ui-sans-serif, system-ui, sans-serif"
           fontSize="45"
           fontWeight="700"
-          fill="#222222"
+          fill="currentColor"
         >
           10
         </text>
@@ -36,7 +36,7 @@ export function StodenkaLogoMark({ className, title = "Стоденка" }: Stod
           fontSize="18"
           fontWeight="700"
           letterSpacing="2"
-          fill="#444444"
+          fill="currentColor" fillOpacity="0.75"
         >
           СТОДЕНКА
         </text>

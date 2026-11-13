@@ -36,7 +36,7 @@ function metricLabel(metric: ExerciseMetric) {
 }
 
 function maxFieldLabel(metric: ExerciseMetric) {
-  return metric === "TIME" ? "Максимум секунд" : "Максимум повторень";
+  return metric === "TIME" ? "Ліміт лічильника, сек" : "Ліміт лічильника, повторів";
 }
 
 export function UserExercisesForm(props: { initial: UserExerciseView[] }) {
@@ -188,7 +188,11 @@ export function UserExercisesForm(props: { initial: UserExerciseView[] }) {
                     max={exercise.metric === "TIME" ? 3600 : 5000}
                     defaultValue={exercise.maxReps}
                     required
+                    aria-describedby={`exercise-max-hint-${exercise.id}`}
                   />
+                  <p id={`exercise-max-hint-${exercise.id}`} className="text-[11px] font-medium text-muted-foreground">
+                    Більше цього числа на тренуванні ввести не вийде — захист від описок. Це не ваш рекорд.
+                  </p>
                 </div>
                 {!exercise.isBuiltin ? (
                   <div className="grid gap-1.5 sm:col-span-2">
