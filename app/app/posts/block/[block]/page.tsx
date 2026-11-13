@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Lock } from "lucide-react";
 
+import { PostCover } from "@/components/post-cover";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { BlocksTabs } from "@/components/blocks-tabs";
@@ -59,18 +60,12 @@ export default async function PostsBlockPage({ params }: Props) {
               )}
             >
               <div className="relative h-36 w-full border-b-4 border-border bg-muted">
-                {post.imageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={post.imageUrl}
-                    alt={post.titleUk}
-                    className={cn("h-full w-full object-cover", locked && "grayscale contrast-75 brightness-90")}
-                  />
-                ) : (
-                  <div className="text-muted-foreground flex h-full items-center justify-center text-xs font-bold uppercase">
-                    Фото посту
-                  </div>
-                )}
+                <PostCover
+                  src={post.imageUrl}
+                  alt={post.titleUk}
+                  fallbackLabel={post.dayNumber ? `День ${post.dayNumber}` : "Підготовка"}
+                  className={cn(locked && "grayscale contrast-75 brightness-90")}
+                />
                 {locked ? (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/25">
                     <div className="bg-muted border-4 border-border p-3 shadow-[6px_6px_0px_0px_var(--color-border)]">
