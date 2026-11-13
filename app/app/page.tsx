@@ -5,7 +5,9 @@ import { TodayPostFeature } from "@/components/today-post-feature";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
+import { CALENDAR_STATUS_UI } from "@/lib/calendar-status";
 import { getPostByDayCached } from "@/lib/post-cache";
+import { prisma } from "@/lib/prisma";
 import { unlockedProgramDay } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 
@@ -39,7 +41,16 @@ export default async function AppDashboardPage() {
     );
   }
 
-  const dailyPost = await getPostByDayCached(currentDay);
+  const now = new Date();
+  const todayKey = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-${String(now.getUTCDate()).padStart(2, "0")}`;
+  const [dailyPost, todayMark] = await Promise.all([
+    getPostByDayCached(currentDay),
+    prisma.userCalendarDay.findUnique({
+      where: { userId_dayKey: { userId: user.id, dayKey: todayKey } },
+      select: { status: true },
+    }),
+  ]);
+  const todayStatus = todayMark?.status as keyof typeof CALENDAR_STATUS_UI | undefined;
 
   return (
     <TodayPostFeature
@@ -47,6 +58,8 @@ export default async function AppDashboardPage() {
       currentDay={currentDay}
       durationDays={program.durationDays}
       post={dailyPost}
+      todayKey={todayKey}
+      todayStatusLabel={todayStatus && CALENDAR_STATUS_UI[todayStatus] ? CALENDAR_STATUS_UI[todayStatus].label : null}
     />
   );
 }

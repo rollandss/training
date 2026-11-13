@@ -2,7 +2,9 @@
 
 import * as React from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { Lock } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { BookOpen, Lock } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -15,6 +17,7 @@ import { type TrainingVolumeMode } from "@/lib/calendar-access";
 import { CALENDAR_STATUS_UI } from "@/lib/calendar-status";
 import { summarizeTrainingLines } from "@/lib/user-exercise-utils";
 import { cn } from "@/lib/utils";
+import { formatDayKeyUk } from "@/lib/date-format";
 
 import { type TrainingDayFormValue, type TrainingExerciseLineFormValue, type TrainingVolumeProgress } from "./training-day-form";
 import { TrainingDaySessionForm } from "./training-day-session-form";
@@ -47,14 +50,27 @@ export function CalendarDayCell(props: {
   programDay: number;
   dayKey: string;
   locked: boolean;
+  isToday?: boolean;
+  /** Open the sheet on mount (e.g. /app/calendar?open=YYYY-MM-DD from the dashboard). */
+  defaultOpen?: boolean;
+  postSlug?: string | null;
   status?: CalendarStatus;
   trainingLines: TrainingExerciseLineFormValue[];
   training?: TrainingEntry;
 }) {
-  const { dayNum, programDay, dayKey, locked, status, trainingLines, training } = props;
+  const { dayNum, programDay, dayKey, locked, isToday, defaultOpen, postSlug, status, trainingLines, training } = props;
   const reduceMotion = useReducedMotion();
+  const router = useRouter();
 
-  const [open, setOpen] = React.useState(false);
+  /** Remove ?open=… so a reload doesn't pop the sheet again. */
+  const dropOpenParam = React.useCallback(() => {
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has("open")) return;
+    url.searchParams.delete("open");
+    router.replace(`${url.pathname}${url.search}`, { scroll: false });
+  }, [router]);
+
+  const [open, setOpen] = React.useState(Boolean(defaultOpen) && !locked);
   const [step, setStep] = React.useState<DayStep>("choose");
   const [localStatus, setLocalStatus] = React.useState<CalendarStatusOrNone>(status ?? "NONE");
   const [trainingConfig, setTrainingConfig] = React.useState<TrainingDayFormValue>(() =>
@@ -144,7 +160,9 @@ export function CalendarDayCell(props: {
     ? `${training.mode === "SETS" ? "Підх." : "Кіл"} ${training.rounds} · ${summarizeTrainingLines(training.lines)}`
     : null;
   const sessionActive = step === "session";
-  const canSaveFromChoose = localStatus !== "NONE" && localStatus !== "TRAINING";
+  // "NONE" is savable only when it clears an existing mark (previously the footer vanished, so clearing was impossible).
+  const canSaveFromChoose = localStatus !== "TRAINING" && (localStatus !== "NONE" || status != null);
+  const dateLabel = formatDayKeyUk(dayKey);
   const sessionKey = `${dayKey}-${trainingConfig.mode}-${trainingConfig.rounds}-${trainingConfig.lines.map((line) => line.exerciseId).join(",")}`;
 
   const volumeProgressLabel =
@@ -180,6 +198,7 @@ export function CalendarDayCell(props: {
         stopRestTimer();
         setStep("choose");
         setOpen(false);
+        if (defaultOpen) dropOpenParam();
       }}
     >
       <SheetTrigger
@@ -191,15 +210,30 @@ export function CalendarDayCell(props: {
               "relative flex h-14 w-full min-w-0 flex-col rounded-[var(--radius)] border-2 border-border bg-card p-1.5 text-left sm:h-[7rem] sm:border-4 sm:p-2 sm:shadow-[6px_6px_0px_0px_var(--color-border)]",
               status ? CALENDAR_STATUS_UI[status].cellClassName : "bg-card text-foreground",
               locked && "opacity-80",
+              isToday && "ring-4 ring-foreground ring-offset-2 ring-offset-background",
               !locked &&
                 "transition-[transform,box-shadow] sm:hover:-translate-x-0.5 sm:hover:-translate-y-0.5 sm:hover:shadow-[8px_8px_0px_0px_var(--color-border)] sm:active:translate-x-0.5 sm:active:translate-y-0.5",
             )}
-            aria-label={`Дата ${dayNum}`}
+            aria-label={`${dateLabel}, день ${programDay}${isToday ? ", сьогодні" : ""}`}
+            aria-current={isToday ? "date" : undefined}
           >
-            <div className="text-xs font-black sm:text-sm">{dayNum}</div>
+            <div className="flex items-baseline justify-between gap-1">
+              <span className="text-xs font-black sm:text-sm">{dayNum}</span>
+              {isToday ? (
+                <span className="hidden rounded-sm bg-foreground px-1 text-[10px] font-black uppercase tracking-wider text-background sm:inline">
+                  Сьогодні
+                </span>
+              ) : null}
+            </div>
 
             {status === "TRAINING" && trainingSummary ? (
               <div className="mt-1 hidden line-clamp-2 text-[11px] font-semibold opacity-90 sm:block">{trainingSummary}</div>
+            ) : null}
+
+            {!locked ? (
+              <div className="mt-auto hidden text-[10px] font-bold uppercase tracking-wider opacity-60 sm:block">
+                День {programDay}
+              </div>
             ) : null}
 
             {locked ? (
@@ -240,6 +274,7 @@ export function CalendarDayCell(props: {
               toast.success("День збережено");
               setStep("choose");
               setOpen(false);
+              if (defaultOpen) dropOpenParam();
             } catch {
               toast.error("Не вдалося зберегти день");
             }
@@ -267,9 +302,17 @@ export function CalendarDayCell(props: {
 
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3">
             <input type="hidden" name="status" value={localStatus} />
-            <CardDescription className="mb-3 text-xs">
-              Дата: <span className="font-mono">{dayKey}</span>
-            </CardDescription>
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <CardDescription className="text-xs font-semibold first-letter:uppercase">{dateLabel}</CardDescription>
+              {postSlug && step === "choose" ? (
+                <Link
+                  href={`/app/post/${postSlug}`}
+                  className="inline-flex items-center gap-1 text-xs font-black uppercase tracking-wider underline underline-offset-4"
+                >
+                  <BookOpen className="size-3.5" /> Пост дня {programDay}
+                </Link>
+              ) : null}
+            </div>
 
             <AnimatePresence mode="wait" initial={false}>
               {step === "choose" ? (
@@ -281,18 +324,6 @@ export function CalendarDayCell(props: {
                   transition={{ duration: 0.2 }}
                   className="grid gap-4"
                 >
-                <div className="grid gap-1.5">
-                  <Label htmlFor={`notes-${dayKey}`} className="text-xs">
-                    Нотатки (опц.)
-                  </Label>
-                  <Textarea
-                    id={`notes-${dayKey}`}
-                    rows={3}
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Напр.: важко на останніх колах..."
-                  />
-                </div>
                 <div className="grid gap-2">
                 <CardTitle className="text-base font-black">Тип дня</CardTitle>
                 <div className="grid grid-cols-2 gap-2">
@@ -320,18 +351,32 @@ export function CalendarDayCell(props: {
                       ) : null}
                     </button>
                   ))}
-                  <button
-                    type="button"
-                    onClick={() => setLocalStatus("NONE")}
-                    className={cn(
-                      "col-span-2 rounded-[var(--radius)] border-4 border-border bg-background px-3 py-3 text-left text-xs font-black uppercase tracking-wider shadow-[6px_6px_0px_0px_var(--color-border)] transition-[transform,box-shadow] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0px_0px_var(--color-border)] active:translate-x-0.5 active:translate-y-0.5",
-                      localStatus === "NONE" && "bg-muted",
-                    )}
-                    aria-pressed={localStatus === "NONE"}
-                  >
-                    Очистити (—)
-                  </button>
+                  {status ? (
+                    <button
+                      type="button"
+                      onClick={() => setLocalStatus("NONE")}
+                      className={cn(
+                        "col-span-2 rounded-[var(--radius)] border-4 border-dashed border-border bg-background px-3 py-2.5 text-left text-xs font-black uppercase tracking-wider transition-colors hover:bg-muted",
+                        localStatus === "NONE" && "bg-muted",
+                      )}
+                      aria-pressed={localStatus === "NONE"}
+                    >
+                      Зняти позначку
+                    </button>
+                  ) : null}
                 </div>
+                </div>
+                <div className="grid gap-1.5">
+                  <Label htmlFor={`notes-${dayKey}`} className="text-xs">
+                    Нотатки (опц.)
+                  </Label>
+                  <Textarea
+                    id={`notes-${dayKey}`}
+                    rows={3}
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Напр.: важко на останніх колах..."
+                  />
                 </div>
                 {localStatus === "TRAINING" ? (
                   <div className="grid gap-2 sm:grid-cols-2">
