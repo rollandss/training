@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
+import { PostCover } from "@/components/post-cover";
 import { PostBody } from "@/components/post-body";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -45,8 +46,9 @@ export default async function PostDetailsPage({ params }: Props) {
           <CardContent className="space-y-5">
             {post.imageUrl ? (
               <div className="overflow-hidden rounded-[var(--radius)] border-4 border-border shadow-[10px_10px_0px_0px_var(--color-border)]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={post.imageUrl} alt={post.titleUk} className="h-auto max-h-[520px] w-full object-cover" />
+                <div className="aspect-[16/9] max-h-[520px] w-full">
+                  <PostCover src={post.imageUrl} alt={post.titleUk} />
+                </div>
               </div>
             ) : null}
             <PostBody body={post.bodyUk} />

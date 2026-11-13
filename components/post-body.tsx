@@ -1,7 +1,6 @@
 import "server-only";
 
-import { postBodyLooksLikeHtml } from "@/lib/post-text";
-import { sanitizePostHtml } from "@/lib/sanitize-post";
+import { postBodyToHtml } from "@/lib/post-html";
 import { cn } from "@/lib/utils";
 
 type PostBodyProps = {
@@ -10,18 +9,10 @@ type PostBodyProps = {
 };
 
 export function PostBody({ body, className }: PostBodyProps) {
-  if (postBodyLooksLikeHtml(body)) {
-    return (
-      <article
-        className={cn("post-body text-base leading-7 text-foreground/95 md:text-lg md:leading-8", className)}
-        dangerouslySetInnerHTML={{ __html: sanitizePostHtml(body) }}
-      />
-    );
-  }
-
   return (
-    <article className={cn("whitespace-pre-wrap text-base leading-7 text-foreground/95 md:text-lg md:leading-8", className)}>
-      {body}
-    </article>
+    <article
+      className={cn("post-body text-base leading-7 text-foreground/95 md:text-lg md:leading-8", className)}
+      dangerouslySetInnerHTML={{ __html: postBodyToHtml(body) }}
+    />
   );
 }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { CalendarDays, LibraryBig } from "lucide-react";
 
 import { MotionReveal } from "@/components/motion-ui";
+import { PostCover } from "@/components/post-cover";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { excerptPostBody } from "@/lib/post-text";
@@ -62,15 +63,8 @@ export function TodayPostFeature({ programName, currentDay, durationDays, post }
             href={`/app/post/${post.slug}`}
             className="group block overflow-hidden rounded-[var(--radius)] border-4 border-border bg-card shadow-[10px_10px_0px_0px_var(--color-border)] transition-[transform,box-shadow] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[12px_12px_0px_0px_var(--color-border)] active:translate-x-0.5 active:translate-y-0.5"
           >
-            <div className="relative aspect-[16/9] w-full border-b-4 border-border bg-muted sm:aspect-[21/9]">
-              {post.imageUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={post.imageUrl} alt={post.titleUk} className="h-full w-full object-cover" />
-              ) : (
-                <div className="flex h-full items-center justify-center px-6 text-center text-xs font-black uppercase tracking-wider text-muted-foreground">
-                  Матеріал дня без обкладинки
-                </div>
-              )}
+            <div className="relative aspect-[16/9] w-full border-b-4 border-border bg-muted sm:aspect-auto sm:h-72">
+              <PostCover src={post.imageUrl} alt={post.titleUk} />
               <div className="absolute left-3 top-3 flex flex-wrap gap-2">
                 <Badge variant="secondary">{getPostBlockLabel(post.block)}</Badge>
                 <Badge variant="outline">День {currentDay}</Badge>

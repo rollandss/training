@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TiptapPostEditor } from "@/components/tiptap-post-editor";
+import { postBodyToHtml } from "@/lib/post-html";
 import { getPostBlockLabel, parsePostBlockSlug, POST_BLOCKS, POST_BLOCK_LABELS, type PostBlock } from "@/lib/posts";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
@@ -170,7 +171,8 @@ export default async function AdminPostsPage({ searchParams }: Props) {
                       id="selected-body"
                       name="bodyUk"
                       editorKey={selectedPost.id}
-                      defaultValue={selectedPost.bodyUk}
+                      // Legacy markdown bodies are converted so TipTap keeps their structure; saving stores HTML.
+                      defaultValue={postBodyToHtml(selectedPost.bodyUk)}
                       minHeightClassName="min-h-[360px]"
                     />
                   </div>
