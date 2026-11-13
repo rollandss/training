@@ -13,12 +13,13 @@ import { cn } from "@/lib/utils";
 
 import { AdminMutationForm } from "./admin-mutation-form";
 import { createUserAction, updateUserRoleAction } from "./actions";
+import { calendarDate } from "@/lib/progress";
 
 function pad2(n: number) {
   return String(n).padStart(2, "0");
 }
 
-function monthRangeUTC(d = new Date()) {
+function monthRangeUTC(d = calendarDate(new Date())) {
   const start = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1));
   const end = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1));
   const startKey = `${start.getUTCFullYear()}-${pad2(start.getUTCMonth() + 1)}-${pad2(start.getUTCDate())}`;

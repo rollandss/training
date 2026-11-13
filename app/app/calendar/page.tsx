@@ -3,8 +3,9 @@ import { redirect } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { diffDaysUTC, isCalendarDayEditable } from "@/lib/calendar-access";
 import { CALENDAR_STATUS_ORDER, CALENDAR_STATUS_UI } from "@/lib/calendar-status";
-import { unlockedProgramDay } from "@/lib/progress";
+import { calendarDate, dayKeyFromCalendarDate, unlockedProgramDay } from "@/lib/progress";
 import { getCurrentUser } from "@/lib/auth";
+import { getPostCatalogCached } from "@/lib/post-cache";
 import { prisma } from "@/lib/prisma";
 import { resolveTrainingReps, trainingRepsFromEntry, trainingRepsFromProfile } from "@/lib/training-exercises";
 import { buildTrainingLinesForForm, legacyRepsFromEntry } from "@/lib/user-exercise-utils";
@@ -35,10 +36,6 @@ function addMonthsUTC(d: Date, delta: number) {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + delta, 1));
 }
 
-function startOfDayUTC(d: Date) {
-  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
-}
-
 const WEEKDAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"] as const;
 
 export default async function CalendarPage({
@@ -55,19 +52,25 @@ export default async function CalendarPage({
   const monthParam = typeof sp.m === "string" ? sp.m : Array.isArray(sp.m) ? sp.m[0] : undefined;
   const monthStart = monthParam ? monthKeyToUTCDate(monthParam) : null;
 
-  const startedAt = new Date(up.startedAt);
-  const programStart = startOfDayUTC(startedAt);
-  const programMonthStart = new Date(Date.UTC(startedAt.getUTCFullYear(), startedAt.getUTCMonth(), 1));
-  const now = new Date();
-  const currentMonthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+  // Calendar dates in APP_TIMEZONE (UTC-midnight Dates), see lib/progress.ts.
+  const programStart = calendarDate(new Date(up.startedAt));
+  const programMonthStart = new Date(Date.UTC(programStart.getUTCFullYear(), programStart.getUTCMonth(), 1));
+  const today = calendarDate(new Date());
+  const currentMonthStart = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1));
   const start = monthStart ?? currentMonthStart;
   const clampedStart = start.getTime() < programMonthStart.getTime() ? programMonthStart : start;
-  const monthKey = `${clampedStart.getUTCFullYear()}-${pad2(clampedStart.getUTCMonth() + 1)}`;
   const prevMonth = addMonthsUTC(clampedStart, -1);
   const nextMonth = addMonthsUTC(clampedStart, 1);
   const prevKey = `${prevMonth.getUTCFullYear()}-${pad2(prevMonth.getUTCMonth() + 1)}`;
   const nextKey = `${nextMonth.getUTCFullYear()}-${pad2(nextMonth.getUTCMonth() + 1)}`;
   const prevLocked = prevMonth.getTime() < programMonthStart.getTime();
+  // Days unlock one per day, so a month that starts after today has nothing to edit yet.
+  const nextLocked = nextMonth.getTime() > today.getTime();
+  const monthLabel = new Intl.DateTimeFormat("uk-UA", { month: "long", year: "numeric", timeZone: "UTC" })
+    .format(clampedStart)
+    .replace(/\s*р\.$/, "");
+  const todayKey = dayKeyFromCalendarDate(today);
+  const openParam = typeof sp.open === "string" ? sp.open : undefined;
 
   const monthEndExclusive = new Date(Date.UTC(clampedStart.getUTCFullYear(), clampedStart.getUTCMonth() + 1, 1));
   const daysInMonth = Math.round((monthEndExclusive.getTime() - clampedStart.getTime()) / (1000 * 60 * 60 * 24));
@@ -140,6 +143,11 @@ export default async function CalendarPage({
     trainingRepsFromProfile(user.profile),
   );
 
+  const catalog = await getPostCatalogCached();
+  const postSlugByDay = new Map(
+    catalog.filter((p) => p.dayNumber != null).map((p) => [p.dayNumber as number, p.slug]),
+  );
+
   const unlockedDay = unlockedProgramDay({
     cursorDay: up.cursorDay,
     startedAt: up.startedAt,
@@ -160,6 +168,7 @@ export default async function CalendarPage({
           <a
             href={prevLocked ? undefined : `/app/calendar?m=${prevKey}`}
             aria-disabled={prevLocked}
+            aria-label="Попередній місяць"
             className={[
               "rounded-[var(--radius)] border-2 border-border bg-background px-3 py-2 text-sm font-black uppercase tracking-wider sm:border-4 sm:shadow-[4px_4px_0px_0px_var(--color-border)]",
               prevLocked
@@ -170,21 +179,28 @@ export default async function CalendarPage({
             ←
           </a>
           <div className="rounded-[var(--radius)] border-2 border-border bg-card px-3 py-2 text-center text-sm font-black uppercase tracking-wider sm:border-4 sm:px-4 sm:shadow-[4px_4px_0px_0px_var(--color-border)]">
-            {monthKey}
+            {monthLabel}
           </div>
           <a
-            href={`/app/calendar?m=${nextKey}`}
-            className="rounded-[var(--radius)] border-2 border-border bg-background px-3 py-2 text-sm font-black uppercase tracking-wider sm:border-4 sm:shadow-[4px_4px_0px_0px_var(--color-border)] sm:hover:-translate-x-0.5 sm:hover:-translate-y-0.5 sm:hover:shadow-[6px_6px_0px_0px_var(--color-border)]"
+            href={nextLocked ? undefined : `/app/calendar?m=${nextKey}`}
+            aria-disabled={nextLocked}
+            aria-label="Наступний місяць"
+            className={cn(
+              "rounded-[var(--radius)] border-2 border-border bg-background px-3 py-2 text-sm font-black uppercase tracking-wider sm:border-4 sm:shadow-[4px_4px_0px_0px_var(--color-border)]",
+              nextLocked
+                ? "pointer-events-none opacity-50"
+                : "sm:hover:-translate-x-0.5 sm:hover:-translate-y-0.5 sm:hover:shadow-[6px_6px_0px_0px_var(--color-border)]",
+            )}
           >
             →
           </a>
         </CardContent>
       </Card>
 
-      <div className="flex flex-wrap gap-2 text-xs font-semibold text-muted-foreground">
+      <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs font-bold text-foreground">
         {CALENDAR_STATUS_ORDER.map((status) => (
           <div key={status} className="inline-flex items-center gap-2">
-            <span className={cn("size-3 rounded-sm border border-border", CALENDAR_STATUS_UI[status].cellClassName)} />
+            <span className={cn("size-4 rounded-sm border-2 border-border", CALENDAR_STATUS_UI[status].cellClassName)} />
             <span>{CALENDAR_STATUS_UI[status].label}</span>
           </div>
         ))}
@@ -208,7 +224,15 @@ export default async function CalendarPage({
 
           // Don't show days before program start (in the first month).
           if (date.getTime() < programStart.getTime()) {
-            return <div key={`prestart-${dayKey}`} className="h-14 rounded-[var(--radius)] border-2 border-border bg-card/40 sm:h-[7rem] sm:border-4" />;
+            return (
+              <div
+                key={`prestart-${dayKey}`}
+                className="h-14 rounded-[var(--radius)] border-2 border-dashed border-border/50 bg-card/30 p-1.5 text-xs font-black text-muted-foreground/70 sm:h-[7rem] sm:border-4 sm:p-2 sm:text-sm"
+                title="До старту програми"
+              >
+                {dayNum}
+              </div>
+            );
           }
 
           const status = byDayKey.get(dayKey);
@@ -242,6 +266,9 @@ export default async function CalendarPage({
               programDay={programDay}
               dayKey={dayKey}
               locked={locked}
+              isToday={dayKey === todayKey}
+              defaultOpen={openParam === dayKey}
+              postSlug={postSlugByDay.get(programDay) ?? null}
               status={status}
               trainingLines={trainingLines}
               training={

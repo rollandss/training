@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CalendarDays, LibraryBig } from "lucide-react";
+import { CalendarDays, CircleCheck, LibraryBig } from "lucide-react";
 
 import { MotionReveal } from "@/components/motion-ui";
 import { PostCover } from "@/components/post-cover";
@@ -24,9 +24,19 @@ type TodayPostFeatureProps = {
   currentDay: number;
   durationDays: number;
   post: TodayPost | null;
+  todayKey: string;
+  /** Label of today's calendar mark, or null if the day isn't marked yet. */
+  todayStatusLabel: string | null;
 };
 
-export function TodayPostFeature({ programName, currentDay, durationDays, post }: TodayPostFeatureProps) {
+export function TodayPostFeature({
+  programName,
+  currentDay,
+  durationDays,
+  post,
+  todayKey,
+  todayStatusLabel,
+}: TodayPostFeatureProps) {
   const progress = Math.min(100, Math.round((currentDay / durationDays) * 100));
 
   return (
@@ -104,17 +114,17 @@ export function TodayPostFeature({ programName, currentDay, durationDays, post }
       <MotionReveal delay={0.1}>
         <div className="grid gap-3 sm:grid-cols-2">
           <Link
-            href="/app/calendar"
+            href={`/app/calendar?open=${todayKey}`}
             className={cn(
-              buttonVariants({ variant: "outline" }),
+              buttonVariants({ variant: todayStatusLabel ? "outline" : "default" }),
               "h-auto min-h-14 justify-start gap-3 px-4 py-3 text-left font-black uppercase tracking-wider",
             )}
           >
-            <CalendarDays className="size-5 shrink-0" />
+            {todayStatusLabel ? <CircleCheck className="size-5 shrink-0" /> : <CalendarDays className="size-5 shrink-0" />}
             <span className="space-y-0.5">
-              <span className="block text-sm">Календар</span>
-              <span className="block text-xs font-semibold normal-case tracking-normal text-muted-foreground">
-                Познач день і проведи тренування
+              <span className="block text-sm">{todayStatusLabel ? `Сьогодні: ${todayStatusLabel}` : "Відмітити сьогодні"}</span>
+              <span className="block text-xs font-semibold normal-case tracking-normal opacity-80">
+                {todayStatusLabel ? "Змінити або подивитись у календарі" : "Тренування, розтяжка, відпочинок чи хвороба"}
               </span>
             </span>
           </Link>
