@@ -44,12 +44,15 @@ function ToolbarButton({ label, active, disabled, onClick, children }: ToolbarBu
     <Button
       type="button"
       size="icon-sm"
-      variant={active ? "secondary" : "outline"}
+      variant="outline"
       aria-label={label}
       aria-pressed={active}
       disabled={disabled}
       onClick={onClick}
-      className="border-2 border-border shadow-[2px_2px_0px_0px_var(--color-border)]"
+      className={cn(
+        "border-2 shadow-none hover:translate-x-0 hover:translate-y-0 hover:shadow-none active:translate-x-0 active:translate-y-0",
+        active && "bg-foreground text-background hover:bg-foreground",
+      )}
     >
       {children}
     </Button>
@@ -88,7 +91,7 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
   };
 
   return (
-    <div className="shrink-0 flex flex-wrap gap-1 border-b-4 border-border bg-card p-2 shadow-[0_4px_0px_0px_var(--color-border)]">
+    <div className="shrink-0 flex flex-wrap gap-1 border-b-2 border-border bg-muted p-2">
       <ToolbarButton
         label="Жирний"
         active={editor.isActive("bold")}
@@ -284,7 +287,7 @@ export function TiptapPostEditor({
     <div
       id={id}
       className={cn(
-        "flex flex-col overflow-hidden rounded-[var(--radius)] border-4 border-border bg-background shadow-[4px_4px_0px_0px_var(--color-border)]",
+        "flex flex-col overflow-hidden rounded-[var(--radius)] border-4 border-border bg-input shadow-[4px_4px_0px_0px_var(--color-border)]",
         maxHeightClassName,
       )}
     >

@@ -37,7 +37,7 @@ export default async function PostDetailsPage({ params }: Props) {
         Усі пости
       </Link>
       <p className="mt-8 text-base font-bold">
-        {post.dayNumber ? `День ${post.dayNumber}, ${getPostBlockLabel(post.block).toLowerCase()} блок` : "Перед стартом"}
+        {post.dayNumber ? `День ${post.dayNumber} · ${getPostBlockLabel(post.block)}` : "Перед стартом"}
       </p>
       <h1 className="font-display mt-2 text-[clamp(2rem,5.5vw,3rem)] font-black leading-[1.05] tracking-[-0.02em]">{title}</h1>
       {post.imageUrl ? (

@@ -2,7 +2,9 @@ import { redirect } from "next/navigation";
 
 import { SubmitButton } from "@/components/submit-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Panel } from "@/components/ui/panel";
+import { PageHeader } from "@/components/page-header";
 import { getCurrentUser } from "@/lib/auth";
 import { canSendEmail } from "@/lib/email";
 import { prisma } from "@/lib/prisma";
@@ -42,24 +44,25 @@ export default async function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-8">
-      <div>
-        <h1 className="font-display text-[clamp(2.25rem,6vw,3.25rem)] font-black leading-[1] tracking-[-0.02em]">Налаштування</h1>
-        <p className="mt-3 text-base font-medium">Твої максимуми, вправи для тренувань і пошта.</p>
-      </div>
+      <PageHeader title="Налаштування" description="Твої максимуми, вправи для тренувань і пошта." />
 
       <Card>
         <CardHeader>
           <CardTitle>Стартові максимуми</CardTitle>
           <CardDescription>
-            Ці цифри з підготовчих постів стають стартовими повтореннями в календарі. Після кожного збереженого
-            тренування вони оновлюються, якщо ви зробили більше.
+            З них календар рахує стартові повторення. Після кожного тренування цифри оновлюються, якщо ти зробив
+            більше.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <ExerciseBaselineForm initial={trainingRepsFromProfile(profile)} />
-          <Link href="/app/posts/block/preparation" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
-            Підготовчі пости про тест максимумів
-          </Link>
+        <CardContent>
+          <ExerciseBaselineForm
+            initial={trainingRepsFromProfile(profile)}
+            footer={
+              <Link href="/app/posts/block/preparation" className={cn(buttonVariants({ variant: "outline" }))}>
+                Як тестувати максимуми
+              </Link>
+            }
+          />
         </CardContent>
       </Card>
 
@@ -67,7 +70,7 @@ export default async function SettingsPage() {
         <CardHeader>
           <CardTitle>Мої вправи</CardTitle>
           <CardDescription>
-            Увімкни вправи для тренування, змінюй порядок і додавай свої: повтори або час (наприклад планка).
+            Обирай, які вправи входять у тренування, міняй порядок і додавай свої — на повтори або на час.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -85,18 +88,10 @@ export default async function SettingsPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <form action={setEmailSubscriptionEnabledAction} className="grid gap-3">
-            <div className="flex items-center gap-3">
-              <input
-                id="email-enabled"
-                name="enabled"
-                type="checkbox"
-                defaultChecked={sub?.enabled ?? false}
-                className="size-5 accent-black"
-              />
-              <Label htmlFor="email-enabled" className="font-black">
-                Увімкнути щоденні листи
-              </Label>
-            </div>
+            <label className="flex w-fit cursor-pointer items-center gap-3 text-sm font-bold">
+              <Checkbox name="enabled" value="on" defaultChecked={sub?.enabled ?? false} />
+              Увімкнути щоденні листи
+            </label>
             <SubmitButton className="w-fit" pendingLabel="Зберігаю...">
               Зберегти
             </SubmitButton>
@@ -106,9 +101,9 @@ export default async function SettingsPage() {
             сьогоднішній день ще не відкрився або пост не опубліковано — листа не буде.
           </p>
           {!emailReady ? (
-            <p className="rounded-[var(--radius)] border-4 border-dashed border-border bg-background p-3 text-sm font-medium">
-              Розсилка ще не запущена. Можете ввімкнути зараз — листи почнуть приходити, щойно її налаштують.
-            </p>
+            <Panel tone="dashed" className="text-sm font-medium">
+              Розсилка ще не запущена. Можеш увімкнути зараз — листи почнуть приходити, щойно її налаштують.
+            </Panel>
           ) : null}
           {user.role === "ADMIN" && !emailReady ? (
             <p className="text-xs font-medium text-muted-foreground">

@@ -15,16 +15,28 @@ import { cn } from "@/lib/utils";
 type Props = {
   email: string;
   isAdmin?: boolean;
+  /** Which navigation set to show. The header itself is the same everywhere. */
+  section?: "app" | "admin";
 };
 
-const NAV_ITEMS = [
+type NavItem = { href: string; label: string };
+
+const APP_NAV: NavItem[] = [
   { href: "/app", label: "Сьогодні" },
   { href: "/app/calendar", label: "Календар" },
   { href: "/app/posts", label: "Усі пости" },
-] as const;
+];
+
+const ADMIN_NAV: NavItem[] = [
+  { href: "/admin", label: "Огляд" },
+  { href: "/admin/users", label: "Користувачі" },
+  { href: "/admin/posts", label: "Пости" },
+  { href: "/admin/stats", label: "Статистика" },
+];
 
 function isNavActive(pathname: string, href: string) {
   if (href === "/app") return pathname === "/app" || pathname.startsWith("/app/post/");
+  if (href === "/admin") return pathname === "/admin";
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -49,10 +61,15 @@ function NavLink(props: { href: string; label: string; onNavigate?: () => void; 
   );
 }
 
-export function AppShell({ email, isAdmin }: Props) {
+export function AppShell({ email, isAdmin, section = "app" }: Props) {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const closeMenu = React.useCallback(() => setMenuOpen(false), []);
-  const items = isAdmin ? [...NAV_ITEMS, { href: "/admin", label: "Адмінка" } as const] : NAV_ITEMS;
+  const items: NavItem[] =
+    section === "admin"
+      ? [...ADMIN_NAV, { href: "/app", label: "Кабінет" }]
+      : isAdmin
+        ? [...APP_NAV, { href: "/admin", label: "Адмінка" }]
+        : APP_NAV;
 
   return (
     <header className="border-b-4 border-border bg-card">
@@ -77,7 +94,14 @@ export function AppShell({ email, isAdmin }: Props) {
           </SheetContent>
         </Sheet>
 
-        <SiteLogo href="/app" onClick={closeMenu} markClassName="h-9 w-auto" />
+        <div className="flex items-center gap-3">
+          <SiteLogo href={section === "admin" ? "/admin" : "/app"} onClick={closeMenu} markClassName="h-9 w-auto" />
+          {section === "admin" ? (
+            <span className="rounded-[var(--radius)] border-2 border-border bg-secondary px-2 py-0.5 text-xs font-bold text-secondary-foreground">
+              Адмінка
+            </span>
+          ) : null}
+        </div>
 
         <nav className="hidden items-center gap-5 md:flex" aria-label="Розділи">
           {items.map((item) => (

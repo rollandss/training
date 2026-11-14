@@ -1,5 +1,10 @@
 import { deletePostAction, updatePostAction } from "@/app/admin/actions";
 import { AdminPostsTabs } from "@/components/admin-posts-tabs";
+import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
+import { PageHeader } from "@/components/page-header";
+import { pluralUk } from "@/lib/plural";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Panel } from "@/components/ui/panel";
 import { SubmitButton } from "@/components/submit-button";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -56,139 +61,137 @@ export default async function AdminPostsPage({ searchParams }: Props) {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Пости</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            {activeBlock === "PREPARATION"
-              ? "Підготовчі пости без номера дня. Оберіть запис у списку або створіть новий."
-              : "У списку лише метадані, редагується один обраний пост."}
-          </p>
-        </div>
-        <Link href={adminNewPostHref(activeBlock)} className={cn(buttonVariants())}>
-          Новий пост
-        </Link>
-      </div>
+      <PageHeader
+        title="Пости"
+        description={
+          activeBlock === "PREPARATION"
+            ? "Підготовчі пости без номера дня."
+            : "Обери пост у списку, щоб відредагувати його."
+        }
+        actions={
+          <Link href={adminNewPostHref(activeBlock)} className={cn(buttonVariants())}>
+            Новий пост
+          </Link>
+        }
+      />
 
       <AdminPostsTabs active={activeBlock ?? "ALL"} slug={selectedPost?.slug} />
 
-      <div className="grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]">
-        <Card>
+      <div className="grid items-start gap-6 lg:grid-cols-[340px_minmax(0,1fr)]">
+        <Card className="lg:sticky lg:top-6">
           <CardHeader>
-            <CardTitle className="text-base">Список постів</CardTitle>
+            <CardTitle>Список</CardTitle>
             <CardDescription>
-              {posts.length} записів
+              {posts.length} {pluralUk(posts.length, ["пост", "пости", "постів"])}
               {activeBlock ? ` · ${getPostBlockLabel(activeBlock)}` : ""}
             </CardDescription>
           </CardHeader>
-          <CardContent className="max-h-[70vh] space-y-2 overflow-auto pr-2">
+          <CardContent className="max-h-[65vh] overflow-auto">
             {posts.length === 0 ? (
-              <p className="text-muted-foreground text-sm">
-                {activeBlock === "PREPARATION"
-                  ? "Підготовчих постів ще немає. Створіть новий пост або запустіть seed."
-                  : "У цьому блоці ще немає постів."}
-              </p>
-            ) : null}
-            {posts.map((post) => {
-              const active = selectedPost?.id === post.id;
-              return (
-                <Link
-                  key={post.id}
-                  href={adminPostsHref(activeBlock, post.slug)}
-                  className={cn(
-                    "block rounded-md border p-2 text-sm",
-                    active ? "border-primary bg-primary/5" : "hover:bg-muted/50",
-                  )}
-                >
-                  <div className="font-medium leading-tight">{post.titleUk}</div>
-                  <div className="text-muted-foreground mt-1 text-xs">
-                    {getPostBlockLabel(post.block)} · {post.dayNumber ? `день ${post.dayNumber}` : "без дня"}
-                  </div>
-                  <div className="text-muted-foreground mt-1 truncate font-mono text-[11px]">{post.slug}</div>
-                </Link>
-              );
-            })}
+              <Panel tone="dashed" className="text-sm font-medium">
+                {activeBlock === "PREPARATION" ? "Підготовчих постів ще немає." : "У цьому блоці ще немає постів."}
+              </Panel>
+            ) : (
+              <ul className="grid gap-2">
+                {posts.map((post) => {
+                  const active = selectedPost?.id === post.id;
+                  return (
+                    <li key={post.id}>
+                      <Link
+                        href={adminPostsHref(activeBlock, post.slug)}
+                        aria-current={active ? "true" : undefined}
+                        className={cn(
+                          "block rounded-[var(--radius)] border-2 border-border px-3 py-2 text-sm outline-none focus-visible:ring-4 focus-visible:ring-ring/50",
+                          active ? "bg-primary text-primary-foreground" : "bg-card hover:bg-muted",
+                        )}
+                      >
+                        <div className="font-bold leading-tight">{post.titleUk}</div>
+                        <div className={cn("mt-1 text-xs", active ? "" : "text-muted-foreground")}>
+                          {getPostBlockLabel(post.block)} · {post.dayNumber ? `день ${post.dayNumber}` : "без дня"} · {post.slug}
+                        </div>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Редагування</CardTitle>
-            <CardDescription>
-              {selectedPost ? `Поточний: ${selectedPost.slug}` : "Оберіть пост зі списку ліворуч"}
-            </CardDescription>
+            <CardTitle>{selectedPost ? selectedPost.titleUk : "Редагування"}</CardTitle>
+            <CardDescription>{selectedPost ? selectedPost.slug : "Обери пост зі списку."}</CardDescription>
           </CardHeader>
           <CardContent>
             {selectedPost ? (
-              <div className="space-y-3">
-                <form key={selectedPost.id} action={updatePostAction} className="grid gap-3">
-                  <input type="hidden" name="id" value={selectedPost.id} />
-                  <div className="grid gap-2 md:grid-cols-3">
-                    <div className="grid gap-1.5">
-                      <Label htmlFor="selected-day">День</Label>
-                      <Input
-                        id="selected-day"
-                        name="dayNumber"
-                        type="number"
-                        min={1}
-                        max={100}
-                        defaultValue={selectedPost.dayNumber ?? ""}
-                      />
-                    </div>
-                    <div className="grid gap-1.5 md:col-span-2">
-                      <Label htmlFor="selected-title">Заголовок</Label>
-                      <Input id="selected-title" name="titleUk" defaultValue={selectedPost.titleUk} required />
-                    </div>
+              <form key={selectedPost.id} action={updatePostAction} className="grid gap-4">
+                <input type="hidden" name="id" value={selectedPost.id} />
+                <div className="grid gap-4 md:grid-cols-[8rem_minmax(0,1fr)_12rem]">
+                  <div className="grid gap-1.5">
+                    <Label htmlFor="selected-day">День</Label>
+                    <Input
+                      id="selected-day"
+                      name="dayNumber"
+                      type="number"
+                      min={1}
+                      max={100}
+                      defaultValue={selectedPost.dayNumber ?? ""}
+                    />
+                  </div>
+                  <div className="grid gap-1.5">
+                    <Label htmlFor="selected-title">Заголовок</Label>
+                    <Input id="selected-title" name="titleUk" defaultValue={selectedPost.titleUk} required />
                   </div>
                   <div className="grid gap-1.5">
                     <Label htmlFor="selected-block">Блок</Label>
-                    <select
-                      id="selected-block"
-                      name="block"
-                      className="border-input bg-background h-9 rounded-md border px-2 text-sm"
-                      defaultValue={selectedPost.block}
-                    >
+                    <NativeSelect id="selected-block" name="block" defaultValue={selectedPost.block}>
                       {POST_BLOCKS.map((block) => (
                         <option key={block} value={block}>
                           {POST_BLOCK_LABELS[block]}
                         </option>
                       ))}
-                    </select>
+                    </NativeSelect>
                   </div>
-                  <div className="grid gap-1.5">
-                    <Label htmlFor="selected-image-url">Фото посту (URL)</Label>
-                    <Input
-                      id="selected-image-url"
-                      name="imageUrl"
-                      defaultValue={selectedPost.imageUrl ?? ""}
-                      placeholder="https://..."
-                    />
-                  </div>
-                  <div className="grid gap-1.5">
-                    <Label htmlFor="selected-body">Тіло</Label>
-                    <TiptapPostEditor
-                      key={selectedPost.id}
-                      id="selected-body"
-                      name="bodyUk"
-                      editorKey={selectedPost.id}
-                      // Legacy markdown bodies are converted so TipTap keeps their structure; saving stores HTML.
-                      defaultValue={postBodyToHtml(selectedPost.bodyUk)}
-                      minHeightClassName="min-h-[360px]"
-                    />
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <SubmitButton variant="secondary" className="w-fit">
-                      Зберегти
-                    </SubmitButton>
-                  </div>
-                </form>
-                <form action={deletePostAction}>
-                  <input type="hidden" name="id" value={selectedPost.id} />
-                  <SubmitButton variant="destructive" className="w-fit" pendingLabel="Видаляю...">
-                    Видалити
+                </div>
+                <div className="grid gap-1.5">
+                  <Label htmlFor="selected-image-url">Обкладинка (URL)</Label>
+                  <Input
+                    id="selected-image-url"
+                    name="imageUrl"
+                    defaultValue={selectedPost.imageUrl ?? ""}
+                    placeholder="https://..."
+                  />
+                </div>
+                <div className="grid gap-1.5">
+                  <Label htmlFor="selected-body">Текст</Label>
+                  <TiptapPostEditor
+                    key={selectedPost.id}
+                    id="selected-body"
+                    name="bodyUk"
+                    editorKey={selectedPost.id}
+                    // Legacy markdown bodies are converted so TipTap keeps their structure; saving stores HTML.
+                    defaultValue={postBodyToHtml(selectedPost.bodyUk)}
+                    minHeightClassName="min-h-[360px]"
+                  />
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t-2 border-border pt-4">
+                  <SubmitButton className="w-fit" pendingLabel="Зберігаю...">
+                    Зберегти пост
                   </SubmitButton>
-                </form>
-              </div>
+                  <ConfirmSubmitButton
+                    confirmText="Видалити цей пост назавжди?"
+                    formAction={deletePostAction}
+                    formNoValidate
+                    variant="destructive"
+                    size="sm"
+                    className="w-fit"
+                    pendingLabel="Видаляю..."
+                  >
+                    Видалити пост
+                  </ConfirmSubmitButton>
+                </div>
+              </form>
             ) : (
               <Link href="/admin/posts" className={cn(buttonVariants({ variant: "outline" }))}>
                 Оновити список
