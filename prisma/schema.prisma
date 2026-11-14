@@ -21,6 +21,8 @@ model User {
   userPrograms UserProgram[]
   exercises    UserExercise[]
   resetTokens  PasswordResetToken[]
+  telegram     TelegramLink?
+  telegramCodes TelegramLinkCode[]
 }
 
 model UserProfile {
@@ -219,6 +221,34 @@ model PasswordResetToken {
   expiresAt DateTime
   usedAt    DateTime?
   createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+// Telegram chat linked to an account. One chat per user.
+model TelegramLink {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chatId          String   @unique // Telegram chat id (int64) as string
+  username        String?
+  morningEnabled  Boolean  @default(true)
+  eveningEnabled  Boolean  @default(true)
+  lastMorningDayKey String?
+  lastEveningDayKey String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// One-time code shown in settings; the user sends it to the bot via /start <code>.
+// Only the SHA-256 of the code is stored.
+model TelegramLinkCode {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash  String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 
   @@index([userId])
 }

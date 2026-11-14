@@ -6,6 +6,8 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { PROGRAM_PATHS, resetUserProgram } from "@/lib/program-reset";
+import { botUsername, telegramConfigured } from "@/lib/telegram/api";
+import { createTelegramLinkCode } from "@/lib/telegram/link";
 import { listUserExercises } from "@/lib/user-exercises";
 import { type ExerciseMetric } from "@/lib/user-exercise-utils";
 import { TRAINING_EXERCISES } from "@/lib/training-exercises";
@@ -260,4 +262,32 @@ export async function resetMyProgramAction() {
   for (const path of PROGRAM_PATHS) revalidatePath(path);
   revalidatePath("/app/post/[slug]", "page");
   redirect("/app?reset=1");
+}
+
+export async function createTelegramLinkAction(): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
+  const user = await getCurrentUser();
+  if (!user) return { ok: false, error: "Потрібно увійти" };
+  if (!telegramConfigured()) return { ok: false, error: "Бот ще не налаштований" };
+  const code = await createTelegramLinkCode(user.id);
+  return { ok: true, url: `https://t.me/${botUsername()}?start=${code}` };
+}
+
+export async function unlinkTelegramAction() {
+  const user = await getCurrentUser();
+  if (!user) throw new Error("Unauthorized");
+  await prisma.telegramLink.deleteMany({ where: { userId: user.id } });
+  revalidatePath("/app/settings");
+}
+
+export async function updateTelegramPrefsAction(formData: FormData) {
+  const user = await getCurrentUser();
+  if (!user) throw new Error("Unauthorized");
+  await prisma.telegramLink.updateMany({
+    where: { userId: user.id },
+    data: {
+      morningEnabled: String(formData.get("morning") ?? "") === "on",
+      eveningEnabled: String(formData.get("evening") ?? "") === "on",
+    },
+  });
+  revalidatePath("/app/settings");
 }
