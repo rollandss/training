@@ -206,12 +206,12 @@ export function CalendarDayCell(props: {
           <button
             type="button"
             className={cn(
-              "relative flex h-14 w-full min-w-0 flex-col rounded-[var(--radius)] border-2 border-border bg-card p-1.5 text-left outline-none focus-visible:ring-4 focus-visible:ring-ring/50 sm:h-[7rem] sm:border-4 sm:p-2 sm:shadow-[4px_4px_0px_0px_var(--color-border)]",
+              "relative flex h-14 w-full min-w-0 flex-col rounded-[var(--radius)] border-2 border-border bg-card p-1.5 text-left outline-none focus-visible:ring-4 focus-visible:ring-ring/50 sm:h-[7rem] sm:border-2 sm:p-2 sm:shadow-[3px_3px_0px_0px_var(--shadow-ink)]",
               status ? CALENDAR_STATUS_UI[status].cellClassName : "bg-card text-foreground",
               locked && "border-dashed border-foreground/25 bg-transparent text-foreground/40 shadow-none sm:shadow-none",
               isToday && "ring-4 ring-foreground ring-offset-2 ring-offset-background",
               !locked &&
-                "transition-[transform,box-shadow] sm:hover:-translate-x-0.5 sm:hover:-translate-y-0.5 sm:hover:shadow-[6px_6px_0px_0px_var(--color-border)] sm:active:translate-x-0.5 sm:active:translate-y-0.5 sm:active:shadow-none",
+                "transition-[transform,box-shadow] sm:hover:-translate-x-0.5 sm:hover:-translate-y-0.5 sm:hover:shadow-[3px_3px_0px_0px_var(--shadow-ink)] sm:active:translate-x-0.5 sm:active:translate-y-0.5 sm:active:shadow-none",
             )}
             aria-label={`${dateLabel}, день ${programDay}${isToday ? ", сьогодні" : ""}`}
             aria-current={isToday ? "date" : undefined}
@@ -247,7 +247,7 @@ export function CalendarDayCell(props: {
       <SheetContent
         side="bottom"
         className={cn(
-          "flex w-full max-w-none flex-col gap-0 overflow-hidden border-4 border-border bg-card p-0 shadow-[8px_8px_0px_0px_var(--color-border)] sm:mx-auto sm:max-w-lg",
+          "flex w-full max-w-none flex-col gap-0 overflow-hidden border-2 border-border bg-card p-0 shadow-[4px_4px_0px_0px_var(--shadow-ink)] sm:mx-auto sm:max-w-lg",
           sessionActive
             ? "h-dvh max-h-dvh rounded-none data-[side=bottom]:h-dvh"
             : "h-[min(92dvh,100svh)] max-h-[92dvh] rounded-t-[var(--radius)]",
@@ -340,7 +340,7 @@ export function CalendarDayCell(props: {
                       className={cn(
                         "flex items-start gap-2.5 rounded-[var(--radius)] border-2 border-border px-3 py-3 text-left text-sm font-bold outline-none transition-colors focus-visible:ring-4 focus-visible:ring-ring/50",
                         localStatus === s
-                          ? cn(CALENDAR_STATUS_UI[s].pickerClassName, "border-4 px-2.5 py-2.5")
+                          ? cn(CALENDAR_STATUS_UI[s].pickerClassName, "border-2 px-2.5 py-2.5")
                           : "bg-card text-foreground hover:bg-muted",
                       )}
                       aria-pressed={localStatus === s}

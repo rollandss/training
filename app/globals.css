@@ -52,67 +52,66 @@
 }
 
 :root {
-  /* Neobrutalism (light-only) */
-  --background: oklch(0.86 0.18 95); /* poster yellow (strong) */
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(0.97 0.02 90); /* warm paper */
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.9 0.21 105); /* acid lime */
-  --primary-foreground: oklch(0.145 0 0);
-  --secondary: oklch(0.86 0.16 255); /* electric periwinkle */
-  --secondary-foreground: oklch(0.145 0 0);
-  --muted: oklch(0.96 0.02 90);
-  --muted-foreground: oklch(0.38 0 0);
-  --accent: oklch(0.84 0.23 30); /* hot orange */
-  --accent-foreground: oklch(0.145 0 0);
-  --destructive: oklch(0.68 0.25 25);
-  --border: oklch(0.145 0 0); /* black borders */
-  --input: oklch(0.99 0.01 90);
-  --ring: oklch(0.145 0 0);
-  /* dotted background (like the reference) */
-  --nb-dot: oklch(0.145 0 0 / 42%);
-  --nb-dot-size: 2px;
-  --nb-dot-gap: 22px;
+  /* Training notebook: squared paper, ink, highlighters */
+  --background: oklch(0.982 0.009 95); /* paper */
+  --foreground: oklch(0.27 0.05 262); /* blue-black ink */
+  --card: oklch(0.997 0.004 95); /* a sheet pasted onto the page */
+  --card-foreground: oklch(0.27 0.05 262);
+  --popover: oklch(0.997 0.004 95);
+  --popover-foreground: oklch(0.27 0.05 262);
+  --primary: oklch(0.9 0.19 102); /* yellow highlighter */
+  --primary-foreground: oklch(0.22 0.04 262);
+  --secondary: oklch(0.86 0.08 230); /* blue highlighter */
+  --secondary-foreground: oklch(0.22 0.04 262);
+  --muted: oklch(0.955 0.012 95);
+  --muted-foreground: oklch(0.46 0.035 262);
+  --accent: oklch(0.83 0.11 30); /* coral highlighter */
+  --accent-foreground: oklch(0.22 0.04 262);
+  --destructive: oklch(0.6 0.2 27); /* red pen */
+  --border: oklch(0.27 0.05 262); /* ink lines */
+  --input: oklch(0.997 0.004 95);
+  --ring: oklch(0.27 0.05 262);
+  --shadow-ink: oklch(0.27 0.05 262 / 16%);
+  --grid-line: oklch(0.62 0.08 250 / 15%);
+  --grid-cell: 28px;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0rem;
+  --radius: 0.25rem;
   --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.85 0.18 102);
-  --sidebar-primary-foreground: oklch(0.145 0 0);
+  --sidebar-foreground: oklch(0.27 0.05 262);
+  --sidebar-primary: oklch(0.9 0.19 102);
+  --sidebar-primary-foreground: oklch(0.22 0.04 262);
   --sidebar-accent: oklch(0.92 0.05 255);
-  --sidebar-accent-foreground: oklch(0.145 0 0);
-  --sidebar-border: oklch(0.145 0 0);
-  --sidebar-ring: oklch(0.145 0 0);
+  --sidebar-accent-foreground: oklch(0.27 0.05 262);
+  --sidebar-border: oklch(0.27 0.05 262);
+  --sidebar-ring: oklch(0.27 0.05 262);
 }
 
 .dark {
-  /* Neobrutalism (dark) */
-  --background: oklch(0.17 0.03 260); /* deep ink */
-  --foreground: oklch(0.97 0 0);
-  --card: oklch(0.22 0.03 260);
-  --card-foreground: oklch(0.97 0 0);
-  --popover: oklch(0.22 0.03 260);
-  --popover-foreground: oklch(0.97 0 0);
-  --primary: oklch(0.9 0.21 105); /* keep acid lime */
-  --primary-foreground: oklch(0.145 0 0);
-  --secondary: oklch(0.76 0.16 255);
-  --secondary-foreground: oklch(0.145 0 0);
-  --muted: oklch(0.26 0.02 260);
-  --muted-foreground: oklch(0.82 0 0);
-  --accent: oklch(0.84 0.23 30); /* hot orange */
-  --accent-foreground: oklch(0.145 0 0);
-  --destructive: oklch(0.68 0.25 25);
-  --border: oklch(0.97 0 0); /* white-ish borders in dark */
-  --input: oklch(0.24 0.02 260);
-  --ring: oklch(0.97 0 0);
-  /* dotted background */
-  --nb-dot: oklch(0.97 0 0 / 22%);
+  /* Graphite board with chalk */
+  --background: oklch(0.21 0.012 250);
+  --foreground: oklch(0.93 0.01 90);
+  --card: oklch(0.25 0.012 250);
+  --card-foreground: oklch(0.93 0.01 90);
+  --popover: oklch(0.25 0.012 250);
+  --popover-foreground: oklch(0.93 0.01 90);
+  --primary: oklch(0.88 0.17 102);
+  --primary-foreground: oklch(0.2 0.02 250);
+  --secondary: oklch(0.78 0.09 230);
+  --secondary-foreground: oklch(0.2 0.02 250);
+  --muted: oklch(0.28 0.012 250);
+  --muted-foreground: oklch(0.76 0.01 90);
+  --accent: oklch(0.76 0.11 30);
+  --accent-foreground: oklch(0.2 0.02 250);
+  --destructive: oklch(0.66 0.17 27);
+  --border: oklch(0.86 0.01 90);
+  --input: oklch(0.24 0.012 250);
+  --ring: oklch(0.93 0.01 90);
+  --shadow-ink: oklch(0 0 0 / 35%);
+  --grid-line: oklch(0.98 0 0 / 6%);
 }
 
 @layer base {
@@ -127,14 +126,11 @@
     @apply bg-background text-foreground;
     overflow-x: hidden;
     overflow-x: clip;
-    background-image: radial-gradient(
-      circle,
-      var(--nb-dot) var(--nb-dot-size),
-      transparent calc(var(--nb-dot-size) + 0.25px)
-    );
-    background-size: var(--nb-dot-gap) var(--nb-dot-gap);
-    background-position: 0 0;
-    background-attachment: fixed;
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: var(--grid-cell) var(--grid-cell);
+    background-position: -1px -1px;
   }
   ::selection {
     background: var(--primary);
@@ -143,17 +139,28 @@
 }
 
 @layer utilities {
+  /* highlighter stroke under text, follows line wraps */
+  .nb-highlight {
+    text-decoration-line: underline;
+    text-decoration-color: color-mix(in oklch, var(--primary) 90%, transparent);
+    text-decoration-thickness: 0.5em;
+    text-underline-offset: -0.3em;
+    text-decoration-skip-ink: none;
+  }
+  .dark .nb-highlight {
+    text-decoration-color: oklch(0.88 0.17 102 / 40%);
+  }
   .nb-link {
     @apply underline underline-offset-4;
   }
   .nb-shadow-sm {
-    box-shadow: 4px 4px 0 0 var(--border);
+    box-shadow: 3px 3px 0 0 var(--shadow-ink);
   }
   .nb-shadow {
-    box-shadow: 8px 8px 0 0 var(--border);
+    box-shadow: 4px 4px 0 0 var(--shadow-ink);
   }
   .nb-shadow-lg {
-    box-shadow: 12px 12px 0 0 var(--border);
+    box-shadow: 6px 6px 0 0 var(--shadow-ink);
   }
   .post-body p + p,
   .tiptap-editor-content p + p {
@@ -194,13 +201,13 @@
   .tiptap-editor-content pre {
     margin-top: 0.9rem;
     overflow-x: auto;
-    border: 4px solid var(--border);
+    border: 2px solid var(--border);
     background: var(--card);
     padding: 0.75rem;
     font-family: var(--font-mono);
     font-size: 0.9rem;
     line-height: 1.5;
-    box-shadow: 4px 4px 0 0 var(--border);
+    box-shadow: 3px 3px 0 0 var(--shadow-ink);
   }
   .post-body pre code,
   .tiptap-editor-content pre code {
@@ -233,7 +240,7 @@
   .tiptap-editor-content hr {
     margin: 1rem 0;
     border: 0;
-    border-top: 4px solid var(--border);
+    border-top: 2px solid var(--border);
   }
   .post-body a,
   .tiptap-editor-content a {
@@ -246,8 +253,8 @@
     margin-top: 0.9rem;
     max-width: 100%;
     height: auto;
-    border: 4px solid var(--border);
-    box-shadow: 6px 6px 0 0 var(--border);
+    border: 2px solid var(--border);
+    box-shadow: 3px 3px 0 0 var(--shadow-ink);
   }
   .tiptap-editor-content p.is-editor-empty:first-child::before,
   .tiptap-editor-content p.is-empty:first-child::before {
@@ -279,7 +286,7 @@
   .post-body blockquote,
   .tiptap-editor-content blockquote {
     margin-top: 0.9rem;
-    border-left: 4px solid var(--border);
+    border-left: 2px solid var(--border);
     padding-left: 0.9rem;
     font-style: italic;
   }
@@ -316,27 +323,12 @@
    Used where people read for minutes at a time (post pages, contents).
    The loud poster style stays on landing / today / calendar. */
 :root {
-  --nb-paper: oklch(0.985 0.008 95);
-  --nb-grid: oklch(0.62 0.08 250 / 16%);
-  --nb-ink: oklch(0.28 0.05 262);
-  --nb-ink-soft: oklch(0.45 0.04 262);
-  --nb-margin: oklch(0.62 0.19 27);
-  --nb-cell: 28px;
-}
-.dark {
-  --nb-paper: oklch(0.22 0.012 250);
-  --nb-grid: oklch(0.98 0 0 / 6%);
-  --nb-ink: oklch(0.93 0.01 90);
-  --nb-ink-soft: oklch(0.78 0.01 90);
-  --nb-margin: oklch(0.66 0.14 27 / 85%);
-}
-body:has([data-surface="notebook"]) {
-  background-color: var(--nb-paper);
-  background-image:
-    linear-gradient(var(--nb-grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--nb-grid) 1px, transparent 1px);
-  background-size: var(--nb-cell) var(--nb-cell);
-  background-attachment: scroll;
+  --nb-paper: var(--background);
+  --nb-grid: var(--grid-line);
+  --nb-ink: var(--foreground);
+  --nb-ink-soft: var(--muted-foreground);
+  --nb-margin: var(--destructive);
+  --nb-cell: var(--grid-cell);
 }
 [data-surface="notebook"] {
   color: var(--nb-ink);

@@ -59,7 +59,7 @@ export function UserMenu({ email }: { email: string }) {
           "hover:bg-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
         )}
       >
-        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-black text-primary-foreground">
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-full border-2 border-border bg-primary text-xs font-bold text-primary-foreground">
           {initials}
         </span>
         <span className="hidden min-w-0 truncate sm:block">{shortLabel}</span>
@@ -71,9 +71,9 @@ export function UserMenu({ email }: { email: string }) {
           id="user-account-menu"
           role="menu"
           aria-label="Меню акаунта"
-          className="absolute right-0 top-[calc(100%+0.5rem)] z-50 min-w-56 rounded-[var(--radius)] border-4 border-border bg-popover p-2 text-popover-foreground shadow-[8px_8px_0px_0px_var(--color-border)]"
+          className="absolute right-0 top-[calc(100%+0.5rem)] z-50 min-w-56 rounded-[var(--radius)] border-2 border-border bg-popover p-2 text-popover-foreground shadow-[4px_4px_0px_0px_var(--shadow-ink)]"
         >
-          <div className="border-b-4 border-border px-2 py-2">
+          <div className="border-b border-border/15 px-2 py-2">
             <div className="text-xs font-semibold text-muted-foreground">Акаунт</div>
             <div className="mt-1 truncate text-sm font-medium normal-case tracking-normal text-foreground">{email}</div>
           </div>
@@ -82,7 +82,7 @@ export function UserMenu({ email }: { email: string }) {
             href="/app/settings"
             role="menuitem"
             onClick={() => setOpen(false)}
-            className="mt-2 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
+            className="mt-2 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium hover:bg-muted"
           >
             <Settings2 className="size-4" />
             Налаштування

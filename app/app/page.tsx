@@ -93,8 +93,8 @@ export default async function AppDashboardPage({ searchParams }: { searchParams:
         </section>
 
         {dailyPost ? (
-          <article className="overflow-hidden rounded-[var(--radius)] border-4 border-border bg-card shadow-[10px_10px_0px_0px_var(--color-border)]">
-            <div className="aspect-[16/7] w-full border-b-4 border-border">
+          <article className="overflow-hidden rounded-[var(--radius)] border-2 border-border bg-card shadow-[4px_4px_0px_0px_var(--shadow-ink)]">
+            <div className="aspect-[16/7] w-full border-b-2 border-border">
               <PostCover src={dailyPost.imageUrl} alt="" fallbackLabel={`День ${currentDay}`} />
             </div>
             <div className="space-y-4 p-5 sm:p-7">
@@ -106,7 +106,7 @@ export default async function AppDashboardPage({ searchParams }: { searchParams:
             </div>
           </article>
         ) : (
-          <div className="rounded-[var(--radius)] border-4 border-dashed border-border bg-card p-6">
+          <div className="rounded-[var(--radius)] border-2 border-dashed border-border bg-card p-6">
             <h2 className="font-display text-xl font-bold">Пост на сьогодні ще не готовий</h2>
             <p className="mt-2 text-base text-muted-foreground">Поки що можна перечитати попередні дні в архіві.</p>
             <Link href="/app/posts" className={cn(buttonVariants({ variant: "outline" }), "mt-4")}>

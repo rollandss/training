@@ -287,7 +287,7 @@ export function TiptapPostEditor({
     <div
       id={id}
       className={cn(
-        "flex flex-col overflow-hidden rounded-[var(--radius)] border-4 border-border bg-input shadow-[4px_4px_0px_0px_var(--color-border)]",
+        "flex flex-col overflow-hidden rounded-[var(--radius)] border-2 border-border bg-input shadow-[3px_3px_0px_0px_var(--shadow-ink)]",
         maxHeightClassName,
       )}
     >
