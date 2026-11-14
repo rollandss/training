@@ -11,7 +11,6 @@ import { prisma } from "@/lib/prisma";
 import { telegramConfigured } from "@/lib/telegram/api";
 
 import { trainingRepsFromProfile } from "@/lib/training-exercises";
-import { listUserExercises } from "@/lib/user-exercises";
 import Link from "next/link";
 
 import { buttonVariants } from "@/components/ui/button";
@@ -20,7 +19,6 @@ import { cn } from "@/lib/utils";
 import { ExerciseBaselineForm } from "./baseline-form";
 import { ResetProgramForm } from "./reset-program-form";
 import { TelegramCard } from "./telegram-card";
-import { UserExercisesForm } from "./user-exercises-form";
 import { setEmailSubscriptionEnabledAction } from "./actions";
 
 export default async function SettingsPage() {
@@ -28,7 +26,7 @@ export default async function SettingsPage() {
   if (!user) redirect("/auth/login");
 
   const emailReady = canSendEmail();
-  const [sub, profile, exercises, tgLink] = await Promise.all([
+  const [sub, profile, tgLink] = await Promise.all([
     prisma.userEmailSubscription.findUnique({
       where: { userId: user.id },
       select: { enabled: true },
@@ -42,7 +40,6 @@ export default async function SettingsPage() {
         lungesMax: true,
       },
     }),
-    listUserExercises(user.id),
     prisma.telegramLink.findUnique({
       where: { userId: user.id },
       select: { username: true, morningEnabled: true, eveningEnabled: true },
@@ -51,7 +48,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-8">
-      <PageHeader title="Налаштування" description="Твої максимуми, вправи для тренувань і пошта." />
+      <PageHeader title="Налаштування" description="Стартові максимуми, нагадування і програма." />
 
       <Card>
         <CardHeader>
@@ -73,20 +70,6 @@ export default async function SettingsPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Мої вправи</CardTitle>
-          <CardDescription>
-            Обирай, які вправи входять у тренування, міняй порядок і додавай свої — на повтори або на час.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <UserExercisesForm
-            key={exercises.map((exercise) => `${exercise.id}:${exercise.enabled}`).join("-")}
-            initial={exercises}
-          />
-        </CardContent>
-      </Card>
 
       <Card>
         <CardHeader>

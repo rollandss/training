@@ -26,4 +26,4 @@ export async function resetUserProgram(userId: string, now = new Date()) {
 }
 
 /** Paths whose content depends on the program position. */
-export const PROGRAM_PATHS = ["/app", "/app/calendar", "/app/posts", "/app/settings"] as const;
+export const PROGRAM_PATHS = ["/app", "/app/calendar", "/app/posts", "/app/settings", "/app/exercises"] as const;

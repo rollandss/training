@@ -24,6 +24,7 @@ type NavItem = { href: string; label: string };
 const APP_NAV: NavItem[] = [
   { href: "/app", label: "Сьогодні" },
   { href: "/app/calendar", label: "Календар" },
+  { href: "/app/exercises", label: "Вправи" },
   { href: "/app/posts", label: "Усі пости" },
   { href: "/app/photos", label: "Фото" },
 ];
