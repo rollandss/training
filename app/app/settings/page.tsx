@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/page-header";
 import { getCurrentUser } from "@/lib/auth";
 import { canSendEmail } from "@/lib/email";
 import { prisma } from "@/lib/prisma";
+import { telegramConfigured } from "@/lib/telegram/api";
 
 import { trainingRepsFromProfile } from "@/lib/training-exercises";
 import { listUserExercises } from "@/lib/user-exercises";
@@ -18,6 +19,7 @@ import { cn } from "@/lib/utils";
 
 import { ExerciseBaselineForm } from "./baseline-form";
 import { ResetProgramForm } from "./reset-program-form";
+import { TelegramCard } from "./telegram-card";
 import { UserExercisesForm } from "./user-exercises-form";
 import { setEmailSubscriptionEnabledAction } from "./actions";
 
@@ -26,7 +28,7 @@ export default async function SettingsPage() {
   if (!user) redirect("/auth/login");
 
   const emailReady = canSendEmail();
-  const [sub, profile, exercises] = await Promise.all([
+  const [sub, profile, exercises, tgLink] = await Promise.all([
     prisma.userEmailSubscription.findUnique({
       where: { userId: user.id },
       select: { enabled: true },
@@ -41,6 +43,10 @@ export default async function SettingsPage() {
       },
     }),
     listUserExercises(user.id),
+    prisma.telegramLink.findUnique({
+      where: { userId: user.id },
+      select: { username: true, morningEnabled: true, eveningEnabled: true },
+    }),
   ]);
 
   return (
@@ -79,6 +85,16 @@ export default async function SettingsPage() {
             key={exercises.map((exercise) => `${exercise.id}:${exercise.enabled}`).join("-")}
             initial={exercises}
           />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Telegram</CardTitle>
+          <CardDescription>Нагадування і швидка відмітка дня в боті.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <TelegramCard configured={telegramConfigured()} link={tgLink} />
         </CardContent>
       </Card>
 

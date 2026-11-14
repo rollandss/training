@@ -5,7 +5,14 @@
     {
       "path": "/api/cron/daily-email",
       "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/telegram?slot=morning",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/telegram?slot=evening",
+      "schedule": "0 17 * * *"
     }
   ]
 }
-
