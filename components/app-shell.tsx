@@ -25,6 +25,7 @@ const APP_NAV: NavItem[] = [
   { href: "/app", label: "Сьогодні" },
   { href: "/app/calendar", label: "Календар" },
   { href: "/app/posts", label: "Усі пости" },
+  { href: "/app/photos", label: "Фото" },
 ];
 
 const ADMIN_NAV: NavItem[] = [
