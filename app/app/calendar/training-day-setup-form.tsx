@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import * as React from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { RotateCcw, Timer } from "lucide-react";
@@ -83,7 +85,12 @@ export function TrainingDaySetupForm(props: {
       </div>
 
       <div className="grid gap-2">
-        <div className="text-sm font-bold">Вправи і порядок</div>
+        <div className="flex items-baseline justify-between gap-3">
+          <div className="text-sm font-bold">Вправи і порядок</div>
+          <Link href="/app/exercises" className="text-sm font-bold underline underline-offset-4 hover:no-underline">
+            Додати свою вправу
+          </Link>
+        </div>
         <ul className="divide-y-2 divide-border rounded-[var(--radius)] border-2 border-border bg-card">
           <AnimatePresence initial={false} mode="popLayout">
             {value.lines.map((line, index) => (
