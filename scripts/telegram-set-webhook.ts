@@ -1,5 +1,7 @@
 // Registers the webhook and the command menu with Telegram.
 // Usage: PUBLIC_BASE_URL=https://your.domain npx tsx scripts/telegram-set-webhook.ts
+import { createHash } from "node:crypto";
+
 import { config as loadEnv } from "dotenv";
 
 loadEnv({ path: ".env" });
@@ -22,7 +24,7 @@ async function main() {
   if (!token || !secret || !base) throw new Error("Need TELEGRAM_BOT_TOKEN, TELEGRAM_WEBHOOK_SECRET and PUBLIC_BASE_URL");
   await tg("setWebhook", {
     url: `${base.replace(/\/$/, "")}/api/telegram/webhook`,
-    secret_token: secret,
+    secret_token: createHash("sha256").update(secret).digest("hex"),
     allowed_updates: ["message", "callback_query"],
     drop_pending_updates: true,
   });

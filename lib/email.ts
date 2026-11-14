@@ -1,5 +1,7 @@
 import nodemailer from "nodemailer";
 
+import { getSiteUrl } from "@/lib/site";
+
 function requiredEnv(name: string) {
   const v = process.env[name];
   if (!v) throw new Error(`Missing env: ${name}`);
@@ -10,8 +12,9 @@ export function canSendEmail() {
   return Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS && process.env.EMAIL_FROM);
 }
 
+/** Absolute site URL for links in emails and bot messages. */
 export function getBaseUrl() {
-  return process.env.PUBLIC_BASE_URL || "http://localhost:3000";
+  return getSiteUrl();
 }
 
 export async function sendEmail(params: { to: string; subject: string; text: string; html?: string }) {
