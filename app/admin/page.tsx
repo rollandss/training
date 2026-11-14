@@ -4,10 +4,23 @@ import { PageHeader } from "@/components/page-header";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
+import { botUsername, getWebhookInfo, telegramConfigured } from "@/lib/telegram/api";
 import { cn } from "@/lib/utils";
 
+import { TelegramSetupCard } from "./telegram-setup-card";
+
+async function loadWebhook() {
+  if (!telegramConfigured()) return { url: null, error: null };
+  try {
+    const info = await getWebhookInfo();
+    return { url: info.url || null, error: info.last_error_message ?? null };
+  } catch (e) {
+    return { url: null, error: e instanceof Error ? e.message : "не вдалося отримати статус" };
+  }
+}
+
 export default async function AdminHomePage() {
-  const [users, posts] = await Promise.all([prisma.user.count(), prisma.dailyPost.count()]);
+  const [users, posts, webhook] = await Promise.all([prisma.user.count(), prisma.dailyPost.count(), loadWebhook()]);
 
   return (
     <div className="space-y-8">
@@ -42,6 +55,12 @@ export default async function AdminHomePage() {
             </Link>
           </CardContent>
         </Card>
+        <TelegramSetupCard
+          configured={telegramConfigured()}
+          username={botUsername()}
+          webhookUrl={webhook.url}
+          lastError={webhook.error}
+        />
       </div>
     </div>
   );
