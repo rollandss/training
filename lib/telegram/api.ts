@@ -1,5 +1,7 @@
 import "server-only";
 
+import { createHash } from "node:crypto";
+
 import type { InlineKeyboard } from "./messages";
 
 export function telegramConfigured() {
@@ -71,10 +73,20 @@ export const BOT_COMMANDS = [
   { command: "stop", description: "Відʼєднати Telegram" },
 ];
 
+/**
+ * Telegram only accepts [A-Za-z0-9_-] in secret_token, so we send a hash of the
+ * configured secret instead of the raw value. Any secret string works this way.
+ */
+export function webhookSecretToken() {
+  const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
+  if (!secret || secret.length < 16) return null;
+  return createHash("sha256").update(secret).digest("hex");
+}
+
 /** Points Telegram at our webhook and publishes the command menu. Token never leaves the server. */
 export async function registerBot(baseUrl: string) {
-  const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
-  if (!secret) throw new Error("TELEGRAM_WEBHOOK_SECRET is not set");
+  const secret = webhookSecretToken();
+  if (!secret) throw new Error("TELEGRAM_WEBHOOK_SECRET is not set or shorter than 16 characters");
   const url = `${baseUrl.replace(/\/$/, "")}/api/telegram/webhook`;
   await call("setWebhook", {
     url,

@@ -6,7 +6,7 @@ import { getBaseUrl } from "@/lib/email";
 import { getTodayPost, markCalendarDay } from "@/lib/program-day";
 import { excerptPostBody } from "@/lib/post-text";
 import { todayKey } from "@/lib/progress";
-import { answerCallbackQuery, editMessageText, sendMessage, telegramConfigured } from "@/lib/telegram/api";
+import { answerCallbackQuery, editMessageText, sendMessage, telegramConfigured, webhookSecretToken } from "@/lib/telegram/api";
 import { consumeTelegramLinkCode, findLinkByChat, unlinkChat } from "@/lib/telegram/link";
 import {
   escapeHtml,
@@ -29,8 +29,8 @@ type TgUpdate = {
 };
 
 function isAuthorized(req: Request) {
-  const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
-  if (!secret || secret.length < 16) return false;
+  const secret = webhookSecretToken();
+  if (!secret) return false;
   const got = req.headers.get("x-telegram-bot-api-secret-token") ?? "";
   if (got.length !== secret.length) return false;
   return timingSafeEqual(Buffer.from(got), Buffer.from(secret));
