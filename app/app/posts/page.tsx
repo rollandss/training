@@ -1,3 +1,5 @@
+import { PageHeader } from "@/components/page-header";
+import { DAY_FORMS, pluralUk } from "@/lib/plural";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Lock } from "lucide-react";
@@ -29,10 +31,10 @@ export default async function PostsPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="font-display text-[clamp(2.25rem,6vw,3.25rem)] font-black leading-[1] tracking-[-0.02em]">Усі пости</h1>
-      <p className="mt-3 text-lg font-medium">
-        Відкрито {unlockedDay} {unlockedDay === 1 ? "день" : unlockedDay < 5 ? "дні" : "днів"} зі 100. Наступний пост — завтра.
-      </p>
+      <PageHeader
+        title="Усі пости"
+        description={`Відкрито ${unlockedDay} ${pluralUk(unlockedDay, DAY_FORMS)} зі 100. Наступний пост — завтра.`}
+      />
 
       <nav className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm font-bold" aria-label="Блоки">
         {POST_BLOCK_ORDER.map((block) => (

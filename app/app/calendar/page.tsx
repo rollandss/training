@@ -1,3 +1,5 @@
+import { PageHeader } from "@/components/page-header";
+import { DAY_FORMS, pluralUk } from "@/lib/plural";
 import { redirect } from "next/navigation";
 
 import { diffDaysUTC, isCalendarDayEditable } from "@/lib/calendar-access";
@@ -156,13 +158,10 @@ export default async function CalendarPage({
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-display text-[clamp(2.25rem,6vw,3.25rem)] font-black leading-[1] tracking-[-0.02em]">Календар</h1>
-          <p className="mt-3 max-w-[60ch] text-base font-medium">
-            Відкрито {unlockedDay} {unlockedDay === 1 ? "день" : unlockedDay < 5 ? "дні" : "днів"}. Натисни на день, щоб
-            відмітити тренування, розтяжку, відпочинок чи хворобу. Минулі дні теж можна змінити.
-          </p>
-        </div>
+        <PageHeader
+          title="Календар"
+          description={`Відкрито ${unlockedDay} ${pluralUk(unlockedDay, DAY_FORMS)}. Натисни на день, щоб відмітити тренування, розтяжку, відпочинок чи хворобу. Минулі дні теж можна змінити.`}
+        />
         <div className="grid grid-cols-[auto_minmax(10rem,auto)_auto] items-center gap-2">
           <a
             href={prevLocked ? undefined : `/app/calendar?m=${prevKey}`}

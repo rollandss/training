@@ -1,41 +1,48 @@
 import Link from "next/link";
 
+import { PageHeader } from "@/components/page-header";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
 
-export default function AdminHomePage() {
+export default async function AdminHomePage() {
+  const [users, posts] = await Promise.all([prisma.user.count(), prisma.dailyPost.count()]);
+
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-black tracking-tight">Адмінка</h1>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Учасники</CardTitle>
-          <CardDescription>Перегляд прогресу, керування ролями і курсором дня.</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-wrap gap-2">
-          <Link href="/admin/users" className={cn(buttonVariants())}>
-            Користувачі
-          </Link>
-          <Link href="/admin/stats" className={cn(buttonVariants({ variant: "outline" }))}>
-            Статистика
-          </Link>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Контент</CardTitle>
-          <CardDescription>Щоденні інфопости та окремий блок підготовки.</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-wrap gap-2">
-          <Link href="/admin/posts?block=preparation" className={cn(buttonVariants())}>
-            Підготовка
-          </Link>
-          <Link href="/admin/posts" className={cn(buttonVariants({ variant: "outline" }))}>
-            Усі пости
-          </Link>
-        </CardContent>
-      </Card>
+    <div className="space-y-8">
+      <PageHeader title="Адмінка" description="Учасники, їхній прогрес і контент програми." />
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Учасники</CardTitle>
+            <CardDescription>Прогрес, ролі та відкритий день. Зараз зареєстровано: {users}.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-3">
+            <Link href="/admin/users" className={cn(buttonVariants())}>
+              Користувачі
+            </Link>
+            <Link href="/admin/stats" className={cn(buttonVariants({ variant: "outline" }))}>
+              Статистика
+            </Link>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Контент</CardTitle>
+            <CardDescription>Щоденні пости і підготовчий блок. Усього постів: {posts}.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-3">
+            <Link href="/admin/posts" className={cn(buttonVariants())}>
+              Усі пости
+            </Link>
+            <Link href="/admin/posts/new" className={cn(buttonVariants({ variant: "outline" }))}>
+              Новий пост
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

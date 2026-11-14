@@ -7,15 +7,13 @@ import { MotionReveal } from "@/components/motion-ui";
 import { SubmitButton } from "@/components/submit-button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Check } from "lucide-react";
+
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
+import { PULLUP_LEVELS } from "@/lib/levels";
 
-const levels = [
-  { value: "novice", label: "Жодного — я новачок" },
-  { value: "basic", label: "1–5 разів" },
-  { value: "intermediate", label: "6–12 разів" },
-  { value: "advanced", label: "Більше 12" },
-];
+const levels = PULLUP_LEVELS;
 
 export function OnboardingForm() {
   const [state, formAction] = useActionState(onboardingAction, undefined as OnboardingState);
@@ -56,15 +54,18 @@ export function OnboardingForm() {
               placeholder="Наприклад: лікті, поперек, коліна…"
             />
           </div>
-          <div className="flex items-start gap-3 rounded-[var(--radius)] border-4 border-dashed border-border bg-background p-3">
-            <input
-              id="tourConfirmed"
-              name="tourConfirmed"
-              type="checkbox"
-              value="on"
-              required
-              className="mt-0.5 size-5 shrink-0 accent-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring/50"
-            />
+          <div className="flex items-start gap-3 rounded-[var(--radius)] border-2 border-dashed border-border p-3">
+            <span className="relative mt-0.5 flex size-5 shrink-0">
+              <input
+                id="tourConfirmed"
+                name="tourConfirmed"
+                type="checkbox"
+                value="on"
+                required
+                className="peer size-5 cursor-pointer appearance-none rounded-[var(--radius)] border-2 border-border bg-input checked:bg-primary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring/50"
+              />
+              <Check className="pointer-events-none absolute inset-0 m-auto size-4 stroke-[3] opacity-0 peer-checked:opacity-100" aria-hidden />
+            </span>
             <Label htmlFor="tourConfirmed" className="text-sm leading-snug font-normal">
               Маю надійно закріплений турнік і розумію: при болю зупиняюсь, а з травмами спершу раджусь з лікарем.
             </Label>

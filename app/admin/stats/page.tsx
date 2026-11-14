@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
 
-import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/page-header";
+import { StatusCounts } from "@/components/status-counts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { CALENDAR_STATUS_ORDER, CALENDAR_STATUS_UI } from "@/lib/calendar-status";
 import { calendarDate } from "@/lib/progress";
 
 function pad2(n: number) {
@@ -52,54 +52,37 @@ export default async function AdminStatsPage() {
     distinct: ["userId"],
   });
 
+  const metrics = [
+    { label: "Зареєстровано", value: totalUsers },
+    { label: "Розпочали програму", value: totalPrograms },
+    { label: "Активні за 7 днів", value: activeLast7.length },
+    { label: "Активні за 30 днів", value: activeLast30.length },
+  ];
+
   return (
     <div className="space-y-8">
-      <div className="relative inline-flex flex-col gap-2 rounded-[var(--radius)] border-4 border-border bg-card p-4 shadow-[10px_10px_0px_0px_var(--color-border)]">
-        <h1 className="text-3xl font-extrabold">Статистика</h1>
-        <p className="text-muted-foreground text-sm font-semibold">Загальні метрики і активність через календарні позначки.</p>
-      </div>
+      <PageHeader title="Статистика" description="Скільки людей у програмі і як часто вони відмічають дні в календарі." />
 
-      <div className="grid gap-5 md:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Учасники</CardTitle>
-            <CardDescription>Усього зареєстровано</CardDescription>
-          </CardHeader>
-          <CardContent className="text-3xl font-black">{totalUsers}</CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Стартували програму</CardTitle>
-            <CardDescription>Пройшли онбординг</CardDescription>
-          </CardHeader>
-          <CardContent className="text-3xl font-black">{totalPrograms}</CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Активні</CardTitle>
-            <CardDescription>Ставили позначки в календарі</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            <Badge className="bg-primary text-primary-foreground">За 7 днів: {activeLast7.length}</Badge>
-            <Badge variant="secondary">За 30 днів: {activeLast30.length}</Badge>
-          </CardContent>
-        </Card>
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {metrics.map((m) => (
+          <Card key={m.label}>
+            <CardContent>
+              <div className="text-sm font-bold">{m.label}</div>
+              <div className="font-display mt-2 text-4xl font-black tabular-nums">{m.value}</div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Позначки за місяць</CardTitle>
-          <CardDescription className="first-letter:uppercase">{monthLabel}</CardDescription>
+          <CardTitle className="first-letter:uppercase">Позначки: {monthLabel}</CardTitle>
+          <CardDescription>Усі позначки всіх учасників за поточний місяць.</CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-wrap gap-2">
-                    {CALENDAR_STATUS_ORDER.map((status) => (
-            <Badge key={status} className={CALENDAR_STATUS_UI[status].pickerClassName}>
-              {CALENDAR_STATUS_UI[status].label}: {monthMap.get(status) ?? 0}
-            </Badge>
-          ))}
+        <CardContent>
+          <StatusCounts counts={monthMap} />
         </CardContent>
       </Card>
     </div>
   );
 }
-

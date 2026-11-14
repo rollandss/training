@@ -3,10 +3,12 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronDown, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
+import { ExerciseMark } from "@/components/exercise-mark";
 import { SubmitButton } from "@/components/submit-button";
+import { NativeSelect } from "@/components/ui/native-select";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -103,171 +105,169 @@ export function UserExercisesForm(props: { initial: UserExerciseView[] }) {
   );
 
   return (
-    <div className="grid gap-4">
-      <AnimatePresence initial={false} mode="popLayout">
-        {exercises.map((exercise, index) => (
-          <motion.form
-            key={exercise.id}
-            layout
-            initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={reduceMotion ? undefined : { opacity: 0, y: -8 }}
-            transition={{ duration: 0.18 }}
-            action={async (formData) => {
-              try {
-                await updateUserExerciseAction(formData);
-                toast.success("Вправу оновлено");
-              } catch {
-                toast.error("Не вдалося оновити вправу");
-              }
-            }}
-            className={cn(
-              "grid gap-3 rounded-[var(--radius)] border-4 border-border bg-card p-3 shadow-[6px_6px_0px_0px_var(--color-border)]",
-              !exercise.enabled && "opacity-80",
-            )}
-          >
-            <input type="hidden" name="id" value={exercise.id} />
-            <motion.div layout className="flex flex-wrap items-center gap-2">
-              <Checkbox
-                id={`exercise-enabled-${exercise.id}`}
-                checked={exercise.enabled}
-                disabled={togglingId === exercise.id}
-                onCheckedChange={(checked) => {
-                  void toggleEnabled(exercise, checked === true);
-                }}
-              />
-              <Label
-                htmlFor={`exercise-enabled-${exercise.id}`}
-                className="text-xs font-black"
-              >
-                У тренуванні
-              </Label>
-              {!exercise.enabled ? (
-                <span className="text-xs font-semibold text-muted-foreground">Вимкнено</span>
-              ) : null}
-            </motion.div>
-            <div className="flex items-start gap-2">
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-[var(--radius)] border-4 border-border bg-secondary text-sm font-black shadow-[4px_4px_0px_0px_var(--color-border)]">
-                {exercise.short}
-              </div>
-              <motion.div layout className="min-w-0 flex-1 grid gap-2 sm:grid-cols-2">
-                <div className="grid gap-1.5">
-                  <Label htmlFor={`exercise-label-${exercise.id}`} className="text-xs">
-                    Назва
-                  </Label>
-                  <Input
-                    id={`exercise-label-${exercise.id}`}
-                    name="label"
-                    defaultValue={exercise.label}
-                    required
-                    disabled={exercise.isBuiltin}
-                  />
-                </div>
-                <div className="grid gap-1.5">
-                  <Label htmlFor={`exercise-short-${exercise.id}`} className="text-xs">
-                    Коротко
-                  </Label>
-                  <Input
-                    id={`exercise-short-${exercise.id}`}
-                    name="short"
-                    defaultValue={exercise.short}
-                    maxLength={6}
-                    required
-                    disabled={exercise.isBuiltin}
-                  />
-                </div>
-                <div className="grid gap-1.5 sm:col-span-2">
-                  <Label htmlFor={`exercise-max-${exercise.id}`} className="text-xs">
-                    {maxFieldLabel(exercise.metric)}
-                  </Label>
-                  <Input
-                    id={`exercise-max-${exercise.id}`}
-                    name="maxReps"
-                    type="number"
-                    min={1}
-                    max={exercise.metric === "TIME" ? 3600 : 5000}
-                    defaultValue={exercise.maxReps}
-                    required
-                    aria-describedby={`exercise-max-hint-${exercise.id}`}
-                  />
-                  <p id={`exercise-max-hint-${exercise.id}`} className="text-[11px] font-medium text-muted-foreground">
-                    Більше цього числа на тренуванні ввести не вийде — захист від описок. Це не ваш рекорд.
-                  </p>
-                </div>
-                {!exercise.isBuiltin ? (
-                  <div className="grid gap-1.5 sm:col-span-2">
-                    <Label htmlFor={`exercise-metric-${exercise.id}`} className="text-xs">
-                      Тип
-                    </Label>
-                    <select
-                      id={`exercise-metric-${exercise.id}`}
-                      name="metric"
-                      defaultValue={exercise.metric}
-                      className="h-9 rounded-[var(--radius)] border-4 border-border bg-background px-3 text-sm font-semibold shadow-[4px_4px_0px_0px_var(--color-border)]"
-                    >
-                      <option value="REPS">Повтори</option>
-                      <option value="TIME">Час</option>
-                    </select>
+    <div className="grid gap-6">
+      <ul className="grid gap-3">
+        <AnimatePresence initial={false} mode="popLayout">
+          {exercises.map((exercise, index) => (
+            <motion.li
+              key={exercise.id}
+              layout
+              initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={reduceMotion ? undefined : { opacity: 0, y: -8 }}
+              transition={{ duration: 0.18 }}
+              className={cn(
+                "rounded-[var(--radius)] border-2 border-border bg-card",
+                !exercise.enabled && "bg-muted",
+              )}
+            >
+              <div className="flex items-center gap-3 px-3 py-3">
+                <ExerciseMark className={cn(!exercise.enabled && "bg-muted text-muted-foreground")}>{exercise.short}</ExerciseMark>
+                <div className="min-w-0 flex-1">
+                  <div className={cn("truncate text-sm font-bold", !exercise.enabled && "text-muted-foreground")}>
+                    {exercise.label}
                   </div>
-                ) : (
-                  <input type="hidden" name="metric" value="REPS" />
-                )}
-              </motion.div>
-              <div className="flex shrink-0 flex-col gap-1">
-                <button
-                  type="button"
-                  className="flex size-8 items-center justify-center rounded-[var(--radius)] border-4 border-border bg-background shadow-[3px_3px_0px_0px_var(--color-border)] disabled:opacity-40"
-                  onClick={() => move(index, -1)}
-                  disabled={index === 0}
-                  aria-label={`${exercise.label}: вгору`}
-                >
-                  <ArrowUp className="size-4" />
-                </button>
-                <button
-                  type="button"
-                  className="flex size-8 items-center justify-center rounded-[var(--radius)] border-4 border-border bg-background shadow-[3px_3px_0px_0px_var(--color-border)] disabled:opacity-40"
-                  onClick={() => move(index, 1)}
-                  disabled={index === exercises.length - 1}
-                  aria-label={`${exercise.label}: вниз`}
-                >
-                  <ArrowDown className="size-4" />
-                </button>
+                  <div className="text-xs text-muted-foreground">
+                    {metricLabel(exercise.metric)} · ліміт {exercise.maxReps}
+                    {exercise.metric === "TIME" ? " с" : ""}
+                    {exercise.isBuiltin ? " · базова" : ""}
+                  </div>
+                </div>
+                <label className="flex cursor-pointer items-center gap-2 text-xs font-bold">
+                  <Checkbox
+                    checked={exercise.enabled}
+                    disabled={togglingId === exercise.id}
+                    onCheckedChange={(checked) => {
+                      void toggleEnabled(exercise, checked === true);
+                    }}
+                    aria-label={`${exercise.label}: у тренуванні`}
+                  />
+                  <span className="hidden sm:inline">У тренуванні</span>
+                </label>
+                <div className="flex shrink-0 gap-1">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon-sm"
+                    className="border-2 shadow-none hover:translate-x-0 hover:translate-y-0 hover:shadow-none"
+                    onClick={() => move(index, -1)}
+                    disabled={index === 0}
+                    aria-label={`${exercise.label}: вище`}
+                  >
+                    <ArrowUp className="size-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon-sm"
+                    className="border-2 shadow-none hover:translate-x-0 hover:translate-y-0 hover:shadow-none"
+                    onClick={() => move(index, 1)}
+                    disabled={index === exercises.length - 1}
+                    aria-label={`${exercise.label}: нижче`}
+                  >
+                    <ArrowDown className="size-4" />
+                  </Button>
+                </div>
               </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <SubmitButton size="sm" pendingLabel="Зберігаю...">
-                Зберегти
-              </SubmitButton>
-              {!exercise.isBuiltin ? (
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  className="font-black"
-                  onClick={async () => {
-                    const formData = new FormData();
-                    formData.set("id", exercise.id);
+
+              <details className="group border-t-2 border-border">
+                <summary className="flex cursor-pointer list-none items-center justify-between px-3 py-2 text-xs font-bold outline-none hover:bg-muted focus-visible:ring-4 focus-visible:ring-ring/50 focus-visible:ring-inset [&::-webkit-details-marker]:hidden">
+                  Налаштувати
+                  <ChevronDown className="size-4 transition-transform group-open:rotate-180" aria-hidden />
+                </summary>
+                <form
+                  action={async (formData) => {
                     try {
-                      await deleteUserExerciseAction(formData);
-                      toast.success("Вправу видалено");
+                      await updateUserExerciseAction(formData);
+                      toast.success("Вправу оновлено");
                     } catch {
-                      toast.error("Не вдалося видалити вправу");
+                      toast.error("Не вдалося оновити вправу");
                     }
                   }}
+                  className="grid gap-4 px-3 pb-4 pt-2"
                 >
-                  <Trash2 className="size-4" />
-                  Видалити
-                </Button>
-              ) : (
-                <span className="text-xs font-semibold text-muted-foreground">Базова вправа</span>
-              )}
-            </div>
-          </motion.form>
-        ))}
-      </AnimatePresence>
+                  <input type="hidden" name="id" value={exercise.id} />
+                  {exercise.isBuiltin ? (
+                    <>
+                      <input type="hidden" name="label" value={exercise.label} />
+                      <input type="hidden" name="short" value={exercise.short} />
+                      <input type="hidden" name="metric" value="REPS" />
+                    </>
+                  ) : (
+                    <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_7rem_9rem]">
+                      <div className="grid gap-1.5">
+                        <Label htmlFor={`exercise-label-${exercise.id}`}>Назва</Label>
+                        <Input id={`exercise-label-${exercise.id}`} name="label" defaultValue={exercise.label} required />
+                      </div>
+                      <div className="grid gap-1.5">
+                        <Label htmlFor={`exercise-short-${exercise.id}`}>Коротко</Label>
+                        <Input
+                          id={`exercise-short-${exercise.id}`}
+                          name="short"
+                          defaultValue={exercise.short}
+                          maxLength={6}
+                          required
+                        />
+                      </div>
+                      <div className="grid gap-1.5">
+                        <Label htmlFor={`exercise-metric-${exercise.id}`}>Тип</Label>
+                        <NativeSelect id={`exercise-metric-${exercise.id}`} name="metric" defaultValue={exercise.metric}>
+                          <option value="REPS">Повтори</option>
+                          <option value="TIME">Час</option>
+                        </NativeSelect>
+                      </div>
+                    </div>
+                  )}
+                  <div className="grid gap-1.5 sm:max-w-xs">
+                    <Label htmlFor={`exercise-max-${exercise.id}`}>{maxFieldLabel(exercise.metric)}</Label>
+                    <Input
+                      id={`exercise-max-${exercise.id}`}
+                      name="maxReps"
+                      type="number"
+                      min={1}
+                      max={exercise.metric === "TIME" ? 3600 : 5000}
+                      defaultValue={exercise.maxReps}
+                      required
+                      aria-describedby={`exercise-max-hint-${exercise.id}`}
+                    />
+                    <p id={`exercise-max-hint-${exercise.id}`} className="text-xs text-muted-foreground">
+                      Більше цього числа на тренуванні ввести не вийде — захист від описок. Це не твій рекорд.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <SubmitButton size="sm" pendingLabel="Зберігаю...">
+                      Зберегти
+                    </SubmitButton>
+                    {!exercise.isBuiltin ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="destructive"
+                        onClick={async () => {
+                          if (!window.confirm(`Видалити вправу «${exercise.label}»?`)) return;
+                          const formData = new FormData();
+                          formData.set("id", exercise.id);
+                          try {
+                            await deleteUserExerciseAction(formData);
+                            toast.success("Вправу видалено");
+                          } catch {
+                            toast.error("Не вдалося видалити вправу");
+                          }
+                        }}
+                      >
+                        <Trash2 className="size-4" />
+                        Видалити
+                      </Button>
+                    ) : null}
+                  </div>
+                </form>
+              </details>
+            </motion.li>
+          ))}
+        </AnimatePresence>
+      </ul>
 
-      <motion.form
-        layout
+      <form
         action={async (formData) => {
           try {
             await createUserExerciseAction(formData);
@@ -278,31 +278,35 @@ export function UserExercisesForm(props: { initial: UserExerciseView[] }) {
             toast.error("Не вдалося додати вправу");
           }
         }}
-        className="grid gap-3 rounded-[var(--radius)] border-4 border-dashed border-border bg-background/80 p-3 shadow-[6px_6px_0px_0px_var(--color-border)]"
+        className="grid gap-4 rounded-[var(--radius)] border-2 border-dashed border-border p-4"
       >
-        <div className="text-sm font-black">Нова вправа</div>
+        <div className="font-display text-base font-bold">Нова вправа</div>
         <input type="hidden" name="metric" value={draftMetric} />
-        <div className="grid grid-cols-2 gap-2">
-          {(["REPS", "TIME"] as const).map((metric) => (
-            <button
-              key={metric}
-              type="button"
-              onClick={() => setDraftMetric(metric)}
-              className={cn(
-                "rounded-[var(--radius)] border-4 border-border px-3 py-2 text-xs font-black shadow-[4px_4px_0px_0px_var(--color-border)]",
-                draftMetric === metric ? "bg-primary text-primary-foreground" : "bg-background",
-              )}
-              aria-pressed={draftMetric === metric}
-            >
-              {metricLabel(metric)}
-            </button>
-          ))}
+        <div className="grid gap-1.5">
+          <span className="text-sm font-medium" id="new-exercise-metric">
+            Що рахуємо
+          </span>
+          <div role="radiogroup" aria-labelledby="new-exercise-metric" className="flex gap-2">
+            {(["REPS", "TIME"] as const).map((metric) => (
+              <button
+                key={metric}
+                type="button"
+                role="radio"
+                aria-checked={draftMetric === metric}
+                onClick={() => setDraftMetric(metric)}
+                className={cn(
+                  "inline-flex h-9 items-center rounded-[var(--radius)] border-2 border-border px-3 text-sm font-bold outline-none focus-visible:ring-4 focus-visible:ring-ring/50",
+                  draftMetric === metric ? "bg-foreground text-background" : "bg-card hover:bg-muted",
+                )}
+              >
+                {metricLabel(metric)}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_7rem]">
           <div className="grid gap-1.5">
-            <Label htmlFor="new-exercise-label" className="text-xs">
-              Назва
-            </Label>
+            <Label htmlFor="new-exercise-label">Назва</Label>
             <Input
               id="new-exercise-label"
               name="label"
@@ -313,9 +317,7 @@ export function UserExercisesForm(props: { initial: UserExerciseView[] }) {
             />
           </div>
           <div className="grid gap-1.5">
-            <Label htmlFor="new-exercise-short" className="text-xs">
-              Коротко
-            </Label>
+            <Label htmlFor="new-exercise-short">Коротко</Label>
             <Input
               id="new-exercise-short"
               name="short"
@@ -327,15 +329,11 @@ export function UserExercisesForm(props: { initial: UserExerciseView[] }) {
             />
           </div>
         </div>
-        <SubmitButton
-          className={cn("w-fit")}
-          pendingLabel="Додаю..."
-          disabled={!draftLabel.trim() || !draftShort.trim()}
-        >
+        <SubmitButton className="w-fit" pendingLabel="Додаю..." disabled={!draftLabel.trim() || !draftShort.trim()}>
           <Plus className="size-4" />
           Додати вправу
         </SubmitButton>
-      </motion.form>
+      </form>
     </div>
   );
 }

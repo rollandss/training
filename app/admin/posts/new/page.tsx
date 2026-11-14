@@ -2,8 +2,10 @@ import Link from "next/link";
 
 import { createPostAction } from "@/app/admin/actions";
 import { SubmitButton } from "@/components/submit-button";
+import { PageHeader } from "@/components/page-header";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TiptapPostEditor } from "@/components/tiptap-post-editor";
@@ -20,49 +22,38 @@ export default async function AdminNewPostPage({ searchParams }: Props) {
   const createBlockDefault = activeBlock ?? "PREPARATION";
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Новий пост</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            `slug` має бути унікальний. `dayNumber` лишайте порожнім для підготовчих постів.
-          </p>
-        </div>
-        <Link href="/admin/posts" className={cn(buttonVariants({ variant: "outline" }))}>
-          До списку постів
-        </Link>
-      </div>
+    <div className="space-y-8">
+      <PageHeader
+        kicker={
+          <Link href="/admin/posts" className="underline decoration-2 underline-offset-4 hover:no-underline">
+            ← Усі пости
+          </Link>
+        }
+        title="Новий пост"
+        description="Адресу (slug) роби унікальною. Для підготовчих постів день лишай порожнім."
+      />
 
       <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Створення</CardTitle>
-          <CardDescription>Заповніть поля й збережіть новий запис.</CardDescription>
-        </CardHeader>
         <CardContent>
           <form action={createPostAction} className="grid gap-4">
-            <div className="grid gap-2 sm:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_8rem_12rem]">
               <div className="grid gap-1.5">
-                <Label htmlFor="create-slug">Slug</Label>
-                <Input id="create-slug" name="slug" placeholder="prep-intro або day-101" required />
+                <Label htmlFor="create-slug">Адреса (slug)</Label>
+                <Input id="create-slug" name="slug" placeholder="day-12 або prep-intro" required />
               </div>
               <div className="grid gap-1.5">
-                <Label htmlFor="create-day">День (1-100)</Label>
+                <Label htmlFor="create-day">День</Label>
                 <Input id="create-day" name="dayNumber" type="number" min={1} max={100} />
               </div>
               <div className="grid gap-1.5">
                 <Label htmlFor="create-block">Блок</Label>
-                <select
-                  id="create-block"
-                  name="block"
-                  className="border-input bg-background h-9 rounded-md border px-2 text-sm"
-                  defaultValue={createBlockDefault}
-                >
+                <NativeSelect id="create-block" name="block" defaultValue={createBlockDefault}>
                   {POST_BLOCKS.map((block) => (
                     <option key={block} value={block}>
                       {POST_BLOCK_LABELS[block]}
                     </option>
                   ))}
-                </select>
+                </NativeSelect>
               </div>
             </div>
             <div className="grid gap-1.5">
@@ -70,11 +61,11 @@ export default async function AdminNewPostPage({ searchParams }: Props) {
               <Input id="create-title" name="titleUk" required />
             </div>
             <div className="grid gap-1.5">
-              <Label htmlFor="create-image-url">Фото посту (URL)</Label>
+              <Label htmlFor="create-image-url">Обкладинка (URL)</Label>
               <Input id="create-image-url" name="imageUrl" placeholder="https://..." />
             </div>
             <div className="grid gap-1.5">
-              <Label htmlFor="create-body">Тіло поста</Label>
+              <Label htmlFor="create-body">Текст</Label>
               <TiptapPostEditor
                 key="create-post"
                 id="create-body"
@@ -83,8 +74,10 @@ export default async function AdminNewPostPage({ searchParams }: Props) {
                 minHeightClassName="min-h-[280px]"
               />
             </div>
-            <div className="flex flex-wrap gap-2">
-              <SubmitButton className="w-fit">Створити пост</SubmitButton>
+            <div className="flex flex-wrap gap-3 border-t-2 border-border pt-4">
+              <SubmitButton className="w-fit" pendingLabel="Створюю...">
+                Створити пост
+              </SubmitButton>
               <Link href="/admin/posts" className={cn(buttonVariants({ variant: "outline" }))}>
                 Скасувати
               </Link>

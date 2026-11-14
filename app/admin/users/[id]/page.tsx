@@ -3,13 +3,19 @@ import { notFound, redirect } from "next/navigation";
 
 import { SubmitButton } from "@/components/submit-button";
 import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
+import { PageHeader } from "@/components/page-header";
+import { StatusCounts } from "@/components/status-counts";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Panel } from "@/components/ui/panel";
+import type { CalendarStatus } from "@/app/app/calendar/actions";
+import { CALENDAR_STATUS_UI } from "@/lib/calendar-status";
+import { pullupLevelLabel } from "@/lib/levels";
+import { ROLE_LABELS, roleLabel } from "@/lib/roles";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { cn } from "@/lib/utils";
 
 import { AdminDeleteUserForm } from "../delete-user-form";
 import { AdminMutationForm } from "../admin-mutation-form";
@@ -69,171 +75,144 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
   });
 
   const up = user.userPrograms[0] ?? null;
+  const monthLabel = new Intl.DateTimeFormat("uk-UA", { month: "long", year: "numeric", timeZone: "UTC" })
+    .format(new Date(`${monthKey}-01T00:00:00Z`))
+    .replace(/\s*р\.$/, "");
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="relative inline-flex flex-col gap-2 rounded-[var(--radius)] border-4 border-border bg-card p-4 shadow-[10px_10px_0px_0px_var(--color-border)]">
-          <div className="pointer-events-none absolute right-3 top-3 size-10 border-4 border-border bg-primary shadow-[6px_6px_0px_0px_var(--color-border)]" />
-          <h1 className="text-2xl font-extrabold">{user.email}</h1>
-          <p className="text-muted-foreground text-sm font-semibold">
-            {user.role} · {user.profile?.onboardingDone ? "онбординг ✓" : "онбординг —"} · створено {user.createdAt.toISOString().slice(0, 10)}
-          </p>
-        </div>
-        <Link href="/admin/users" className={cn(buttonVariants({ variant: "outline" }))}>
-          ← До списку
-        </Link>
-      </div>
+      <PageHeader
+        kicker={
+          <Link href="/admin/users" className="underline decoration-2 underline-offset-4 hover:no-underline">
+            ← Усі користувачі
+          </Link>
+        }
+        title={user.email}
+        description={`${roleLabel(user.role)} · ${user.profile?.onboardingDone ? "анкета заповнена" : "без анкети"} · зареєстровано ${user.createdAt.toISOString().slice(0, 10)}`}
+      />
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_420px]">
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
         <Card>
           <CardHeader>
             <CardTitle>Прогрес</CardTitle>
-            <CardDescription>Поточна програма + редагування курсора дня.</CardDescription>
+            <CardDescription>{up ? up.program.name : "Програму ще не розпочато."}</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="rounded-[var(--radius)] border-4 border-border bg-background p-4 shadow-[8px_8px_0px_0px_var(--color-border)]">
-              <div className="text-xs font-black text-muted-foreground">Програма</div>
-              <div className="mt-1 text-sm font-black">
-                {up ? `${up.program.name} · день ${up.cursorDay}/${up.program.durationDays}` : "не стартував"}
-              </div>
-              {up ? (
-                <AdminMutationForm
-                  action={updateUserCursorDayAction}
-                  successMessage="Відкритий день збережено. Пости й календар оновляться для користувача."
-                  className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto] sm:items-end"
-                >
-                  <input type="hidden" name="userId" value={user.id} />
-                  <input type="hidden" name="programId" value={up.programId} />
-                  <div className="grid gap-1.5">
-                    <Label htmlFor="cursorDay">Відкритий день (1-100)</Label>
-                    <Input id="cursorDay" name="cursorDay" type="number" min={1} max={100} defaultValue={up.cursorDay} />
-                  </div>
-                  <SubmitButton variant="secondary" className="w-fit" pendingLabel="Зберігаю...">
-                    Зберегти
-                  </SubmitButton>
-                </AdminMutationForm>
-              ) : null}
+          <CardContent className="space-y-6">
+            {up ? (
+              <AdminMutationForm
+                action={updateUserCursorDayAction}
+                successMessage="Відкритий день збережено. Пости й календар оновляться для користувача."
+                className="grid gap-3 sm:grid-cols-[minmax(0,14rem)_auto] sm:items-end"
+              >
+                <input type="hidden" name="userId" value={user.id} />
+                <input type="hidden" name="programId" value={up.programId} />
+                <div className="grid gap-1.5">
+                  <Label htmlFor="cursorDay">Відкритий день (з {up.program.durationDays})</Label>
+                  <Input id="cursorDay" name="cursorDay" type="number" min={1} max={up.program.durationDays} defaultValue={up.cursorDay} />
+                </div>
+                <SubmitButton className="w-fit" pendingLabel="Зберігаю...">
+                  Зберегти день
+                </SubmitButton>
+              </AdminMutationForm>
+            ) : null}
+
+            <div className="space-y-2">
+              <h3 className="text-sm font-bold first-letter:uppercase">{monthLabel}</h3>
+              <StatusCounts counts={map} />
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-3">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Цей місяць</CardTitle>
-                  <CardDescription>{monthKey}</CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-wrap gap-2">
-                  <Badge className="bg-primary text-primary-foreground">Т: {map.get("TRAINING") ?? 0}</Badge>
-                <Badge className="bg-accent text-accent-foreground">Р: {map.get("STRETCHING") ?? 0}</Badge>
-                  <Badge variant="secondary">В: {map.get("REST") ?? 0}</Badge>
-                  <Badge variant="outline">Х: {map.get("SICK") ?? 0}</Badge>
-                </CardContent>
-              </Card>
-              <Card className="sm:col-span-2">
-                <CardHeader>
-                  <CardTitle className="text-base">Останні позначки</CardTitle>
-                  <CardDescription>Останні 21 день з календаря</CardDescription>
-                </CardHeader>
-                <CardContent className="grid gap-2">
-                  {recent.length ? (
-                    recent.map((r) => (
-                      <div key={r.dayKey} className="flex items-center justify-between gap-3 text-sm">
-                        <div className="font-mono text-xs">{r.dayKey}</div>
-                        <div className="font-black">{r.status}</div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-muted-foreground text-sm">Немає записів</div>
-                  )}
-                </CardContent>
-              </Card>
+            <div className="space-y-2">
+              <h3 className="text-sm font-bold">Останні позначки</h3>
+              {recent.length ? (
+                <ul className="divide-y-2 divide-border border-2 border-border">
+                  {recent.map((r) => {
+                    const ui = CALENDAR_STATUS_UI[r.status as CalendarStatus];
+                    return (
+                      <li key={r.dayKey} className="flex items-center justify-between gap-3 bg-card px-3 py-2 text-sm">
+                        <span className="tabular-nums">{r.dayKey}</span>
+                        {ui ? <Badge className={ui.pickerClassName}>{ui.label}</Badge> : <span>{r.status}</span>}
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : (
+                <Panel tone="dashed" className="text-sm font-medium">
+                  Позначок у календарі ще немає.
+                </Panel>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Обліковий запис</CardTitle>
-            <CardDescription>Email, пароль і роль користувача.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <AdminMutationForm action={updateUserAccountAction} successMessage="Обліковий запис оновлено." className="grid gap-3">
-              <input type="hidden" name="userId" value={user.id} />
-              <div className="grid gap-1.5">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" name="email" type="email" defaultValue={user.email} required />
-              </div>
-              <div className="grid gap-1.5">
-                <Label htmlFor="password">Новий пароль</Label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  minLength={8}
-                  autoComplete="new-password"
-                  placeholder="Залиште порожнім, щоб не змінювати"
-                />
-              </div>
-              <div className="grid gap-1.5">
-                <Label htmlFor="role">Роль</Label>
-                <select
-                  id="role"
-                  name="role"
-                  className="border-input bg-background h-10 rounded-[var(--radius)] border-4 px-2 text-sm font-black shadow-[6px_6px_0px_0px_var(--color-border)]"
-                  defaultValue={user.role}
-                >
-                  <option value="USER">USER</option>
-                  <option value="ADMIN">ADMIN</option>
-                </select>
-              </div>
-              <SubmitButton variant="secondary" className="w-fit" pendingLabel="Зберігаю...">
-                Зберегти обліковий запис
-              </SubmitButton>
-            </AdminMutationForm>
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Обліковий запис</CardTitle>
+              <CardDescription>Email, пароль і роль.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AdminMutationForm action={updateUserAccountAction} successMessage="Обліковий запис оновлено." className="grid gap-4">
+                <input type="hidden" name="userId" value={user.id} />
+                <div className="grid gap-1.5">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" name="email" type="email" defaultValue={user.email} required />
+                </div>
+                <div className="grid gap-1.5">
+                  <Label htmlFor="password">Новий пароль</Label>
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    minLength={8}
+                    autoComplete="new-password"
+                    placeholder="Порожньо — без змін"
+                  />
+                </div>
+                <div className="grid gap-1.5">
+                  <Label htmlFor="role">Роль</Label>
+                  <NativeSelect id="role" name="role" defaultValue={user.role}>
+                    <option value="USER">{ROLE_LABELS.USER}</option>
+                    <option value="ADMIN">{ROLE_LABELS.ADMIN}</option>
+                  </NativeSelect>
+                </div>
+                <SubmitButton className="w-fit" pendingLabel="Зберігаю...">
+                  Зберегти зміни
+                </SubmitButton>
+              </AdminMutationForm>
+            </CardContent>
+          </Card>
 
-            <AdminDeleteUserForm userId={user.id} disabled={me.id === user.id} />
-
-            <div className="rounded-[var(--radius)] border-4 border-border bg-background p-4 shadow-[8px_8px_0px_0px_var(--color-border)]">
-              <div className="text-xs font-black text-muted-foreground">Профіль</div>
-              <div className="mt-2 space-y-1 text-sm font-medium text-muted-foreground">
+          <Card>
+            <CardHeader>
+              <CardTitle>Анкета</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <dl className="grid gap-3 text-sm">
                 <div>
-                  <span className="font-black text-foreground">Рівень:</span> {user.profile?.levelSelfAssessment ?? "—"}
+                  <dt className="font-bold">Підтягування на старті</dt>
+                  <dd className="text-muted-foreground">{pullupLevelLabel(user.profile?.levelSelfAssessment) ?? "—"}</dd>
                 </div>
                 <div>
-                  <span className="font-black text-foreground">Обмеження:</span> {user.profile?.limitations ?? "—"}
+                  <dt className="font-bold">Обмеження</dt>
+                  <dd className="text-muted-foreground">{user.profile?.limitations || "—"}</dd>
                 </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+              </dl>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Видалення</CardTitle>
+              <CardDescription>
+                {me.id === user.id ? "Себе видалити не можна." : "Видаляє обліковий запис і весь прогрес без можливості відновити."}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AdminDeleteUserForm userId={user.id} disabled={me.id === user.id} />
+            </CardContent>
+          </Card>
+        </div>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Календар (місяць)</CardTitle>
-          <CardDescription>Читання по днях для цього користувача (поточний місяць).</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-2 sm:grid-cols-3">
-            <div className="rounded-[var(--radius)] border-4 border-border bg-primary p-3 text-sm font-black text-primary-foreground shadow-[8px_8px_0px_0px_var(--color-border)]">
-              TRAINING
-            </div>
-            <div className="rounded-[var(--radius)] border-4 border-border bg-accent p-3 text-sm font-black text-accent-foreground shadow-[8px_8px_0px_0px_var(--color-border)]">
-              STRETCHING
-            </div>
-            <div className="rounded-[var(--radius)] border-4 border-border bg-secondary p-3 text-sm font-black text-secondary-foreground shadow-[8px_8px_0px_0px_var(--color-border)]">
-              REST
-            </div>
-            <div className="rounded-[var(--radius)] border-4 border-border bg-destructive p-3 text-sm font-black text-primary-foreground shadow-[8px_8px_0px_0px_var(--color-border)]">
-              SICK
-            </div>
-          </div>
-          <div className="mt-4 text-sm font-medium text-muted-foreground">
-            Діапазон: <span className="font-mono text-xs">{startKey}</span> … <span className="font-mono text-xs">{endKeyExclusive}</span>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
-

@@ -5,10 +5,10 @@ export type PostBlock = (typeof POST_BLOCKS)[number];
 
 export const POST_BLOCK_LABELS: Record<PostBlock, string> = {
   PREPARATION: "Підготовка",
-  BASIC: "Базовий",
-  ADVANCED: "Просунутий",
-  TURBO: "Турбо блок",
-  CONCLUSION: "Заключення",
+  BASIC: "Базовий блок",
+  ADVANCED: "Просунутий блок",
+  TURBO: "Турбо-блок",
+  CONCLUSION: "Завершення",
 };
 
 export function getPostBlockLabel(block: string) {

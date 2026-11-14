@@ -4,17 +4,17 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 items-center justify-center rounded-[var(--radius)] border-4 border-border bg-clip-padding text-sm font-extrabold whitespace-nowrap transition-[transform,box-shadow,background-color,color] outline-none select-none focus-visible:ring-4 focus-visible:ring-ring/50 active:translate-y-1 active:translate-x-1 disabled:pointer-events-none disabled:opacity-50 shadow-[8px_8px_0px_0px_var(--color-border)] hover:shadow-[12px_12px_0px_0px_var(--color-border)] hover:-translate-y-1 hover:-translate-x-1 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 items-center justify-center rounded-[var(--radius)] border-4 border-border bg-clip-padding text-sm font-extrabold whitespace-nowrap transition-[transform,box-shadow,background-color,color] outline-none select-none focus-visible:ring-4 focus-visible:ring-ring/50 active:translate-y-1 active:translate-x-1 disabled:pointer-events-none disabled:opacity-50 shadow-[4px_4px_0px_0px_var(--color-border)] hover:shadow-[6px_6px_0px_0px_var(--color-border)] hover:-translate-y-0.5 hover:-translate-x-0.5 active:shadow-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground",
         outline:
-          "bg-background text-foreground hover:bg-secondary",
+          "bg-card text-card-foreground hover:bg-muted",
         secondary:
           "bg-secondary text-secondary-foreground",
         ghost:
-          "border-transparent shadow-none hover:border-border hover:shadow-[8px_8px_0px_0px_var(--color-border)] hover:bg-muted",
+          "border-transparent shadow-none hover:border-border hover:shadow-[4px_4px_0px_0px_var(--color-border)] hover:bg-muted",
         destructive:
           "bg-destructive text-primary-foreground",
         link: "border-transparent shadow-none p-0 h-auto text-foreground underline hover:no-underline",
