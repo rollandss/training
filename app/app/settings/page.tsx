@@ -17,6 +17,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import { ExerciseBaselineForm } from "./baseline-form";
+import { ResetProgramForm } from "./reset-program-form";
 import { UserExercisesForm } from "./user-exercises-form";
 import { setEmailSubscriptionEnabledAction } from "./actions";
 
@@ -112,6 +113,18 @@ export default async function SettingsPage() {
               <code className="font-mono">SMTP_PORT</code>). Cron щодня о 07:00 UTC.
             </p>
           ) : null}
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Почати програму заново</CardTitle>
+          <CardDescription>
+            Повертає на день 1 від сьогодні. Позначки календаря і записи тренувань видаляються. Максимуми, твої вправи і
+            налаштування пошти лишаються.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ResetProgramForm />
         </CardContent>
       </Card>
     </div>

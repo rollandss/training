@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CircleCheck } from "lucide-react";
 
+import { FormMessage } from "@/components/form-message";
 import { HundredBoard, type BoardMark } from "@/components/hundred-board";
 import { PostCover } from "@/components/post-cover";
 import { buttonVariants } from "@/components/ui/button";
@@ -17,7 +18,8 @@ import { cn } from "@/lib/utils";
 
 const MARKS = new Set<BoardMark>(["TRAINING", "STRETCHING", "REST", "SICK"]);
 
-export default async function AppDashboardPage() {
+export default async function AppDashboardPage({ searchParams }: { searchParams: Promise<{ reset?: string }> }) {
+  const { reset } = await searchParams;
   const user = await getCurrentUser();
   if (!user?.userPrograms[0]) redirect("/onboarding");
   const up = user.userPrograms[0];
@@ -61,6 +63,11 @@ export default async function AppDashboardPage() {
     <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-14">
       <div className="min-w-0 space-y-10">
         <section aria-labelledby="today-heading">
+          {reset ? (
+            <FormMessage tone="success" className="mb-6 max-w-[52ch]">
+              Програму почато заново. Сьогодні — день 1, календар чистий, максимуми збережено.
+            </FormMessage>
+          ) : null}
           <p className="text-base font-bold">{dailyPost ? getPostBlockLabel(dailyPost.block) : program.name}</p>
           <h1 id="today-heading" className="font-display mt-1 text-[clamp(2.5rem,7vw,4rem)] font-black leading-[0.95] tracking-[-0.02em]">
             День {currentDay}

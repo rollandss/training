@@ -18,6 +18,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 import { AdminDeleteUserForm } from "../delete-user-form";
+import { AdminResetProgramForm } from "../reset-program-form";
 import { AdminMutationForm } from "../admin-mutation-form";
 import { updateUserAccountAction, updateUserCursorDayAction } from "../actions";
 import { calendarDate } from "@/lib/progress";
@@ -115,6 +116,8 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
                 </SubmitButton>
               </AdminMutationForm>
             ) : null}
+
+            {up ? <AdminResetProgramForm userId={user.id} /> : null}
 
             <div className="space-y-2">
               <h3 className="text-sm font-bold first-letter:uppercase">{monthLabel}</h3>
