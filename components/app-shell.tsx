@@ -50,10 +50,10 @@ function NavLink(props: { href: string; label: string; onNavigate?: () => void; 
       onClick={props.onNavigate}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "rounded-[var(--radius)] text-[15px] font-bold underline-offset-[6px] outline-none focus-visible:ring-4 focus-visible:ring-ring/50",
-        props.block ? "block border-4 border-transparent px-3 py-3" : "px-1 py-2",
-        active ? "underline decoration-4" : "hover:underline hover:decoration-2",
-        props.block && active && "border-border bg-primary no-underline",
+        "rounded-[var(--radius)] text-[15px] font-semibold outline-none transition-colors focus-visible:ring-4 focus-visible:ring-ring/40",
+        props.block ? "block px-3 py-2.5" : "px-1 py-1.5",
+        active ? "nb-highlight text-foreground" : "text-muted-foreground hover:text-foreground",
+        props.block && active && "bg-primary/60 no-underline",
       )}
     >
       {props.label}
@@ -72,18 +72,18 @@ export function AppShell({ email, isAdmin, section = "app" }: Props) {
         : APP_NAV;
 
   return (
-    <header className="border-b-4 border-border bg-card">
-      <div className="mx-auto flex w-full max-w-6xl items-center gap-4 px-4 py-3 md:gap-8 md:px-8">
+    <header className="sticky top-0 z-40 border-b border-border/15 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
+      <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-4 px-4 md:gap-10 md:px-8">
         <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
           <SheetTrigger
             render={
-              <Button type="button" variant="outline" size="icon-sm" className="md:hidden" aria-label="Відкрити меню">
+              <Button type="button" variant="ghost" size="icon-sm" className="md:hidden" aria-label="Відкрити меню">
                 <Menu className="size-4" />
               </Button>
             }
           />
-          <SheetContent side="left" className="w-[min(88vw,20rem)] border-r-4 border-border p-0">
-            <SheetHeader className="border-b-4 border-border px-4 py-3 pr-14">
+          <SheetContent side="left" className="w-[min(88vw,20rem)] border-r border-border/20 bg-background p-0">
+            <SheetHeader className="border-b border-border/15 px-4 py-3 pr-14">
               <SheetTitle className="font-display text-left text-lg font-bold">Меню</SheetTitle>
             </SheetHeader>
             <nav className="flex flex-col gap-1 px-3 py-3" aria-label="Розділи">
@@ -95,15 +95,15 @@ export function AppShell({ email, isAdmin, section = "app" }: Props) {
         </Sheet>
 
         <div className="flex items-center gap-3">
-          <SiteLogo href={section === "admin" ? "/admin" : "/app"} onClick={closeMenu} markClassName="h-9 w-auto" />
+          <SiteLogo href={section === "admin" ? "/admin" : "/app"} onClick={closeMenu} markClassName="h-8 w-auto" />
           {section === "admin" ? (
-            <span className="rounded-[var(--radius)] border-2 border-border bg-secondary px-2 py-0.5 text-xs font-bold text-secondary-foreground">
-              Адмінка
+            <span className="rounded-[var(--radius)] bg-secondary px-1.5 py-0.5 text-xs font-bold text-secondary-foreground">
+              адмінка
             </span>
           ) : null}
         </div>
 
-        <nav className="hidden items-center gap-5 md:flex" aria-label="Розділи">
+        <nav className="hidden items-center gap-6 md:flex" aria-label="Розділи">
           {items.map((item) => (
             <NavLink key={item.href} href={item.href} label={item.label} />
           ))}

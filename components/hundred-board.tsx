@@ -37,7 +37,7 @@ export function HundredBoard({ marks, today, animate, hrefForDay, label, classNa
     <figure className={cn("w-full", className)}>
       <div
         className={cn(
-          "grid grid-cols-10 rounded-[var(--radius)] border-4 border-border bg-card shadow-[10px_10px_0px_0px_var(--color-border)]",
+          "grid grid-cols-10 rounded-[var(--radius)] border-2 border-border bg-card shadow-[4px_4px_0px_0px_var(--shadow-ink)]",
           compact ? "gap-1 p-2" : "gap-1 p-2 sm:gap-1.5 sm:p-3",
         )}
         role={hrefForDay ? undefined : "img"}

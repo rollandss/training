@@ -25,8 +25,8 @@ export function PostCover({ src, alt, className, fallbackLabel = "Матеріа
     return (
       <div
         className={cn(
-          "flex h-full w-full items-center justify-center bg-primary px-6 text-center text-sm font-black text-primary-foreground/70",
-          "bg-[radial-gradient(circle,var(--color-border)_1px,transparent_1.5px)] [background-size:16px_16px]",
+          "font-display flex h-full w-full items-center justify-center bg-muted px-6 text-center text-3xl font-black text-foreground/70 sm:text-5xl",
+          "[background-image:linear-gradient(var(--grid-line)_1px,transparent_1px),linear-gradient(90deg,var(--grid-line)_1px,transparent_1px)] [background-size:var(--grid-cell)_var(--grid-cell)]",
           className,
         )}
         aria-hidden

@@ -121,7 +121,7 @@ export default function HomePage() {
                 Зранку відкривається пост: що робити сьогодні і чому. Перший — про схему базового блоку. Ось тренування з нього:
               </p>
 
-              <div className="mt-8 rounded-[var(--radius)] border-4 border-border bg-background p-5 shadow-[8px_8px_0px_0px_var(--color-border)] sm:p-6">
+              <div className="mt-8 rounded-[var(--radius)] border-2 border-border bg-background p-5 shadow-[4px_4px_0px_0px_var(--shadow-ink)] sm:p-6">
                 <p className="font-display text-lg font-bold">День 1. Чотири кола без відпочинку між вправами</p>
                 <ol className="mt-5 grid gap-2">
                   {CIRCUIT.map((step, i) => (
@@ -144,7 +144,7 @@ export default function HomePage() {
                   <div
                     key={t.label}
                     className={cn(
-                      "rounded-[var(--radius)] border-4 border-border px-4 py-4 text-sm font-black",
+                      "rounded-[var(--radius)] border-2 border-border px-4 py-4 text-sm font-black",
                       t.className,
                       t.label === "Хвороба" ? "text-background" : "text-foreground",
                     )}
@@ -165,9 +165,9 @@ export default function HomePage() {
           <h2 id="phases-heading" className="font-display text-3xl font-black leading-tight tracking-[-0.01em] sm:text-4xl">
             Чотири етапи, в масштабі
           </h2>
-          <div className="mt-8 flex h-14 overflow-hidden rounded-[var(--radius)] border-4 border-border shadow-[8px_8px_0px_0px_var(--color-border)]" aria-hidden>
+          <div className="mt-8 flex h-14 overflow-hidden rounded-[var(--radius)] border-2 border-border shadow-[4px_4px_0px_0px_var(--shadow-ink)]" aria-hidden>
             {PHASES.map((p) => (
-              <div key={p.name} className={cn("border-r-4 border-border last:border-r-0", p.className)} style={{ flexGrow: p.span, flexBasis: 0 }} />
+              <div key={p.name} className={cn("border-r-2 border-border last:border-r-0", p.className)} style={{ flexGrow: p.span, flexBasis: 0 }} />
             ))}
           </div>
           <ol className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -190,7 +190,7 @@ export default function HomePage() {
           </h2>
           <ul className="mt-8 grid gap-8 sm:grid-cols-3">
             {NEEDS.map((n) => (
-              <li key={n.title} className="border-t-4 border-border pt-4">
+              <li key={n.title} className="border-t-2 border-border pt-4">
                 <p className="font-display text-2xl font-black">{n.title}</p>
                 <p className="mt-2 max-w-[30ch] text-base leading-relaxed">{n.text}</p>
               </li>
@@ -198,7 +198,7 @@ export default function HomePage() {
           </ul>
         </section>
 
-        <section className="border-t-4 border-border bg-card" aria-labelledby="faq-heading">
+        <section className="border-t-2 border-border bg-card" aria-labelledby="faq-heading">
           <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-16 md:px-8 lg:grid-cols-[1fr_1.6fr] lg:py-24">
             <h2 id="faq-heading" className="font-display text-3xl font-black leading-tight tracking-[-0.01em] sm:text-4xl">
               Часті питання
@@ -207,7 +207,7 @@ export default function HomePage() {
               {FAQ.map(({ q, a }) => (
                 <details
                   key={q}
-                  className="group rounded-[var(--radius)] border-4 border-border bg-background open:shadow-[6px_6px_0px_0px_var(--color-border)]"
+                  className="group rounded-[var(--radius)] border-2 border-border bg-background open:shadow-[3px_3px_0px_0px_var(--shadow-ink)]"
                 >
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-base font-bold focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring/50 [&::-webkit-details-marker]:hidden">
                     {q}
@@ -227,7 +227,7 @@ export default function HomePage() {
             </p>
             <Link
               href="/auth/register"
-              className={cn(buttonVariants({ size: "lg" }), "h-14 shrink-0 px-7 text-base shadow-[6px_6px_0px_0px_var(--color-background)]")}
+              className={cn(buttonVariants({ size: "lg" }), "h-14 shrink-0 px-7 text-base shadow-[3px_3px_0px_0px_var(--shadow-ink)]")}
             >
               Почати перший день
             </Link>

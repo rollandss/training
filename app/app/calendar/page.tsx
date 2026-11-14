@@ -219,7 +219,7 @@ export default async function CalendarPage({
             return (
               <div
                 key={`prestart-${dayKey}`}
-                className="h-14 rounded-[var(--radius)] border-2 border-dashed border-border/50 bg-card/30 p-1.5 text-xs font-black text-muted-foreground/70 sm:h-[7rem] sm:border-4 sm:p-2 sm:text-sm"
+                className="h-14 rounded-[var(--radius)] border-2 border-dashed border-border/50 bg-card/30 p-1.5 text-xs font-black text-muted-foreground/70 sm:h-[7rem] sm:border-2 sm:p-2 sm:text-sm"
                 title="До старту програми"
               >
                 {dayNum}
