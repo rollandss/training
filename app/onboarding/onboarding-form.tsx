@@ -4,6 +4,7 @@ import { useActionState } from "react";
 
 import { onboardingAction, type OnboardingState } from "@/app/onboarding/actions";
 import { MotionReveal } from "@/components/motion-ui";
+import { FormMessage } from "@/components/form-message";
 import { SubmitButton } from "@/components/submit-button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -28,15 +29,13 @@ export function OnboardingForm() {
         </CardHeader>
         <CardContent className="grid gap-5">
           {state?.error ? (
-            <p role="alert" className="text-sm text-destructive">
-              {state.error}
-            </p>
+            <FormMessage>{state.error}</FormMessage>
           ) : null}
           <div className="grid gap-2">
-            <Label htmlFor="levelSelfAssessment">Скільки разів ви зараз підтягуєтесь?</Label>
+            <Label htmlFor="levelSelfAssessment">Скільки разів ти зараз підтягуєшся?</Label>
             <NativeSelect id="levelSelfAssessment" name="levelSelfAssessment" required defaultValue="">
               <option value="" disabled>
-                Оберіть варіант
+                Обери варіант
               </option>
               {levels.map((l) => (
                 <option key={l.value} value={l.value}>

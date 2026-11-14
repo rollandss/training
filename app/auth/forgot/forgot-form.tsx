@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { requestPasswordResetAction, type ResetFormState } from "@/app/auth/reset-actions";
 import { MotionReveal } from "@/components/motion-ui";
+import { FormMessage } from "@/components/form-message";
 import { SubmitButton } from "@/components/submit-button";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,10 +22,10 @@ export function ForgotForm() {
         {state?.ok ? (
           <>
             <CardHeader>
-              <CardTitle>Перевірте пошту</CardTitle>
+              <CardTitle>Перевір пошту</CardTitle>
               <CardDescription>
-                Якщо акаунт із цим email існує, ми надіслали посилання для нового пароля. Воно діє 1 годину. Не бачите листа —
-                загляньте в «Спам».
+                Якщо акаунт із цим email існує, ми надіслали посилання для нового пароля. Воно діє 1 годину. Не бачиш листа —
+                зазирни в «Спам».
               </CardDescription>
             </CardHeader>
             <CardFooter className="border-t-0 bg-transparent">
@@ -36,14 +37,12 @@ export function ForgotForm() {
         ) : (
           <form action={formAction}>
             <CardHeader>
-              <CardTitle>Забули пароль?</CardTitle>
-              <CardDescription>Вкажіть email акаунта — надішлемо посилання, щоб задати новий пароль.</CardDescription>
+              <CardTitle>Забув пароль?</CardTitle>
+              <CardDescription>Вкажи email акаунта — надішлемо посилання, щоб задати новий пароль.</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4">
               {state?.error ? (
-                <p role="alert" className="text-sm text-destructive">
-                  {state.error}
-                </p>
+                <FormMessage>{state.error}</FormMessage>
               ) : null}
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>

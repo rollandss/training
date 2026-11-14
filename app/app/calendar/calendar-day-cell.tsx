@@ -9,7 +9,6 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { SubmitButton } from "@/components/submit-button";
-import { CardDescription, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -207,12 +206,12 @@ export function CalendarDayCell(props: {
           <button
             type="button"
             className={cn(
-              "relative flex h-14 w-full min-w-0 flex-col rounded-[var(--radius)] border-2 border-border bg-card p-1.5 text-left sm:h-[7rem] sm:border-4 sm:p-2 sm:shadow-[6px_6px_0px_0px_var(--color-border)]",
+              "relative flex h-14 w-full min-w-0 flex-col rounded-[var(--radius)] border-2 border-border bg-card p-1.5 text-left outline-none focus-visible:ring-4 focus-visible:ring-ring/50 sm:h-[7rem] sm:border-4 sm:p-2 sm:shadow-[4px_4px_0px_0px_var(--color-border)]",
               status ? CALENDAR_STATUS_UI[status].cellClassName : "bg-card text-foreground",
               locked && "border-dashed border-foreground/25 bg-transparent text-foreground/40 shadow-none sm:shadow-none",
               isToday && "ring-4 ring-foreground ring-offset-2 ring-offset-background",
               !locked &&
-                "transition-[transform,box-shadow] sm:hover:-translate-x-0.5 sm:hover:-translate-y-0.5 sm:hover:shadow-[8px_8px_0px_0px_var(--color-border)] sm:active:translate-x-0.5 sm:active:translate-y-0.5",
+                "transition-[transform,box-shadow] sm:hover:-translate-x-0.5 sm:hover:-translate-y-0.5 sm:hover:shadow-[6px_6px_0px_0px_var(--color-border)] sm:active:translate-x-0.5 sm:active:translate-y-0.5 sm:active:shadow-none",
             )}
             aria-label={`${dateLabel}, день ${programDay}${isToday ? ", сьогодні" : ""}`}
             aria-current={isToday ? "date" : undefined}
@@ -220,7 +219,7 @@ export function CalendarDayCell(props: {
             <div className="flex items-baseline justify-between gap-1">
               <span className="text-xs font-black sm:text-sm">{dayNum}</span>
               {isToday ? (
-                <span className="hidden rounded-sm bg-foreground px-1 text-[10px] font-black text-background sm:inline">
+                <span className="hidden rounded-[var(--radius)] bg-foreground px-1 text-[10px] font-black text-background sm:inline">
                   Сьогодні
                 </span>
               ) : null}
@@ -248,19 +247,19 @@ export function CalendarDayCell(props: {
       <SheetContent
         side="bottom"
         className={cn(
-          "flex w-full max-w-none flex-col gap-0 overflow-hidden border-4 border-border p-0 shadow-[10px_10px_0px_0px_var(--color-border)] sm:mx-auto sm:max-w-lg",
+          "flex w-full max-w-none flex-col gap-0 overflow-hidden border-4 border-border bg-card p-0 shadow-[8px_8px_0px_0px_var(--color-border)] sm:mx-auto sm:max-w-lg",
           sessionActive
             ? "h-dvh max-h-dvh rounded-none data-[side=bottom]:h-dvh"
             : "h-[min(92dvh,100svh)] max-h-[92dvh] rounded-t-[var(--radius)]",
         )}
       >
-        <SheetHeader className="shrink-0 border-b-4 border-border px-4 py-3 pr-14">
-          <SheetTitle className="text-lg font-black">День {programDay}</SheetTitle>
-          <SheetDescription className="text-xs font-medium">
+        <SheetHeader className="shrink-0 border-b-2 border-border px-4 py-3 pr-14">
+          <SheetTitle className="font-display text-xl font-black">День {programDay}</SheetTitle>
+          <SheetDescription className="text-sm first-letter:uppercase">
             {step === "choose"
-              ? "Обери тип дня."
+              ? dateLabel
               : step === "setup"
-                ? "Налаштуй план заняття: круги, порядок вправ і цілі."
+                ? "План заняття: формат, відпочинок, вправи і цілі."
                 : volumeProgress && volumeProgressLabel
                   ? `${volumeProgressLabel} ${volumeProgress.active} з ${volumeProgress.rounds}`
                   : "Проведи заняття за планом."}
@@ -302,17 +301,16 @@ export function CalendarDayCell(props: {
 
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3">
             <input type="hidden" name="status" value={localStatus} />
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <CardDescription className="text-xs font-semibold first-letter:uppercase">{dateLabel}</CardDescription>
-              {postSlug && step === "choose" ? (
+            {postSlug && step === "choose" ? (
+              <div className="mb-4">
                 <Link
                   href={`/app/post/${postSlug}`}
-                  className="inline-flex items-center gap-1 text-xs font-black underline underline-offset-4"
+                  className="inline-flex items-center gap-1.5 text-sm font-bold underline decoration-2 underline-offset-4 hover:no-underline"
                 >
-                  <BookOpen className="size-3.5" /> Пост дня {programDay}
+                  <BookOpen className="size-4" /> Прочитати пост дня
                 </Link>
-              ) : null}
-            </div>
+              </div>
+            ) : null}
 
             <AnimatePresence mode="wait" initial={false}>
               {step === "choose" ? (
@@ -325,8 +323,8 @@ export function CalendarDayCell(props: {
                   className="grid gap-4"
                 >
                 <div className="grid gap-2">
-                <CardTitle className="text-base font-black">Тип дня</CardTitle>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="text-sm font-bold" id={`day-type-${dayKey}`}>Що було сьогодні?</div>
+                <div className="grid grid-cols-2 gap-2" role="group" aria-labelledby={`day-type-${dayKey}`}>
                   {(Object.keys(CALENDAR_STATUS_UI) as CalendarStatus[]).map((s) => (
                     <button
                       key={s}
@@ -340,15 +338,23 @@ export function CalendarDayCell(props: {
                         }
                       }}
                       className={cn(
-                        "rounded-[var(--radius)] border-4 border-border px-3 py-3 text-left text-xs font-black shadow-[6px_6px_0px_0px_var(--color-border)] transition-[transform,box-shadow] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0px_0px_var(--color-border)] active:translate-x-0.5 active:translate-y-0.5",
-                        localStatus === s ? CALENDAR_STATUS_UI[s].pickerClassName : "bg-background text-foreground",
+                        "flex items-start gap-2.5 rounded-[var(--radius)] border-2 border-border px-3 py-3 text-left text-sm font-bold outline-none transition-colors focus-visible:ring-4 focus-visible:ring-ring/50",
+                        localStatus === s
+                          ? cn(CALENDAR_STATUS_UI[s].pickerClassName, "border-4 px-2.5 py-2.5")
+                          : "bg-card text-foreground hover:bg-muted",
                       )}
                       aria-pressed={localStatus === s}
                     >
-                      <div>{CALENDAR_STATUS_UI[s].label}</div>
-                      {CALENDAR_STATUS_UI[s].hint ? (
-                        <div className="mt-1 text-[11px] font-semibold opacity-80">{CALENDAR_STATUS_UI[s].hint}</div>
-                      ) : null}
+                      <span
+                        aria-hidden
+                        className={cn("mt-0.5 size-4 shrink-0 border-2 border-border", CALENDAR_STATUS_UI[s].pickerClassName)}
+                      />
+                      <span>
+                        <span className="block">{CALENDAR_STATUS_UI[s].label}</span>
+                        {CALENDAR_STATUS_UI[s].hint ? (
+                          <span className="mt-0.5 block text-xs font-medium opacity-80">{CALENDAR_STATUS_UI[s].hint}</span>
+                        ) : null}
+                      </span>
                     </button>
                   ))}
                   {status ? (
@@ -356,7 +362,7 @@ export function CalendarDayCell(props: {
                       type="button"
                       onClick={() => setLocalStatus("NONE")}
                       className={cn(
-                        "col-span-2 rounded-[var(--radius)] border-4 border-dashed border-border bg-background px-3 py-2.5 text-left text-xs font-black transition-colors hover:bg-muted",
+                        "col-span-2 rounded-[var(--radius)] border-2 border-dashed border-border bg-transparent px-3 py-2.5 text-left text-sm font-bold outline-none transition-colors hover:bg-muted focus-visible:ring-4 focus-visible:ring-ring/50",
                         localStatus === "NONE" && "bg-muted",
                       )}
                       aria-pressed={localStatus === "NONE"}
@@ -367,9 +373,7 @@ export function CalendarDayCell(props: {
                 </div>
                 </div>
                 <div className="grid gap-1.5">
-                  <Label htmlFor={`notes-${dayKey}`} className="text-xs">
-                    Нотатки (опц.)
-                  </Label>
+                  <Label htmlFor={`notes-${dayKey}`}>Нотатки (необовʼязково)</Label>
                   <Textarea
                     id={`notes-${dayKey}`}
                     rows={3}
@@ -380,16 +384,11 @@ export function CalendarDayCell(props: {
                 </div>
                 {localStatus === "TRAINING" ? (
                   <div className="grid gap-2 sm:grid-cols-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="font-black"
-                      onClick={() => setStep("setup")}
-                    >
-                      Налаштування заняття
+                    <Button type="button" variant="outline" onClick={() => setStep("setup")}>
+                      Змінити план
                     </Button>
-                    <Button type="button" className="font-black" onClick={() => setStep("session")}>
-                      Провести заняття
+                    <Button type="button" onClick={() => setStep("session")}>
+                      Почати заняття
                     </Button>
                   </div>
                 ) : null}
@@ -432,24 +431,20 @@ export function CalendarDayCell(props: {
           </div>
 
           {step === "setup" ? (
-            <SheetFooter className="shrink-0 border-t-4 border-border bg-popover px-4 py-3 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
-              <div className="grid w-full gap-2">
-                <Button
-                  type="button"
-                  className="w-full font-black"
-                  onClick={() => setStep("session")}
-                >
-                  Почати заняття
-                </Button>
-                <SubmitButton className="w-full" pendingLabel="Зберігаю...">
+            <SheetFooter className="shrink-0 border-t-2 border-border bg-card px-4 py-3 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
+              <div className="grid w-full grid-cols-2 gap-3">
+                <SubmitButton variant="outline" className="w-full" pendingLabel="Зберігаю...">
                   Зберегти план
                 </SubmitButton>
+                <Button type="button" className="w-full" onClick={() => setStep("session")}>
+                  Почати заняття
+                </Button>
               </div>
             </SheetFooter>
           ) : step === "session" || canSaveFromChoose ? (
-            <SheetFooter className="shrink-0 border-t-4 border-border bg-popover px-4 py-3 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
+            <SheetFooter className="shrink-0 border-t-2 border-border bg-card px-4 py-3 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
               <SubmitButton className="w-full" pendingLabel="Зберігаю...">
-                Зберегти
+                {step === "session" ? "Зберегти заняття" : "Зберегти день"}
               </SubmitButton>
             </SheetFooter>
           ) : null}

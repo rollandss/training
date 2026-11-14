@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { loginAction, type AuthFormState } from "@/app/auth/actions";
 import { MotionReveal } from "@/components/motion-ui";
+import { FormMessage } from "@/components/form-message";
 import { SubmitButton } from "@/components/submit-button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { PasswordInput } from "@/components/password-input";
@@ -23,7 +24,7 @@ export function LoginForm() {
           <CardDescription>З поверненням! Твій день уже чекає.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
-          {state?.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
+          {state?.error ? <FormMessage>{state.error}</FormMessage> : null}
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
             <Input id="email" name="email" type="email" autoComplete="email" required />
@@ -32,7 +33,7 @@ export function LoginForm() {
             <div className="flex items-baseline justify-between gap-2">
               <Label htmlFor="password">Пароль</Label>
               <Link href="/auth/forgot" className="text-xs font-bold text-muted-foreground underline underline-offset-4 hover:text-foreground">
-                Забули пароль?
+                Забув пароль?
               </Link>
             </div>
             <PasswordInput id="password" name="password" autoComplete="current-password" required />

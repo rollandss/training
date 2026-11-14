@@ -6,6 +6,7 @@ import Link from "next/link";
 import { resetPasswordAction, type ResetFormState } from "@/app/auth/reset-actions";
 import { MotionReveal } from "@/components/motion-ui";
 import { PasswordInput } from "@/components/password-input";
+import { FormMessage } from "@/components/form-message";
 import { SubmitButton } from "@/components/submit-button";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,7 +22,7 @@ export function ResetForm({ token }: { token: string }) {
         <Card className="w-full">
           <CardHeader>
             <CardTitle>Пароль змінено</CardTitle>
-            <CardDescription>Тепер увійдіть із новим паролем.</CardDescription>
+            <CardDescription>Тепер увійди з новим паролем.</CardDescription>
           </CardHeader>
           <CardFooter className="border-t-0 bg-transparent">
             <Link href="/auth/login" className={cn(buttonVariants(), "w-full sm:w-auto")}>
@@ -44,12 +45,12 @@ export function ResetForm({ token }: { token: string }) {
           </CardHeader>
           <CardContent className="grid gap-4">
             {state?.error ? (
-              <p role="alert" className="text-sm text-destructive">
+              <FormMessage>
                 {state.error}{" "}
-                <Link href="/auth/forgot" className="font-bold underline underline-offset-4">
+                <Link href="/auth/forgot" className="font-bold underline decoration-2 underline-offset-4">
                   Запросити нове посилання
                 </Link>
-              </p>
+              </FormMessage>
             ) : null}
             <div className="grid gap-2">
               <Label htmlFor="password">Новий пароль</Label>

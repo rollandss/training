@@ -36,7 +36,7 @@ export async function requestPasswordResetAction(_prev: ResetFormState, formData
   const email = parsed.data.email.toLowerCase();
 
   if (!canSendEmail()) {
-    return { error: "Відновлення пароля тимчасово недоступне. Напишіть адміністратору." };
+    return { error: "Відновлення пароля тимчасово недоступне. Напиши адміністратору." };
   }
 
   const ip = await clientIp();
@@ -63,11 +63,11 @@ export async function requestPasswordResetAction(_prev: ResetFormState, formData
       await sendEmail({
         to: user.email,
         subject: "Стоденка — відновлення пароля",
-        text: `Щоб задати новий пароль, відкрийте посилання (діє 1 годину):\n\n${link}\n\nЯкщо ви не просили відновлення, просто проігноруйте цей лист.`,
+        text: `Щоб задати новий пароль, відкрий посилання (діє 1 годину):\n\n${link}\n\nЯкщо ти не просив відновлення, просто проігноруй цей лист.`,
       });
     } catch (e) {
       console.error("password reset email failed", e);
-      return { error: "Не вдалося надіслати лист. Спробуйте пізніше." };
+      return { error: "Не вдалося надіслати лист. Спробуй пізніше." };
     }
   }
 
@@ -88,7 +88,7 @@ export async function resetPasswordAction(_prev: ResetFormState, formData: FormD
     select: { id: true, userId: true, expiresAt: true, usedAt: true, user: { select: { email: true } } },
   });
   if (!record || record.usedAt || record.expiresAt.getTime() < Date.now()) {
-    return { error: "Посилання недійсне або застаріло. Запросіть нове." };
+    return { error: "Посилання недійсне або застаріло. Запроси нове." };
   }
 
   const passwordHash = await bcrypt.hash(parsed.data.password.trim(), 12);

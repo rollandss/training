@@ -117,9 +117,9 @@ function TrainingRestOverlayPanel(props: {
       >
         <Button
           type="button"
-          variant="secondary"
+          variant="outline"
           size="lg"
-          className="min-w-48 font-black"
+          className="min-w-48"
           onClick={onSkip}
           aria-label={skipLabel}
         >
