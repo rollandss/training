@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { PROGRAM_PATHS, resetUserProgram } from "@/lib/program-reset";
 import { createSession } from "@/lib/session";
 
 export type AdminMutationResult = { ok: true } | { ok: false; error: string };
@@ -211,3 +212,18 @@ export async function updateUserCursorDayAction(formData: FormData): Promise<Adm
   return { ok: true };
 }
 
+
+export async function resetUserProgramAction(formData: FormData): Promise<AdminMutationResult> {
+  const actor = await getCurrentUser();
+  requireAdmin(actor?.role);
+
+  const userId = String(formData.get("userId") ?? "").trim();
+  if (!userId) return { ok: false, error: "Не вказано користувача" };
+
+  const done = await resetUserProgram(userId);
+  if (!done) return { ok: false, error: "Користувач ще не розпочав програму" };
+
+  revalidateUserSurfaces(userId);
+  for (const path of PROGRAM_PATHS) revalidatePath(path);
+  return { ok: true };
+}

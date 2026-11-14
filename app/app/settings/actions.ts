@@ -1,9 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { PROGRAM_PATHS, resetUserProgram } from "@/lib/program-reset";
 import { listUserExercises } from "@/lib/user-exercises";
 import { type ExerciseMetric } from "@/lib/user-exercise-utils";
 import { TRAINING_EXERCISES } from "@/lib/training-exercises";
@@ -249,3 +251,13 @@ export async function reorderUserExercisesAction(formData: FormData) {
   revalidatePath("/app/calendar");
 }
 
+
+export async function resetMyProgramAction() {
+  const user = await getCurrentUser();
+  if (!user) throw new Error("Unauthorized");
+
+  await resetUserProgram(user.id);
+  for (const path of PROGRAM_PATHS) revalidatePath(path);
+  revalidatePath("/app/post/[slug]", "page");
+  redirect("/app?reset=1");
+}
