@@ -311,3 +311,138 @@
     animation: none;
   }
 }
+
+/* ---------- Notebook surface: calm reading ("зошит у клітинку") ----------
+   Used where people read for minutes at a time (post pages, contents).
+   The loud poster style stays on landing / today / calendar. */
+:root {
+  --nb-paper: oklch(0.985 0.008 95);
+  --nb-grid: oklch(0.62 0.08 250 / 16%);
+  --nb-ink: oklch(0.28 0.05 262);
+  --nb-ink-soft: oklch(0.45 0.04 262);
+  --nb-margin: oklch(0.62 0.19 27);
+  --nb-cell: 28px;
+}
+.dark {
+  --nb-paper: oklch(0.22 0.012 250);
+  --nb-grid: oklch(0.98 0 0 / 6%);
+  --nb-ink: oklch(0.93 0.01 90);
+  --nb-ink-soft: oklch(0.78 0.01 90);
+  --nb-margin: oklch(0.66 0.14 27 / 85%);
+}
+body:has([data-surface="notebook"]) {
+  background-color: var(--nb-paper);
+  background-image:
+    linear-gradient(var(--nb-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--nb-grid) 1px, transparent 1px);
+  background-size: var(--nb-cell) var(--nb-cell);
+  background-attachment: scroll;
+}
+[data-surface="notebook"] {
+  color: var(--nb-ink);
+}
+.nb-margin-line {
+  border-left: 2px solid var(--nb-margin);
+}
+@layer utilities {
+  [data-surface="notebook"] .post-body {
+    font-size: 1.0625rem;
+    line-height: var(--nb-cell);
+    color: var(--nb-ink);
+  }
+  [data-surface="notebook"] .post-body p + p {
+    margin-top: calc(var(--nb-cell) / 2);
+  }
+  [data-surface="notebook"] .post-body h2 {
+    margin-top: calc(var(--nb-cell) * 2);
+    margin-bottom: calc(var(--nb-cell) / 2);
+    font-size: 1.3rem;
+    line-height: var(--nb-cell);
+    font-weight: 800;
+    /* marker highlight that follows each line of the heading */
+    text-decoration-line: underline;
+    text-decoration-color: color-mix(in oklch, var(--primary) 85%, transparent);
+    text-decoration-thickness: 0.5em;
+    text-underline-offset: -0.28em;
+    text-decoration-skip-ink: none;
+  }
+  .dark [data-surface="notebook"] .post-body h2 {
+    text-decoration-color: oklch(0.9 0.21 105 / 35%);
+  }
+  [data-surface="notebook"] .post-body h2:first-child {
+    margin-top: 0;
+  }
+  [data-surface="notebook"] .post-body h3 {
+    margin-top: var(--nb-cell);
+    font-size: 1.075rem;
+    font-weight: 800;
+    line-height: var(--nb-cell);
+  }
+  [data-surface="notebook"] .post-body strong {
+    font-weight: 700;
+    color: var(--nb-ink);
+  }
+  [data-surface="notebook"] .post-body ul {
+    list-style: none;
+    padding-left: 1.4rem;
+  }
+  [data-surface="notebook"] .post-body ul > li {
+    position: relative;
+  }
+  [data-surface="notebook"] .post-body ul > li::before {
+    content: "—";
+    position: absolute;
+    left: -1.4rem;
+    color: var(--nb-margin);
+    font-weight: 700;
+  }
+  [data-surface="notebook"] .post-body ol > li::marker {
+    color: var(--nb-margin);
+    font-weight: 700;
+  }
+  [data-surface="notebook"] .post-body li + li {
+    margin-top: calc(var(--nb-cell) / 4);
+  }
+  [data-surface="notebook"] .post-body blockquote {
+    margin-top: calc(var(--nb-cell) / 2);
+    border-left: 2px solid var(--nb-margin);
+    padding-left: 1rem;
+    font-style: normal;
+    color: var(--nb-ink-soft);
+  }
+  [data-surface="notebook"] .post-body table {
+    border: 0;
+    border-top: 2px solid var(--nb-ink);
+    border-bottom: 2px solid var(--nb-ink);
+    background: color-mix(in oklch, var(--nb-paper) 85%, transparent);
+  }
+  [data-surface="notebook"] .post-body th,
+  [data-surface="notebook"] .post-body td {
+    border: 0;
+    border-bottom: 1px solid var(--nb-grid);
+    padding: 0.35rem 0.75rem 0.35rem 0;
+    vertical-align: top;
+  }
+  [data-surface="notebook"] .post-body th {
+    background: transparent;
+    border-bottom: 1px solid var(--nb-ink);
+    font-weight: 700;
+  }
+  [data-surface="notebook"] .post-body hr {
+    margin: var(--nb-cell) 0;
+    border-top: 2px dashed var(--nb-ink-soft);
+  }
+  [data-surface="notebook"] .post-body code {
+    border-width: 1px;
+    border-color: var(--nb-ink-soft);
+    background: transparent;
+  }
+  [data-surface="notebook"] .post-body img {
+    border: 2px solid var(--nb-ink);
+    box-shadow: none;
+  }
+  [data-surface="notebook"] .post-body a {
+    text-decoration-color: var(--nb-margin);
+    text-decoration-thickness: 2px;
+  }
+}

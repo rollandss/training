@@ -11,7 +11,7 @@ type PostBodyProps = {
 export function PostBody({ body, className }: PostBodyProps) {
   return (
     <article
-      className={cn("post-body text-base leading-7 text-foreground/95 md:text-lg md:leading-8", className)}
+      className={cn("post-body text-base leading-7 md:text-lg md:leading-8", className)}
       dangerouslySetInnerHTML={{ __html: postBodyToHtml(body) }}
     />
   );

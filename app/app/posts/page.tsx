@@ -11,7 +11,7 @@ import { unlockedProgramDay } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 
 const BLOCK_COLOR: Record<string, string> = {
-  PREPARATION: "bg-card",
+  PREPARATION: "bg-[var(--nb-ink-soft)]",
   BASIC: "bg-primary",
   ADVANCED: "bg-secondary",
   TURBO: "bg-accent",
@@ -30,7 +30,7 @@ export default async function PostsPage() {
   );
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div data-surface="notebook" className="mx-auto max-w-3xl">
       <PageHeader
         title="Усі пости"
         description={`Відкрито ${unlockedDay} ${pluralUk(unlockedDay, DAY_FORMS)} зі 100. Наступний пост — завтра.`}
@@ -38,7 +38,7 @@ export default async function PostsPage() {
 
       <nav className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm font-bold" aria-label="Блоки">
         {POST_BLOCK_ORDER.map((block) => (
-          <a key={block} href={`#${getPostBlockSlug(block)}`} className="underline decoration-2 underline-offset-4 hover:no-underline">
+          <a key={block} href={`#${getPostBlockSlug(block)}`} className="underline decoration-2 underline-offset-4 hover:no-underline" style={{ textDecorationColor: "var(--nb-margin)" }}>
             {POST_BLOCK_LABELS[block]}
           </a>
         ))}
@@ -59,11 +59,11 @@ export default async function PostsPage() {
                   {open} з {inBlock.length}
                 </p>
               </div>
-              <div className="mt-3 h-3 overflow-hidden rounded-[var(--radius)] border-2 border-border bg-card" aria-hidden>
-                <div className={cn("h-full border-r-2 border-border", BLOCK_COLOR[block])} style={{ width: `${(open / inBlock.length) * 100}%` }} />
+              <div className="mt-3 h-2 overflow-hidden border border-current/40" aria-hidden>
+                <div className={cn("h-full", BLOCK_COLOR[block])} style={{ width: `${(open / inBlock.length) * 100}%` }} />
               </div>
 
-              <ol className="mt-4 divide-y-2 divide-border/15 rounded-[var(--radius)] border-4 border-border bg-card">
+              <ol className="nb-margin-line mt-4 divide-y divide-dashed divide-current/25">
                 {inBlock.map((post) => {
                   const locked = post.dayNumber !== null && post.dayNumber > unlockedDay;
                   const label = post.dayNumber ? `День ${post.dayNumber}` : "До старту";
@@ -71,7 +71,7 @@ export default async function PostsPage() {
                   return (
                     <li key={post.id}>
                       {locked ? (
-                        <div className="flex items-center gap-4 px-4 py-3 text-foreground/45">
+                        <div className="flex items-center gap-4 px-4 py-3 opacity-45">
                           <span className="w-20 shrink-0 text-sm font-bold tabular-nums">{label}</span>
                           <span className="min-w-0 flex-1 truncate text-base">{title}</span>
                           <span className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold">
@@ -83,8 +83,8 @@ export default async function PostsPage() {
                         <Link
                           href={`/app/post/${post.slug}`}
                           className={cn(
-                            "flex items-center gap-4 px-4 py-3 outline-none hover:bg-primary focus-visible:bg-primary",
-                            post.dayNumber === unlockedDay && "bg-primary/40",
+                            "flex items-center gap-4 px-4 py-3 outline-none hover:bg-primary/40 focus-visible:bg-primary/40",
+                            post.dayNumber === unlockedDay && "bg-primary/30",
                           )}
                         >
                           <span className="w-20 shrink-0 text-sm font-bold tabular-nums">{label}</span>

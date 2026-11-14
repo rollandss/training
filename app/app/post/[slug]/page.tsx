@@ -31,44 +31,68 @@ export default async function PostDetailsPage({ params }: Props) {
   const next = post.dayNumber && post.dayNumber < unlockedDay ? await getPostByDayCached(post.dayNumber + 1) : null;
   const title = post.titleUk.replace(/^День\s+\d+\.\s*/i, "").replace(/^\d+\.\s*/, "");
 
-  return (
-    <article className="mx-auto max-w-[68ch]">
-      <Link href="/app/posts" className="text-sm font-bold underline decoration-2 underline-offset-4 hover:no-underline">
-        Усі пости
-      </Link>
-      <p className="mt-8 text-base font-bold">
-        {post.dayNumber ? `День ${post.dayNumber} · ${getPostBlockLabel(post.block)}` : "Перед стартом"}
-      </p>
-      <h1 className="font-display mt-2 text-[clamp(2rem,5.5vw,3rem)] font-black leading-[1.05] tracking-[-0.02em]">{title}</h1>
-      {post.imageUrl ? (
-        <div className="mt-8 aspect-[16/9] w-full overflow-hidden rounded-[var(--radius)] border-4 border-border shadow-[8px_8px_0px_0px_var(--color-border)] has-[[data-cover-failed]]:hidden">
-          <PostCover src={post.imageUrl} alt="" hideOnError />
-        </div>
-      ) : null}
-      <div className="mt-8 rounded-[var(--radius)] border-4 border-border bg-card px-5 py-6 sm:px-8 sm:py-8">
-        <PostBody body={post.bodyUk} />
-      </div>
+  const kicker = post.dayNumber ? getPostBlockLabel(post.block) : "Перед стартом";
 
-      <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        {post.dayNumber === unlockedDay ? (
-          <Link href={`/app/calendar?open=${getTodayKey()}`} className={cn(buttonVariants({ size: "lg" }), "h-12 px-6")}>
-            Відмітити сьогодні
-          </Link>
-        ) : (
-          <span />
-        )}
-        <nav className="flex gap-5 text-sm font-bold" aria-label="Сусідні дні">
-          {prev ? (
-            <Link href={`/app/post/${prev.slug}`} className="underline decoration-2 underline-offset-4 hover:no-underline">
-              ← День {prev.dayNumber}
-            </Link>
+  return (
+    <article data-surface="notebook" className="mx-auto max-w-[56rem]">
+      <Link
+        href="/app/posts"
+        className="text-sm font-bold underline decoration-2 underline-offset-4 hover:no-underline"
+        style={{ textDecorationColor: "var(--nb-margin)" }}
+      >
+        ← Усі пости
+      </Link>
+
+      <div className="mt-8 md:grid md:grid-cols-[7rem_minmax(0,68ch)]">
+        <aside className="mb-3 flex items-baseline gap-2 md:mb-0 md:block md:pr-6 md:text-right" aria-label="День програми">
+          {post.dayNumber ? (
+            <>
+              <span className="text-sm font-bold md:block">День</span>
+              <span className="font-display text-3xl font-black leading-none md:text-5xl" style={{ color: "var(--nb-margin)" }}>
+                {post.dayNumber}
+              </span>
+            </>
           ) : null}
-          {next ? (
-            <Link href={`/app/post/${next.slug}`} className="underline decoration-2 underline-offset-4 hover:no-underline">
-              День {next.dayNumber} →
-            </Link>
+        </aside>
+
+        <div className="nb-margin-line pl-5 sm:pl-8">
+          <p className="text-sm font-bold" style={{ color: "var(--nb-ink-soft)" }}>
+            {kicker}
+          </p>
+          <h1 className="font-display mt-1 text-[clamp(1.75rem,4.5vw,2.5rem)] font-black leading-[1.12] tracking-[-0.015em]">
+            {title}
+          </h1>
+
+          {post.imageUrl ? (
+            <figure className="mt-7 aspect-[16/9] w-full overflow-hidden border-2 has-[[data-cover-failed]]:hidden" style={{ borderColor: "var(--nb-ink)" }}>
+              <PostCover src={post.imageUrl} alt="" hideOnError />
+            </figure>
           ) : null}
-        </nav>
+
+          <PostBody body={post.bodyUk} className="mt-7" />
+
+          <footer className="mt-14 flex flex-col gap-5 border-t-2 border-dashed pt-7 sm:flex-row sm:items-center sm:justify-between" style={{ borderColor: "var(--nb-ink-soft)" }}>
+            {post.dayNumber === unlockedDay ? (
+              <Link href={`/app/calendar?open=${getTodayKey()}`} className={cn(buttonVariants({ size: "lg" }), "h-12 px-6")}>
+                Відмітити сьогодні
+              </Link>
+            ) : (
+              <span />
+            )}
+            <nav className="flex gap-6 text-sm font-bold" aria-label="Сусідні дні">
+              {prev ? (
+                <Link href={`/app/post/${prev.slug}`} className="underline decoration-2 underline-offset-4 hover:no-underline" style={{ textDecorationColor: "var(--nb-margin)" }}>
+                  ← День {prev.dayNumber}
+                </Link>
+              ) : null}
+              {next ? (
+                <Link href={`/app/post/${next.slug}`} className="underline decoration-2 underline-offset-4 hover:no-underline" style={{ textDecorationColor: "var(--nb-margin)" }}>
+                  День {next.dayNumber} →
+                </Link>
+              ) : null}
+            </nav>
+          </footer>
+        </div>
       </div>
     </article>
   );
