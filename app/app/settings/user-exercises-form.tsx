@@ -3,10 +3,12 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ArrowDown, ArrowUp, ChevronDown, Plus, Trash2 } from "lucide-react";
+import { ChevronDown, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { ExerciseMark } from "@/components/exercise-mark";
+import { ReorderButtons } from "@/components/reorder-buttons";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { SubmitButton } from "@/components/submit-button";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Button } from "@/components/ui/button";
@@ -144,30 +146,13 @@ export function UserExercisesForm(props: { initial: UserExerciseView[] }) {
                   />
                   <span className="hidden sm:inline">У тренуванні</span>
                 </label>
-                <div className="flex shrink-0 gap-1">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon-sm"
-                    className="border-2 shadow-none hover:translate-x-0 hover:translate-y-0 hover:shadow-none"
-                    onClick={() => move(index, -1)}
-                    disabled={index === 0}
-                    aria-label={`${exercise.label}: вище`}
-                  >
-                    <ArrowUp className="size-4" />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon-sm"
-                    className="border-2 shadow-none hover:translate-x-0 hover:translate-y-0 hover:shadow-none"
-                    onClick={() => move(index, 1)}
-                    disabled={index === exercises.length - 1}
-                    aria-label={`${exercise.label}: нижче`}
-                  >
-                    <ArrowDown className="size-4" />
-                  </Button>
-                </div>
+                <ReorderButtons
+                  label={exercise.label}
+                  onUp={() => move(index, -1)}
+                  onDown={() => move(index, 1)}
+                  isFirst={index === 0}
+                  isLast={index === exercises.length - 1}
+                />
               </div>
 
               <details className="group border-t-2 border-border">
@@ -283,26 +268,16 @@ export function UserExercisesForm(props: { initial: UserExerciseView[] }) {
         <div className="font-display text-base font-bold">Нова вправа</div>
         <input type="hidden" name="metric" value={draftMetric} />
         <div className="grid gap-1.5">
-          <span className="text-sm font-medium" id="new-exercise-metric">
-            Що рахуємо
-          </span>
-          <div role="radiogroup" aria-labelledby="new-exercise-metric" className="flex gap-2">
-            {(["REPS", "TIME"] as const).map((metric) => (
-              <button
-                key={metric}
-                type="button"
-                role="radio"
-                aria-checked={draftMetric === metric}
-                onClick={() => setDraftMetric(metric)}
-                className={cn(
-                  "inline-flex h-9 items-center rounded-[var(--radius)] border-2 border-border px-3 text-sm font-bold outline-none focus-visible:ring-4 focus-visible:ring-ring/50",
-                  draftMetric === metric ? "bg-foreground text-background" : "bg-card hover:bg-muted",
-                )}
-              >
-                {metricLabel(metric)}
-              </button>
-            ))}
-          </div>
+          <span className="text-sm font-medium">Що рахуємо</span>
+          <SegmentedControl
+            label="Що рахуємо"
+            value={draftMetric}
+            onChange={setDraftMetric}
+            options={[
+              { value: "REPS", label: metricLabel("REPS") },
+              { value: "TIME", label: metricLabel("TIME") },
+            ]}
+          />
         </div>
         <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_7rem]">
           <div className="grid gap-1.5">

@@ -1,52 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { Minus, Plus } from "lucide-react";
 
 import { ExerciseMark } from "@/components/exercise-mark";
 import { SubmitButton } from "@/components/submit-button";
 import { Label } from "@/components/ui/label";
+import { Stepper } from "@/components/ui/stepper";
 import { DEFAULT_TRAINING_REPS, TRAINING_EXERCISES, type TrainingRepValues } from "@/lib/training-exercises";
 
 import { updateExerciseBaselinesAction } from "./actions";
-
-function clamp(n: number, min: number, max: number) {
-  return Math.max(min, Math.min(max, n));
-}
-
-function Stepper(props: {
-  value: number;
-  min: number;
-  max: number;
-  onChange: (value: number) => void;
-  ariaLabel: string;
-}) {
-  const { value, min, max, onChange, ariaLabel } = props;
-
-  return (
-    <div className="inline-flex h-10 items-stretch overflow-hidden rounded-[var(--radius)] border-2 border-border bg-input">
-      <button
-        type="button"
-        className="flex w-10 items-center justify-center border-r-2 border-border bg-card transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring/50 focus-visible:ring-inset disabled:opacity-40"
-        onClick={() => onChange(clamp(value - 1, min, max))}
-        disabled={value <= min}
-        aria-label={`${ariaLabel}: зменшити`}
-      >
-        <Minus className="size-4" />
-      </button>
-      <div className="flex min-w-12 items-center justify-center px-2 text-lg font-black tabular-nums">{value}</div>
-      <button
-        type="button"
-        className="flex w-10 items-center justify-center border-l-2 border-border bg-card transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring/50 focus-visible:ring-inset disabled:opacity-40"
-        onClick={() => onChange(clamp(value + 1, min, max))}
-        disabled={value >= max}
-        aria-label={`${ariaLabel}: збільшити`}
-      >
-        <Plus className="size-4" />
-      </button>
-    </div>
-  );
-}
 
 export function ExerciseBaselineForm(props: { initial?: Partial<TrainingRepValues>; footer?: React.ReactNode }) {
   const [values, setValues] = React.useState<TrainingRepValues>({

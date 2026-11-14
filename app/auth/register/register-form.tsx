@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { registerAction, type AuthFormState } from "@/app/auth/actions";
 import { MotionReveal } from "@/components/motion-ui";
+import { FormMessage } from "@/components/form-message";
 import { SubmitButton } from "@/components/submit-button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { PasswordInput } from "@/components/password-input";
@@ -23,7 +24,7 @@ export function RegisterForm() {
           <CardDescription>Мінімум 8 символів у паролі.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
-          {state?.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
+          {state?.error ? <FormMessage>{state.error}</FormMessage> : null}
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
             <Input id="email" name="email" type="email" autoComplete="email" required />

@@ -52,4 +52,4 @@ export function registerRules(ip: string): Rule[] {
   return [{ key: `register:ip:${ip}`, limit: 5, windowMs: 60 * MINUTE }];
 }
 
-export const RATE_LIMIT_MESSAGE = "Забагато спроб. Спробуйте ще раз за 15 хвилин.";
+export const RATE_LIMIT_MESSAGE = "Забагато спроб. Спробуй ще раз за 15 хвилин.";

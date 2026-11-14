@@ -1,6 +1,10 @@
 import { PageHeader } from "@/components/page-header";
 import { DAY_FORMS, pluralUk } from "@/lib/plural";
 import { redirect } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+
+import { buttonVariants } from "@/components/ui/button";
 
 import { diffDaysUTC, isCalendarDayEditable } from "@/lib/calendar-access";
 import { CALENDAR_STATUS_ORDER, CALENDAR_STATUS_UI } from "@/lib/calendar-status";
@@ -163,40 +167,32 @@ export default async function CalendarPage({
           description={`Відкрито ${unlockedDay} ${pluralUk(unlockedDay, DAY_FORMS)}. Натисни на день, щоб відмітити тренування, розтяжку, відпочинок чи хворобу. Минулі дні теж можна змінити.`}
         />
         <div className="grid grid-cols-[auto_minmax(10rem,auto)_auto] items-center gap-2">
-          <a
-            href={prevLocked ? undefined : `/app/calendar?m=${prevKey}`}
+          <Link
+            href={prevLocked ? "#" : `/app/calendar?m=${prevKey}`}
             aria-disabled={prevLocked}
+            tabIndex={prevLocked ? -1 : undefined}
             aria-label="Попередній місяць"
-            className={[
-              "rounded-[var(--radius)] border-2 border-border bg-background px-3 py-2 text-sm font-black sm:border-4 sm:shadow-[4px_4px_0px_0px_var(--color-border)]",
-              prevLocked
-                ? "pointer-events-none opacity-50"
-                : "sm:hover:-translate-x-0.5 sm:hover:-translate-y-0.5 sm:hover:shadow-[6px_6px_0px_0px_var(--color-border)]",
-            ].join(" ")}
+            className={cn(buttonVariants({ variant: "outline", size: "icon" }), prevLocked && "pointer-events-none opacity-40")}
           >
-            ←
-          </a>
+            <ArrowLeft className="size-4" />
+          </Link>
           <div className="font-display px-2 text-center text-lg font-bold first-letter:uppercase">{monthLabel}</div>
-          <a
-            href={nextLocked ? undefined : `/app/calendar?m=${nextKey}`}
+          <Link
+            href={nextLocked ? "#" : `/app/calendar?m=${nextKey}`}
             aria-disabled={nextLocked}
+            tabIndex={nextLocked ? -1 : undefined}
             aria-label="Наступний місяць"
-            className={cn(
-              "rounded-[var(--radius)] border-2 border-border bg-background px-3 py-2 text-sm font-black sm:border-4 sm:shadow-[4px_4px_0px_0px_var(--color-border)]",
-              nextLocked
-                ? "pointer-events-none opacity-50"
-                : "sm:hover:-translate-x-0.5 sm:hover:-translate-y-0.5 sm:hover:shadow-[6px_6px_0px_0px_var(--color-border)]",
-            )}
+            className={cn(buttonVariants({ variant: "outline", size: "icon" }), nextLocked && "pointer-events-none opacity-40")}
           >
-            →
-          </a>
+            <ArrowRight className="size-4" />
+          </Link>
         </div>
       </div>
 
       <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs font-bold text-foreground">
         {CALENDAR_STATUS_ORDER.map((status) => (
           <div key={status} className="inline-flex items-center gap-2">
-            <span className={cn("size-4 rounded-sm border-2 border-border", CALENDAR_STATUS_UI[status].cellClassName)} />
+            <span className={cn("size-4 border-2 border-border", CALENDAR_STATUS_UI[status].pickerClassName)} />
             <span>{CALENDAR_STATUS_UI[status].label}</span>
           </div>
         ))}

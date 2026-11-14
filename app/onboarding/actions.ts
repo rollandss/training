@@ -9,7 +9,7 @@ import { prisma } from "@/lib/prisma";
 export type OnboardingState = { error: string } | undefined;
 
 const schema = z.object({
-  levelSelfAssessment: z.string().trim().min(1, "Оберіть або опишіть рівень"),
+  levelSelfAssessment: z.string().trim().min(1, "Обери або опиши рівень"),
   limitations: z.string().trim().optional(),
   tourConfirmed: z.literal("on").optional(),
 });
@@ -27,7 +27,7 @@ export async function onboardingAction(_prev: OnboardingState, formData: FormDat
     return { error: parsed.error.issues[0]?.message ?? "Помилка валідації" };
   }
   if (parsed.data.tourConfirmed !== "on") {
-    return { error: "Підтвердіть наявність турніка" };
+    return { error: "Підтверди, що маєш турнік" };
   }
 
   const program = await prisma.program.findUnique({ where: { slug: "100-dniv" } });
