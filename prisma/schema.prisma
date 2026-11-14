@@ -23,6 +23,7 @@ model User {
   resetTokens  PasswordResetToken[]
   telegram     TelegramLink?
   telegramCodes TelegramLinkCode[]
+  photos       ProgressPhoto[]
 }
 
 model UserProfile {
@@ -251,4 +252,21 @@ model TelegramLinkCode {
   createdAt DateTime @default(now())
 
   @@index([userId])
+}
+
+// Progress photo stored privately in Cloudflare R2. Only the object key lives here;
+// the browser gets short-lived signed URLs.
+model ProgressPhoto {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key       String   @unique
+  kind      String   @default("PROGRESS") // BEFORE | PROGRESS | AFTER
+  dayNumber Int?
+  width     Int
+  height    Int
+  bytes     Int
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }

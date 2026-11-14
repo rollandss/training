@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { deleteObjects } from "@/lib/r2";
 import { PROGRAM_PATHS, resetUserProgram } from "@/lib/program-reset";
 import { createSession } from "@/lib/session";
 
@@ -153,6 +154,8 @@ export async function deleteUserAction(formData: FormData): Promise<AdminMutatio
     return { ok: false, error: "Не можна видалити останнього адміністратора" };
   }
 
+  const photos = await prisma.progressPhoto.findMany({ where: { userId }, select: { key: true } });
+  await deleteObjects(photos.map((p) => p.key));
   await prisma.user.delete({ where: { id: userId } });
   revalidatePath("/admin/users");
   revalidatePath("/admin/stats");
