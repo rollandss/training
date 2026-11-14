@@ -57,3 +57,31 @@ export function answerCallbackQuery(callbackQueryId: string, text?: string) {
 export function isBlockedError(e: unknown) {
   return (e as { status?: number })?.status === 403;
 }
+
+export type WebhookInfo = { url: string; pending_update_count: number; last_error_message?: string; last_error_date?: number };
+
+export function getWebhookInfo() {
+  return call<WebhookInfo>("getWebhookInfo", {});
+}
+
+export const BOT_COMMANDS = [
+  { command: "today", description: "Пост дня" },
+  { command: "mark", description: "Відмітити сьогоднішній день" },
+  { command: "settings", description: "Нагадування" },
+  { command: "stop", description: "Відʼєднати Telegram" },
+];
+
+/** Points Telegram at our webhook and publishes the command menu. Token never leaves the server. */
+export async function registerBot(baseUrl: string) {
+  const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
+  if (!secret) throw new Error("TELEGRAM_WEBHOOK_SECRET is not set");
+  const url = `${baseUrl.replace(/\/$/, "")}/api/telegram/webhook`;
+  await call("setWebhook", {
+    url,
+    secret_token: secret,
+    allowed_updates: ["message", "callback_query"],
+    drop_pending_updates: true,
+  });
+  await call("setMyCommands", { commands: BOT_COMMANDS });
+  return url;
+}
